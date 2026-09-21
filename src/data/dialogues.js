@@ -1,4 +1,39 @@
 export const DIALOGUES = {
+  store_clerk: {
+    open: '店员把关东煮汤撇了一下：便当五点半折扣。口罩拉好。',
+    options: [
+      { t: '微波怎么用。', rel: 2, line: '自己按。别把汤溅到机器上。' },
+      { t: '有口罩卖吗？', rel: 3, line: '断货三天了。' }
+    ]
+  },
+  hotel_boss: {
+    open: '前台大姐敲了敲抽屉：现金。不开发票。钟点四小时。',
+    options: [
+      { t: '开一间。', rel: 3, line: '二楼右手。窗帘自己拉。' },
+      { t: '太贵了。', rel: 0, line: '那你走。' }
+    ]
+  },
+  ktv_wait: {
+    open: '服务员把果盘单递过来：最低消费。麦套……将就用。',
+    options: [
+      { t: '先点啤酒。', rel: 4, line: '十分钟。别把麦摔了。' },
+      { t: '有消毒湿巾吗？', rel: 5, line: '前台有，自己拿。' }
+    ]
+  },
+  comt_aunt: {
+    open: '张阿姨把口罩带子勒在耳朵后：菜下午才到。别挤。',
+    options: [
+      { t: '李姐那袋在吗？', rel: 6, line: '货架上，写了名字。' },
+      { t: '我来当志愿者。', rel: 8, line: '先填表。陈网格员说了算。', skill: 'charisma' }
+    ]
+  },
+  lobby_sec: {
+    open: '保安老周指测温柱：健康码。帽子摘了。',
+    options: [
+      { t: '亮码。', rel: 2, flags: ['metroScanned'], line: '过。电梯靠右。' },
+      { t: '我忘带工卡了。', rel: -1, line: '前台登记。别堵闸机。' }
+    ]
+  },
   mall_clerk: {
     open: '导购把口罩往上提了提：这件有现货。更衣室要扫场所码。',
     options: [

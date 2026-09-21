@@ -312,6 +312,21 @@ export const sceneActions = {
     addNeed('comfort', 4);
     fx(player, '关东煮', '#fdba74');
     showToast('萝卜吸饱了汤。店员用夹子指了指口罩。', 'success');
+  },
+  hotelSleep(player) {
+    if (gameState.money < 80) { showToast('钟点房 ¥80 现金。', 'error'); return; }
+    gameState.money -= 80;
+    addNeed('energy', 30);
+    addNeed('comfort', -6);
+    addNeed('hygiene', -8);
+    applyStatEvent('sleep');
+    showToast('窗帘拉不严。对面窗户也亮着。你还是睡着了。', 'info');
+  },
+  ktvNext() {
+    if (!gameState.hasMaskOn) gameState.viralLoad = Math.min(100, gameState.viralLoad + 6);
+    addNeed('fun', 4);
+    addNeed('sanity', -4);
+    showToast('隔壁有人咳。你把门带上了。', 'error');
   }
 };
 

@@ -89,5 +89,11 @@ export const TRAVEL = {
   enterPharmacy: () => travelTo('pharmacyIn', 160, '绿码通道。柜台玻璃上贴着“退热药限购”。'),
   enterStore: () => travelTo('storeIn', 160, '门铃叮一声。关东煮在咕嘟。'),
   enterSoy: () => travelTo('storeIn', 160, '豆浆铺太小，先在全家热一下。'),
-  enterMarket: () => travelTo('mall', 1120, '生鲜区连着商场负一层。')
+  enterMarket: () => travelTo('mall', 1120, '生鲜区连着商场负一层。'),
+  enterHome: () => travelTo('home', 200, '防盗门一关，消毒水味淡了，潮味上来了。'),
+  enterParlor: () => travelTo('parlorIn', 200, '艾草和红花油。林姐没抬头。'),
+  enterHotel: () => travelTo('hotel', 180, '前台只要现金。床单有折痕。'),
+  enterKtv: () => travelTo('ktv', 180, '麦套没换。包厢灯是紫的。'),
+  enterCommittee: () => travelTo('committee', 180, '帐篷里的电风扇对着表格吹。'),
+  enterLobby: () => travelTo('lobby', 180, '测温柱滴了一声。闸机等你刷卡。')
 };

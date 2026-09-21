@@ -176,7 +176,13 @@ function updateZoneTag() {
     office: '💼 写字楼 23F',
     mall: '🏬 朝阳汇商场',
     pharmacyIn: '💊 药房店内',
-    storeIn: '🏪 全家店内'
+    storeIn: '🏪 全家店内',
+    home: '🛏️ 出租屋室内',
+    parlorIn: '💆 推拿馆内',
+    hotel: '🏨 钟点房',
+    ktv: '🎤 KTV包厢',
+    committee: '⛺ 居委会帐篷',
+    lobby: '🏢 写字楼大堂'
   };
   zTitle.innerText = names[id] || names.street;
   const nearby = gameState.nearbyItem;

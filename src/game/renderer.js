@@ -17,7 +17,9 @@ import {
   paintOffice,
   paintRiver,
   paintMall,
-  paintShop
+  paintShop,
+  paintHome,
+  paintParlorRoom
 } from './sceneArt.js';
 
 export let cameraX = 0;
@@ -85,6 +87,8 @@ export function renderMidgroundWorld(ctx, canvas) {
   else if (theme === 'office') paintOffice(ctx, w);
   else if (theme === 'mall') paintMall(ctx, w);
   else if (theme === 'shop') paintShop(ctx, w);
+  else if (theme === 'home') paintHome(ctx, w);
+  else if (theme === 'parlor') paintParlorRoom(ctx, w);
   else paintDistrict(ctx, w, theme);
 
   renderStreetNPCs(ctx);
@@ -180,53 +184,59 @@ function renderLandmarks(ctx) {
 function drawSimBody(ctx, x, y, opt) {
   const f = opt.facing || 1;
   const bob = opt.bob || 0;
-  ctx.fillStyle = 'rgba(0,0,0,0.4)';
+  ctx.fillStyle = 'rgba(0,0,0,0.38)';
   ctx.beginPath();
-  ctx.ellipse(x, y + 3, 16, 5, 0, 0, Math.PI * 2);
+  ctx.ellipse(x, y + 3, 18, 5, 0, 0, Math.PI * 2);
   ctx.fill();
   if (opt.pose === 'lie') {
     ctx.fillStyle = opt.pants;
-    ctx.fillRect(x - 30, y - 20, 40, 12);
+    ctx.fillRect(x - 36, y - 18, 48, 11);
     ctx.fillStyle = opt.shirt;
-    ctx.fillRect(x - 6, y - 26, 32, 16);
+    ctx.fillRect(x - 4, y - 24, 40, 14);
     ctx.fillStyle = opt.skin;
     ctx.beginPath();
-    ctx.arc(x + 28, y - 18, 9, 0, Math.PI * 2);
+    ctx.arc(x + 38, y - 18, 8, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = opt.hair;
-    ctx.fillRect(x + 20, y - 28, 16, 8);
+    ctx.beginPath();
+    ctx.arc(x + 36, y - 24, 8, Math.PI, 0);
+    ctx.fill();
     return;
   }
+  const hip = y - 46;
+  const shoulder = y - 86;
   ctx.fillStyle = opt.pants;
-  ctx.fillRect(x - 8, y - 24, 6, 24 + bob);
-  ctx.fillRect(x + 2, y - 24, 6, 24 - bob);
+  ctx.fillRect(x - 8, hip, 7, 46 + bob);
+  ctx.fillRect(x + 2, hip, 7, 46 - bob);
   ctx.fillStyle = '#0f172a';
-  ctx.fillRect(x - 8, y - 4 + bob, 6, 5);
-  ctx.fillRect(x + 2, y - 4 - bob, 6, 5);
+  ctx.fillRect(x - 9, y - 5 + bob, 8, 6);
+  ctx.fillRect(x + 2, y - 5 - bob, 8, 6);
   ctx.fillStyle = opt.shirt;
-  roundRect(ctx, x - 12, y - 54, 24, 32, 4);
+  roundRect(ctx, x - 13, shoulder, 26, 42, 5);
   ctx.fill();
   ctx.fillStyle = opt.skin;
-  ctx.fillRect(x - 16, y - 48, 6, 16);
-  ctx.fillRect(x + 10, y - 48, 6, 16);
-  if (opt.pose === 'work') {
-    ctx.fillRect(x + f * 12, y - 44, 16, 6);
-  }
+  ctx.fillRect(x - 17, shoulder + 8, 6, 28);
+  ctx.fillRect(x + 11, shoulder + 8, 6, 28);
+  if (opt.pose === 'work') ctx.fillRect(x + f * 14, shoulder + 16, 18, 5);
+  const hx = x;
+  const hy = shoulder - 16;
   ctx.fillStyle = opt.hair;
   ctx.beginPath();
-  ctx.arc(x, y - 64, 11, Math.PI, 0);
+  ctx.ellipse(hx, hy - 4, 11, 9, 0, Math.PI, 0);
   ctx.fill();
   ctx.fillStyle = opt.skin;
   ctx.beginPath();
-  ctx.arc(x, y - 58, 10, 0, Math.PI * 2);
+  ctx.arc(hx, hy, 9, 0, Math.PI * 2);
   ctx.fill();
+  ctx.fillStyle = opt.hair;
+  ctx.fillRect(hx - 10, hy - 6, 6, 10);
   ctx.fillStyle = '#111827';
-  ctx.fillRect(x + f * 3 - 1, y - 60, 3, 3);
+  ctx.fillRect(hx + f * 3 - 1, hy - 2, 3, 3);
   if (opt.mask) {
     ctx.fillStyle = '#f8fafc';
-    ctx.fillRect(x + f * 3 - 5, y - 56, 10, 7);
+    ctx.fillRect(hx + f * 3 - 6, hy + 1, 11, 7);
     ctx.strokeStyle = '#94a3b8';
-    ctx.strokeRect(x + f * 3 - 5, y - 56, 10, 7);
+    ctx.strokeRect(hx + f * 3 - 6, hy + 1, 11, 7);
   }
 }
 
@@ -263,21 +273,21 @@ function renderStreetNPCs(ctx) {
     ctx.font = 'bold 12px "Noto Sans SC"';
     ctx.fillStyle = 'rgba(15,23,42,0.85)';
     const tw = 90;
-    roundRect(ctx, npc.x - tw / 2, FLOOR_Y - 96, tw, 28, 6);
+    roundRect(ctx, npc.x - tw / 2, FLOOR_Y - 128, tw, 28, 6);
     ctx.fill();
     ctx.fillStyle = '#fde68a';
-    ctx.fillText(npc.name, npc.x, FLOOR_Y - 82);
+    ctx.fillText(npc.name, npc.x, FLOOR_Y - 114);
     ctx.fillStyle = '#cbd5e1';
     ctx.font = '10px "Noto Sans SC"';
-    ctx.fillText(npc.role, npc.x, FLOOR_Y - 70);
+    ctx.fillText(npc.role, npc.x, FLOOR_Y - 102);
     if (npc.bubble && npc.bubbleT > 0) {
       const bw = Math.min(200, 24 + npc.bubble.length * 12);
       ctx.fillStyle = '#fff7ed';
-      roundRect(ctx, npc.x - bw / 2, FLOOR_Y - 132, bw, 30, 8);
+      roundRect(ctx, npc.x - bw / 2, FLOOR_Y - 164, bw, 30, 8);
       ctx.fill();
       ctx.fillStyle = '#7c2d12';
       ctx.font = '11px "Noto Sans SC"';
-      ctx.fillText(npc.bubble.slice(0, 16), npc.x, FLOOR_Y - 112);
+      ctx.fillText(npc.bubble.slice(0, 16), npc.x, FLOOR_Y - 144);
     }
     ctx.textAlign = 'left';
   });
@@ -309,7 +319,7 @@ function renderPlayer(ctx) {
     mask: gameState.hasMaskOn
   });
   const gem = getPlumbobColor();
-  const gy = py - 90 + Math.sin(Date.now() / 280) * 3;
+  const gy = py - 118 + Math.sin(Date.now() / 280) * 3;
   ctx.fillStyle = gem;
   ctx.beginPath();
   ctx.moveTo(px, gy - 11);
@@ -323,12 +333,12 @@ function renderPlayer(ctx) {
   const thought = getThought();
   if (thought) {
     ctx.fillStyle = '#fffbeb';
-    roundRect(ctx, px - 74, py - 152, 148, 34, 8);
+    roundRect(ctx, px - 74, py - 168, 148, 34, 8);
     ctx.fill();
     ctx.fillStyle = '#44403c';
     ctx.font = '11px "Noto Sans SC"';
     ctx.textAlign = 'center';
-    ctx.fillText(thought.slice(0, 16), px, py - 131);
+    ctx.fillText(thought.slice(0, 16), px, py - 147);
     ctx.textAlign = 'left';
   }
   if (pose) {

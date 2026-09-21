@@ -730,6 +730,37 @@ export function paintMall(ctx, w) {
   shopFace(ctx, 2240, 150, 150, FLOOR_Y - 150, '#1e3a8a', '#93c5fd', '#1d4ed8', '#fff', '保安台');
 }
 
+export function paintHome(ctx, w) {
+  paintRoad(ctx, w, '#57534e', '#292524');
+  districtBanner(ctx, '出租屋室内', '#7c2d12', '#fed7aa');
+  gradV(ctx, 0, 90, w, FLOOR_Y - 90, '#44403c', '#1c1917');
+  ctx.fillStyle = '#1d4ed8';
+  ctx.fillRect(270, FLOOR_Y - 58, 110, 22);
+  ctx.fillStyle = '#e2e8f0';
+  ctx.fillRect(278, FLOOR_Y - 70, 36, 14);
+  ctx.fillStyle = '#78716c';
+  ctx.fillRect(470, 200, 70, FLOOR_Y - 200);
+  ctx.fillStyle = '#22d3ee';
+  ctx.fillRect(660, FLOOR_Y - 70, 54, 36);
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(890, FLOOR_Y - 90, 70, 40);
+  ctx.fillStyle = '#155e75';
+  ctx.fillRect(1170, 190, 80, FLOOR_Y - 190);
+  ctx.fillStyle = '#b45309';
+  ctx.fillRect(1440, FLOOR_Y - 80, 80, 40);
+}
+
+export function paintParlorRoom(ctx, w) {
+  paintRoad(ctx, w, '#9f1239', '#1c1917');
+  districtBanner(ctx, '林记推拿馆内', '#881337', '#fecdd3');
+  gradV(ctx, 0, 90, w, FLOOR_Y - 90, '#4c0519', '#1c1917');
+  for (const x of [620, 920, 1220]) {
+    ctx.fillStyle = '#1c1917';
+    ctx.fillRect(x - 54, FLOOR_Y - 28, 108, 12);
+    fillRR(ctx, x - 48, FLOOR_Y - 46, 96, 20, 6, '#fda4af');
+  }
+}
+
 export function paintShop(ctx, w) {
   paintRoad(ctx, w, '#fef3c7', '#292524');
   districtBanner(ctx, gameState.mapId === 'pharmacyIn' ? '药房店内' : '便利店店内', '#14532d', '#fff');
