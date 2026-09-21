@@ -8,6 +8,7 @@ import { getPlayerParlorPose } from '../systems/massageParlorSystem.js';
 import {
   paintSkyline,
   paintStreet,
+  paintDistrict,
   paintMetro,
   paintBus,
   paintClub,
@@ -79,8 +80,7 @@ export function renderMidgroundWorld(ctx, canvas) {
   else if (theme === 'club') paintClub(ctx, w);
   else if (theme === 'hospital') paintHospital(ctx, w);
   else if (theme === 'office') paintOffice(ctx, w);
-  else if (theme === 'river') paintRiver(ctx, w);
-  else paintStreet(ctx, w);
+  else paintDistrict(ctx, w, theme);
 
   renderStreetNPCs(ctx);
   renderLandmarks(ctx);

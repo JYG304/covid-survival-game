@@ -162,13 +162,18 @@ function updateZoneTag() {
   if (!zTitle) return;
   const id = gameState.mapId || 'street';
   const names = {
-    street: '🏠 朝阳里街区',
-    metro: '🚇 地铁10号线车厢',
-    bus: '🚌 126路公交车厢',
-    club: '🎵 午夜俱乐部',
+    living: '🏠 生活区 · 朝阳里',
+    street: '🏠 生活区 · 朝阳里',
+    commerce: '🏪 商业区 · 北大街',
+    redlight: '🔴 红灯区 · 夜巷',
+    civic: '🏥 政务医疗区',
+    cbd: '💼 商务办公区',
+    riverside: '🌊 滨江工业区',
+    metro: '🚇 地铁车厢',
+    bus: '🚌 126路车厢',
+    club: '🎵 夜店室内',
     hospital: '🏥 发热门诊走廊',
-    office: '💼 写字楼 23F',
-    river: '🌊 江边围挡栈道'
+    office: '💼 写字楼 23F'
   };
   zTitle.innerText = names[id] || names.street;
   const nearby = gameState.nearbyItem;

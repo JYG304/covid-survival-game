@@ -7,11 +7,13 @@ import { think } from './simsLifeSystem.js';
 import { audio } from '../utils/audio.js';
 
 export function initMaps() {
-  if (!gameState.mapId) gameState.mapId = 'street';
+  if (!gameState.mapId || gameState.mapId === 'street' || gameState.mapId === 'river') {
+    gameState.mapId = 'living';
+  }
 }
 
 export function getActiveMap() {
-  return getMap(gameState.mapId || 'street');
+  return getMap(gameState.mapId || 'living');
 }
 
 export function getActiveLandmarks() {
@@ -48,12 +50,12 @@ export function spawnMapNpcs() {
 export function travelTo(mapId, spawnX, toast) {
   const map = getMap(mapId);
   if (!map) return;
-  if (gameState.isPositiveKnown && (mapId === 'club' || mapId === 'office')) {
+  if (gameState.isPositiveKnown && (mapId === 'club' || mapId === 'office' || mapId === 'redlight' || mapId === 'cbd')) {
     showToast('红码拦在门外。', 'error');
     return;
   }
-  if (gameState.lockdownLevel >= 3 && mapId === 'club') {
-    showToast('静默管理，夜店卷帘落下来了。你仍可以从巷尾缝里挤——风险自负。', 'info');
+  if (gameState.lockdownLevel >= 3 && (mapId === 'club' || mapId === 'redlight')) {
+    showToast('静默管理，红灯区卷帘落了一半。你仍可以从巷缝挤进去。', 'info');
   }
   gameState.mapId = mapId;
   const p = window.player;
@@ -70,14 +72,17 @@ export function travelTo(mapId, spawnX, toast) {
 }
 
 export const TRAVEL = {
-  enterMetro: (p) => travelTo('metro', 160, '闸机夹着你的背包进了车厢。广播重复着“请佩戴口罩”。'),
-  enterBus: (p) => travelTo('bus', 160, '126路门一开，热气和消毒水一块涌出来。'),
-  enterClub: (p) => {
-    const night = gameState.hour >= 21 || gameState.hour < 4;
-    travelTo('club', 180, night ? '低音从消防通道里漏出来。' : '白天的夜店像没醒，灯却还开着。');
-  },
-  enterHospital: (p) => travelTo('hospital', 160, '黄线、护目镜、打印纸。走廊里全是鞋套声。'),
-  enterOffice: (p) => travelTo('office', 160, '23楼电梯门开，隔板后面键盘声此起彼伏。'),
-  enterRiver: (p) => travelTo('river', 160, '江风灌进领口。铁皮围挡上喷着“禁止聚集”。'),
-  exitToStreet: (p) => travelTo('street', 1760, '你又站回人行道上。')
+  enterLiving: () => travelTo('living', 900, '回到朝阳里生活区。单元楼、核酸亭、居委会帐篷。'),
+  enterCommerce: () => travelTo('commerce', 200, '北大街商业区。药房、全家、超市连成一条街。'),
+  enterRedlight: () => travelTo('redlight', 200, '霓虹夜巷。推拿馆、KTV、夜店挤在一条巷里。'),
+  enterCivic: () => travelTo('civic', 200, '政务医疗区。黄线、卡口、雾炮车。'),
+  enterCbd: () => travelTo('cbd', 200, '商务办公区。玻璃幕墙和瑞幸柜子。'),
+  enterRiverside: () => travelTo('riverside', 200, '滨江工业区。铁皮围挡和江风。'),
+  enterMetro: () => travelTo('metro', 160, '闸机夹着背包。广播重复请佩戴口罩。'),
+  enterBus: () => travelTo('bus', 160, '126路门一开，热气和消毒水涌出来。'),
+  enterClub: () => travelTo('club', 180, gameState.hour >= 21 || gameState.hour < 4 ? '低音从消防通道漏出来。' : '白天的夜店像没醒。'),
+  enterHospital: () => travelTo('hospital', 160, '走廊里全是鞋套声。'),
+  enterOffice: () => travelTo('office', 160, '23楼电梯门开。'),
+  enterRiver: () => travelTo('riverside', 200, '江风灌进领口。'),
+  exitToStreet: () => travelTo('living', 900, '你又站回生活区人行道。')
 };

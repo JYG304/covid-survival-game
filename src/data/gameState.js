@@ -36,6 +36,7 @@ export const gameState = {
   hasWorkedToday: false,
   isPositiveKnown: false,
   quarantineDaysLeft: 0,
+  mapId: 'living',
   nearbyItem: null,
   activeAction: null,
   lockdownLevel: 1, // 1=正常, 2=局部封控, 3=全域静默

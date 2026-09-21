@@ -23,22 +23,26 @@ export const sceneActions = {
       return;
     }
     list.innerHTML = [
-      ['hospital', '🏥 发热门诊', '黄线走廊'],
-      ['club', '🎵 夜店巷', '末班过后的霓虹'],
-      ['river', '🌊 江边围挡', '透气'],
-      ['office', '💼 写字楼', '换乘上班'],
-      ['street', '🏠 朝阳里', '回家']
+      ['living', '🏠 生活区', '朝阳里小区'],
+      ['commerce', '🏪 商业区', '北大街店铺'],
+      ['redlight', '🔴 红灯区', '夜巷推拿夜店'],
+      ['civic', '🏥 医疗区', '医院卡口'],
+      ['cbd', '💼 办公区', '写字楼'],
+      ['riverside', '🌊 滨江区', '围挡栈道']
     ].map(([id, n, d]) => `<button data-map="${id}" class="w-full text-left px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 hover:border-amber-400">
       <b class="text-amber-200">${n}</b><span class="block text-[11px] text-zinc-400">${d}</span></button>`).join('');
     list.querySelectorAll('button').forEach((b) => {
       b.onclick = () => {
         box.classList.add('hidden');
-        const id = b.dataset.map;
-        if (id === 'street') TRAVEL.exitToStreet();
-        else if (id === 'hospital') TRAVEL.enterHospital();
-        else if (id === 'club') TRAVEL.enterClub();
-        else if (id === 'river') TRAVEL.enterRiver();
-        else if (id === 'office') TRAVEL.enterOffice();
+        const fn = {
+          living: TRAVEL.enterLiving,
+          commerce: TRAVEL.enterCommerce,
+          redlight: TRAVEL.enterRedlight,
+          civic: TRAVEL.enterCivic,
+          cbd: TRAVEL.enterCbd,
+          riverside: TRAVEL.enterRiverside
+        }[b.dataset.map];
+        if (fn) fn();
       };
     });
     box.classList.remove('hidden');
