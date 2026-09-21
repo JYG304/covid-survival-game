@@ -34,7 +34,7 @@ let lastTime = performance.now();
  * 初始化游戏
  */
 export function initGame() {
-  console.log('[game] build 20260922b rooms / human-scale / wardrobe');
+  console.log('[game] build 20260922c gender/cat/icons/popup');
   canvas = document.getElementById('gameCanvas');
   if (!canvas) {
     console.error('Canvas not found!');

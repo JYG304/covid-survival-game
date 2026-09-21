@@ -108,31 +108,105 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
+function landmarkIcon(item) {
+  const id = item.id;
+  if (id.includes('bed') || id.includes('hotel_bed')) return '🛏️';
+  if (id.includes('tv')) return '📺';
+  if (id.includes('desk') || id.includes('print')) return '💻';
+  if (id.includes('shower') || id.includes('bath') || id.includes('wash') || id.includes('wc')) return '🚿';
+  if (id.includes('stove') || id.includes('food') || id.includes('oden') || id.includes('fridge')) return '🍳';
+  if (id.includes('door') || id.includes('exit') || id.includes('gate') || id.includes('lift')) return '🚪';
+  if (id.includes('metro') || id.includes('transfer')) return '🚇';
+  if (id.includes('bus')) return '🚌';
+  if (id.includes('mall') || id.includes('shop') || id.includes('clothes') || id.includes('fit')) return '🏬';
+  if (id.includes('pharm') || id.includes('pharmacy') || id.includes('med')) return '💊';
+  if (id.includes('store') || id.includes('convenience') || id.includes('market')) return '🏪';
+  if (id.includes('club') || id.includes('ktv') || id.includes('dj') || id.includes('dance') || id.includes('bar')) return '🎵';
+  if (id.includes('parlor') || id.includes('massage')) return '💆';
+  if (id.includes('cat')) return '🐱';
+  if (id.includes('rack') || id.includes('box')) return '📦';
+  if (id.includes('pcr') || id.includes('triage') || id.includes('hosp') || id.includes('hospital')) return '🏥';
+  if (id.includes('atm')) return '🏧';
+  if (id.includes('window') || id.includes('closet')) return '👔';
+  if (id.includes('cannon') || id.includes('disinfect')) return '🚛';
+  if (id.includes('committee') || id.includes('comt')) return '⛺';
+  if (id.includes('coffee') || id.includes('tea') || id.includes('water')) return '☕';
+  return '📍';
+}
+
 function drawLandmarkProp(ctx, item, itemY) {
   const id = item.id;
   const x = item.x;
   const w = item.width;
   const h = item.height;
-  if (id.includes('door') || id.includes('exit') || id.includes('lift') || id.includes('gate') || id === 'off_stair' || id === 'club_to_metro' || id === 'hosp_to_metro' || id === 'metro_transfer' || id === 'bus_back' || id === 'river_bus' || id === 'river_gate') {
-    ctx.fillStyle = '#1e293b';
-    roundRect(ctx, x, itemY, w, h, 6);
+  if (id.includes('bed')) {
+    ctx.fillStyle = '#44403c';
+    ctx.fillRect(x, FLOOR_Y - 18, w, 10);
+    ctx.fillStyle = '#1d4ed8';
+    roundRect(ctx, x + 8, FLOOR_Y - 36, w - 16, 20, 4);
     ctx.fill();
-    ctx.fillStyle = '#67e8f9';
-    ctx.globalAlpha = 0.35;
-    ctx.fillRect(x + 10, itemY + 18, w - 20, h - 36);
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = '#eab308';
+    ctx.fillStyle = '#e2e8f0';
+    ctx.fillRect(x + 12, FLOOR_Y - 44, 28, 12);
+    ctx.fillStyle = '#78716c';
+    ctx.fillRect(x + 4, FLOOR_Y - 8, 8, 8);
+    ctx.fillRect(x + w - 12, FLOOR_Y - 8, 8, 8);
+    return;
+  }
+  if (id.includes('tv') || id.includes('screen')) {
+    ctx.fillStyle = '#27272a';
+    roundRect(ctx, x, itemY + 8, w, h - 16, 4);
+    ctx.fill();
+    ctx.fillStyle = '#22d3ee';
+    ctx.fillRect(x + 6, itemY + 14, w - 12, h - 32);
+    ctx.fillStyle = '#52525b';
+    ctx.fillRect(x + w / 2 - 8, FLOOR_Y - 12, 16, 12);
+    return;
+  }
+  if (id.includes('stove')) {
+    ctx.fillStyle = '#44403c';
+    ctx.fillRect(x, FLOOR_Y - 48, w, 48);
+    ctx.fillStyle = '#1c1917';
+    ctx.fillRect(x + 8, FLOOR_Y - 40, w - 16, 18);
+    ctx.fillStyle = '#f97316';
     ctx.beginPath();
-    ctx.arc(x + w - 14, itemY + h * 0.55, 4, 0, Math.PI * 2);
+    ctx.arc(x + w / 2, FLOOR_Y - 52, 10, Math.PI, 0);
     ctx.fill();
     return;
   }
-  if (id.includes('seat') || id.includes('bench') || id === 'hosp_iv' || id === 'hosp_queue' || id === 'club_vip' || id === 'off_desk') {
-    ctx.fillStyle = '#57534e';
-    ctx.fillRect(x, FLOOR_Y - 20, w, 12);
-    ctx.fillStyle = '#a8a29e';
-    roundRect(ctx, x + 6, FLOOR_Y - 38, w - 12, 18, 4);
+  if (id.includes('closet') || id.includes('wardrobe') || id.includes('fit')) {
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(x, itemY, w, h);
+    ctx.fillStyle = '#a16207';
+    ctx.fillRect(x + 4, itemY + 8, w / 2 - 6, h - 16);
+    ctx.fillRect(x + w / 2 + 2, itemY + 8, w / 2 - 6, h - 16);
+    ctx.fillStyle = '#eab308';
+    ctx.fillRect(x + w / 2 - 3, itemY + h / 2, 6, 6);
+    return;
+  }
+  if (id.includes('door') || id.includes('exit') || id.includes('lift') || id.includes('gate') || id === 'off_stair' || id === 'club_to_metro' || id === 'hosp_to_metro' || id === 'metro_transfer' || id === 'bus_back' || id === 'river_bus' || id === 'river_gate') {
+    ctx.fillStyle = '#334155';
+    roundRect(ctx, x, itemY, w, h, 6);
     ctx.fill();
+    ctx.fillStyle = '#67e8f9';
+    ctx.globalAlpha = 0.4;
+    ctx.fillRect(x + 10, itemY + 18, (w - 24) / 2, h - 40);
+    ctx.fillRect(x + w / 2 + 2, itemY + 18, (w - 24) / 2, h - 40);
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = '#eab308';
+    ctx.beginPath();
+    ctx.arc(x + w - 16, itemY + h * 0.55, 4, 0, Math.PI * 2);
+    ctx.fill();
+    return;
+  }
+  if (id.includes('seat') || id.includes('bench') || id.includes('sofa') || id === 'hosp_iv' || id === 'hosp_queue' || id === 'club_vip' || id === 'off_desk') {
+    ctx.fillStyle = '#44403c';
+    ctx.fillRect(x, FLOOR_Y - 16, w, 10);
+    ctx.fillStyle = '#a8a29e';
+    roundRect(ctx, x + 6, FLOOR_Y - 34, w - 12, 18, 5);
+    ctx.fill();
+    ctx.fillStyle = '#78716c';
+    ctx.fillRect(x + 8, FLOOR_Y - 48, 10, 16);
+    ctx.fillRect(x + w - 18, FLOOR_Y - 48, 10, 16);
     return;
   }
   if (id.includes('pole') || id.includes('stand')) {
@@ -141,15 +215,6 @@ function drawLandmarkProp(ctx, item, itemY) {
     ctx.beginPath();
     ctx.arc(x + w / 2, itemY + 16, 12, 0, Math.PI * 2);
     ctx.fill();
-    return;
-  }
-  if (id === 'home_bed') {
-    ctx.fillStyle = '#78350f';
-    ctx.fillRect(x, itemY + 25, w, 20);
-    ctx.fillStyle = '#2563eb';
-    ctx.fillRect(x + 10, itemY + 12, w - 20, 20);
-    ctx.fillStyle = '#e2e8f0';
-    ctx.fillRect(x + 14, itemY + 8, 28, 12);
   }
 }
 
@@ -165,8 +230,8 @@ function renderLandmarks(ctx) {
     const near = gameState.nearbyItem === item;
     ctx.textAlign = 'center';
     ctx.font = near ? 'bold 13px "Noto Sans SC"' : 'bold 12px "Noto Sans SC"';
-    const label = item.name;
-    const tw = Math.min(220, ctx.measureText(label).width + 16);
+    const label = `${landmarkIcon(item)} ${item.name}`;
+    const tw = Math.min(240, ctx.measureText(label).width + 18);
     ctx.fillStyle = near ? 'rgba(120,53,15,0.92)' : 'rgba(15,23,42,0.82)';
     roundRect(ctx, cx - tw / 2, itemY - 30, tw, 20, 6);
     ctx.fill();
@@ -181,9 +246,53 @@ function renderLandmarks(ctx) {
   });
 }
 
+function npcKind(npc) {
+  if (npc.job === 'cat' || /猫|阿花/.test(npc.name || '')) return 'cat';
+  if (npc.gender === 'f' || npc.gender === 'm') return npc.gender;
+  if (/姐|女|阿姨|护士|导购|Mia|小敏|小周|林姐|叶护士/.test(`${npc.name}${npc.role}`)) return 'f';
+  return 'm';
+}
+
+function drawCat(ctx, x, y, opt) {
+  const bob = Math.sin((opt.bob || 0) + Date.now() / 200) * 2;
+  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  ctx.beginPath();
+  ctx.ellipse(x, y + 2, 14, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = opt.shirt || '#fb923c';
+  ctx.beginPath();
+  ctx.ellipse(x, y - 10 + bob, 16, 9, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = opt.hair || '#9a3412';
+  ctx.beginPath();
+  ctx.arc(x + 12, y - 16 + bob, 7, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(x + 8, y - 20 + bob);
+  ctx.lineTo(x + 6, y - 28 + bob);
+  ctx.lineTo(x + 12, y - 18 + bob);
+  ctx.moveTo(x + 16, y - 20 + bob);
+  ctx.lineTo(x + 20, y - 28 + bob);
+  ctx.lineTo(x + 14, y - 18 + bob);
+  ctx.fill();
+  ctx.strokeStyle = opt.hair || '#7c2d12';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(x - 14, y - 10 + bob);
+  ctx.quadraticCurveTo(x - 28, y - 22, x - 18, y - 4);
+  ctx.stroke();
+  ctx.fillStyle = '#111827';
+  ctx.fillRect(x + 14, y - 18 + bob, 2, 2);
+}
+
 function drawSimBody(ctx, x, y, opt) {
+  if (opt.kind === 'cat') {
+    drawCat(ctx, x, y, opt);
+    return;
+  }
   const f = opt.facing || 1;
   const bob = opt.bob || 0;
+  const female = opt.kind === 'f';
   ctx.fillStyle = 'rgba(0,0,0,0.38)';
   ctx.beginPath();
   ctx.ellipse(x, y + 3, 18, 5, 0, 0, Math.PI * 2);
@@ -205,25 +314,39 @@ function drawSimBody(ctx, x, y, opt) {
   }
   const hip = y - 46;
   const shoulder = y - 86;
+  const bw = female ? 10 : 13;
   ctx.fillStyle = opt.pants;
-  ctx.fillRect(x - 8, hip, 7, 46 + bob);
-  ctx.fillRect(x + 2, hip, 7, 46 - bob);
+  ctx.fillRect(x - (female ? 7 : 8), hip, female ? 6 : 7, 46 + bob);
+  ctx.fillRect(x + 2, hip, female ? 6 : 7, 46 - bob);
   ctx.fillStyle = '#0f172a';
   ctx.fillRect(x - 9, y - 5 + bob, 8, 6);
   ctx.fillRect(x + 2, y - 5 - bob, 8, 6);
   ctx.fillStyle = opt.shirt;
-  roundRect(ctx, x - 13, shoulder, 26, 42, 5);
+  roundRect(ctx, x - bw, shoulder, bw * 2, 40, 5);
   ctx.fill();
+  if (female) {
+    ctx.beginPath();
+    ctx.moveTo(x - 9, shoulder + 22);
+    ctx.lineTo(x + 9, shoulder + 22);
+    ctx.lineTo(x + 14, hip + 6);
+    ctx.lineTo(x - 14, hip + 6);
+    ctx.closePath();
+    ctx.fill();
+  }
   ctx.fillStyle = opt.skin;
-  ctx.fillRect(x - 17, shoulder + 8, 6, 28);
-  ctx.fillRect(x + 11, shoulder + 8, 6, 28);
+  ctx.fillRect(x - bw - 4, shoulder + 8, 5, female ? 24 : 28);
+  ctx.fillRect(x + bw - 1, shoulder + 8, 5, female ? 24 : 28);
   if (opt.pose === 'work') ctx.fillRect(x + f * 14, shoulder + 16, 18, 5);
   const hx = x;
   const hy = shoulder - 16;
   ctx.fillStyle = opt.hair;
   ctx.beginPath();
-  ctx.ellipse(hx, hy - 4, 11, 9, 0, Math.PI, 0);
+  ctx.ellipse(hx, hy - 4, female ? 12 : 11, female ? 10 : 9, 0, Math.PI, 0);
   ctx.fill();
+  if (female) {
+    ctx.fillRect(hx - 12, hy - 2, 5, 18);
+    ctx.fillRect(hx + 7, hy - 2, 5, 18);
+  }
   ctx.fillStyle = opt.skin;
   ctx.beginPath();
   ctx.arc(hx, hy, 9, 0, Math.PI * 2);
@@ -263,6 +386,7 @@ function renderStreetNPCs(ctx) {
       facing: npc.dir,
       bob,
       pose: npc.pose,
+      kind: npcKind(npc),
       skin: npc.skin,
       hair: npc.hair,
       shirt: npc.shirt,
@@ -311,6 +435,7 @@ function renderPlayer(ctx) {
   drawSimBody(ctx, px, py, {
     facing: player.facing,
     bob,
+    kind: gameState.outfit?.gender === 'f' ? 'f' : 'm',
     pose: pose?.role === 'customer' ? 'lie' : (pose?.role === 'masseur' ? 'work' : 'walk'),
     skin: '#f2c29b',
     hair: outfitColor('hair'),

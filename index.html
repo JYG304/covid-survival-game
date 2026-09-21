@@ -209,7 +209,16 @@
       </div>
     </div>
 
-    <!-- 动作进度条 -->
+    <div id="modalInteract" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+      <div class="bg-zinc-900 border border-amber-500/50 rounded-2xl max-w-sm w-full p-4 shadow-2xl">
+        <h3 id="actTitle" class="text-lg font-black text-amber-300 mb-2">交互</h3>
+        <p id="actDesc" class="text-sm text-zinc-300 whitespace-pre-line mb-4"></p>
+        <div class="flex gap-2">
+          <button id="actCancel" class="flex-1 py-2 rounded-lg bg-zinc-800 text-zinc-300">取消</button>
+          <button id="actConfirm" class="flex-1 py-2 rounded-lg bg-amber-500 text-black font-bold">确定</button>
+        </div>
+      </div>
+    </div>
     <div id="actionProgressOverlay" class="absolute top-1/3 pointer-events-none hidden flex flex-col items-center z-20">
       <div class="bg-zinc-900/95 border border-amber-500/70 px-6 py-3.5 rounded-xl shadow-2xl flex flex-col items-center gap-2 min-w-[260px] backdrop-blur-md">
         <div class="flex items-center gap-2">
@@ -645,6 +654,6 @@
     </div>
   </div>
 
-  <script type="module" src="./src/main.js?v=20260922b"></script>
+  <script type="module" src="./src/main.js?v=20260922c"></script>
 </body>
 </html>

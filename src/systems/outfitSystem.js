@@ -17,16 +17,19 @@ export const CATALOG = [
   { id: 'hair_brown', slot: 'hair', name: '染棕', price: 68, color: '#78350f' },
   { id: 'hair_gold', slot: 'hair', name: '漂金（夜店）', price: 150, color: '#facc15' },
   { id: 'mask_n95', slot: 'mask', name: 'N95', price: 0, on: true },
-  { id: 'mask_off', slot: 'mask', name: '摘口罩', price: 0, on: false }
+  { id: 'mask_off', slot: 'mask', name: '摘口罩', price: 0, on: false },
+  { id: 'gender_m', slot: 'gender', name: '男性外观', price: 0, gender: 'm' },
+  { id: 'gender_f', slot: 'gender', name: '女性外观', price: 0, gender: 'f' }
 ];
 
 export function initOutfit() {
   if (!gameState.outfit) {
     gameState.outfit = {
+      gender: 'm',
       shirt: 'shirt_blue',
       pants: 'pants_dark',
       hair: 'hair_black',
-      owned: ['shirt_blue', 'pants_dark', 'hair_black', 'mask_n95', 'mask_off']
+      owned: ['shirt_blue', 'pants_dark', 'hair_black', 'mask_n95', 'mask_off', 'gender_m', 'gender_f']
     };
   }
 }
@@ -65,6 +68,8 @@ export function equipOutfit(id) {
   }
   if (item.slot === 'mask') {
     gameState.hasMaskOn = item.on;
+  } else if (item.slot === 'gender') {
+    gameState.outfit.gender = item.gender;
   } else {
     gameState.outfit[item.slot] = id;
   }
@@ -77,7 +82,7 @@ export function renderOutfitShop() {
   if (!box || !gameState.outfit) return;
   box.innerHTML = CATALOG.filter((c) => c.lock !== 'positive').map((c) => {
     const own = gameState.outfit.owned.includes(c.id);
-    const on = c.slot === 'mask' ? (gameState.hasMaskOn === c.on) : gameState.outfit[c.slot] === c.id;
+    const on = c.slot === 'mask' ? (gameState.hasMaskOn === c.on) : (c.slot === 'gender' ? gameState.outfit.gender === c.gender : gameState.outfit[c.slot] === c.id);
     return `<button data-id="${c.id}" class="w-full text-left px-3 py-2 rounded-lg bg-zinc-950 border ${on ? 'border-amber-400' : 'border-zinc-700'} text-xs">
       <b class="text-zinc-100">${c.name}</b>
       <span class="text-zinc-400"> · ${own ? '已拥有' : '¥' + c.price}${on ? ' · 穿着中' : ''}</span>

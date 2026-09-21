@@ -132,21 +132,23 @@ export function tryInteract() {
  */
 export function startActivity(landmark) {
   if (!landmark) return;
-
-  gameState.activeAction = {
-    landmark,
-    elapsed: 0,
-    duration: landmark.actionDuration
+  const modal = document.getElementById('modalInteract');
+  const title = document.getElementById('actTitle');
+  const desc = document.getElementById('actDesc');
+  const ok = document.getElementById('actConfirm');
+  const cancel = document.getElementById('actCancel');
+  if (!modal || !ok) {
+    gameState.activeAction = { landmark, elapsed: 99, duration: 0.01 };
+    return;
+  }
+  title.innerText = landmark.name;
+  desc.innerText = `${landmark.prompt || ''}\n耗时约 ${landmark.timeCostMinutes || 0} 分钟`;
+  modal.classList.remove('hidden');
+  ok.onclick = () => {
+    modal.classList.add('hidden');
+    completeActivity({ landmark });
   };
-
-  // 显示进度条
-  const overlay = document.getElementById('actionProgressOverlay');
-  const title = document.getElementById('actionProgressTitle');
-  const timeLabel = document.getElementById('actionTimeLabel');
-
-  if (overlay) overlay.classList.remove('hidden');
-  if (title) title.innerText = `正在 ${landmark.name}...`;
-  if (timeLabel) timeLabel.innerText = `耗时 ${landmark.timeCostMinutes} 分钟`;
+  cancel.onclick = () => modal.classList.add('hidden');
 }
 
 /**
@@ -208,16 +210,10 @@ function openCommuteModal() {
  * @param {number} delta - 帧间隔时间
  */
 export function updatePlayer(delta) {
-  // 处理正在进行的动作
-  if (gameState.activeAction) {
-    gameState.activeAction.elapsed += delta;
-    const progress = Math.min(1, gameState.activeAction.elapsed / gameState.activeAction.duration);
-    const fillBar = document.getElementById('actionFillBar');
-    if (fillBar) fillBar.style.width = `${progress * 100}%`;
-
-    if (progress >= 1) {
-      completeActivity(gameState.activeAction);
-    }
+  if (document.getElementById('modalInteract') && !document.getElementById('modalInteract').classList.contains('hidden')) {
+    return;
+  }
+  if (document.getElementById('modalDialogue') && !document.getElementById('modalDialogue').classList.contains('hidden')) {
     return;
   }
 

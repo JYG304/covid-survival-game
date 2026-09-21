@@ -732,22 +732,43 @@ export function paintMall(ctx, w) {
 
 export function paintHome(ctx, w) {
   paintRoad(ctx, w, '#57534e', '#292524');
-  districtBanner(ctx, '出租屋室内', '#7c2d12', '#fed7aa');
-  gradV(ctx, 0, 90, w, FLOOR_Y - 90, '#44403c', '#1c1917');
+  districtBanner(ctx, '🛏️ 出租屋室内', '#7c2d12', '#fed7aa');
+  gradV(ctx, 0, 90, w, FLOOR_Y - 90, '#57534e', '#1c1917');
+  ctx.fillStyle = '#44403c';
+  ctx.fillRect(250, FLOOR_Y - 14, 130, 8);
   ctx.fillStyle = '#1d4ed8';
-  ctx.fillRect(270, FLOOR_Y - 58, 110, 22);
+  fillRR(ctx, 262, FLOOR_Y - 36, 110, 22, 4, '#2563eb');
   ctx.fillStyle = '#e2e8f0';
-  ctx.fillRect(278, FLOOR_Y - 70, 36, 14);
-  ctx.fillStyle = '#78716c';
-  ctx.fillRect(470, 200, 70, FLOOR_Y - 200);
+  ctx.fillRect(270, FLOOR_Y - 46, 32, 12);
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(460, 175, 36, FLOOR_Y - 175);
+  ctx.fillRect(504, 175, 36, FLOOR_Y - 175);
+  ctx.fillStyle = '#a16207';
+  ctx.fillRect(494, 210, 8, 40);
+  ctx.fillStyle = '#3f3f46';
+  ctx.fillRect(650, FLOOR_Y - 78, 70, 48);
   ctx.fillStyle = '#22d3ee';
-  ctx.fillRect(660, FLOOR_Y - 70, 54, 36);
+  ctx.fillRect(658, FLOOR_Y - 70, 54, 34);
+  ctx.fillStyle = '#1c1917';
+  ctx.fillRect(880, FLOOR_Y - 16, 100, 10);
   ctx.fillStyle = '#0f172a';
-  ctx.fillRect(890, FLOOR_Y - 90, 70, 40);
-  ctx.fillStyle = '#155e75';
-  ctx.fillRect(1170, 190, 80, FLOOR_Y - 190);
-  ctx.fillStyle = '#b45309';
-  ctx.fillRect(1440, FLOOR_Y - 80, 80, 40);
+  ctx.fillRect(900, FLOOR_Y - 92, 62, 40);
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillRect(906, FLOOR_Y - 86, 50, 28);
+  ctx.fillStyle = '#164e63';
+  ctx.fillRect(1160, 168, 78, FLOOR_Y - 168);
+  ctx.fillStyle = 'rgba(103,232,249,0.35)';
+  ctx.fillRect(1174, 186, 22, 70);
+  ctx.fillStyle = '#44403c';
+  ctx.fillRect(1430, FLOOR_Y - 70, 96, 70);
+  ctx.fillStyle = '#f97316';
+  ctx.beginPath();
+  ctx.arc(1478, FLOOR_Y - 78, 11, Math.PI, 0);
+  ctx.fill();
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(1720, 160, 90, 70);
+  ctx.strokeStyle = '#a8a29e';
+  ctx.strokeRect(1720, 160, 90, 70);
 }
 
 export function paintParlorRoom(ctx, w) {
