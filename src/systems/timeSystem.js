@@ -55,9 +55,11 @@ function onHourTick() {
     }
   }
 
-  // 触发深度玩法每小时事件
   if (typeof window.DeepGameplay !== 'undefined' && window.DeepGameplay.onHourTick) {
     window.DeepGameplay.onHourTick();
+  }
+  if (typeof window.DeepGameplay !== 'undefined' && window.DeepGameplay.tickSimsHour) {
+    window.DeepGameplay.tickSimsHour();
   }
 }
 
@@ -104,6 +106,9 @@ function onNewDayTick() {
   // 触发深度玩法每日事件
   if (typeof window.DeepGameplay !== 'undefined' && window.DeepGameplay.onNewDay) {
     window.DeepGameplay.onNewDay();
+  }
+  if (typeof window.DeepGameplay !== 'undefined' && window.DeepGameplay.onSimsNewDay) {
+    window.DeepGameplay.onSimsNewDay();
   }
 }
 

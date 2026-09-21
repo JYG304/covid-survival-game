@@ -4,10 +4,12 @@
  */
 
 import { gameState } from '../data/gameState.js';
-import { landmarks, WORLD_WIDTH, FLOOR_Y } from '../data/landmarks.js';
+import { FLOOR_Y } from '../data/landmarks.js';
+import { getActiveLandmarks, getWorldWidth } from '../systems/mapSystem.js';
 import { actionHandlers } from '../systems/actionSystem.js';
 import { advanceTime } from '../systems/timeSystem.js';
 import { updateHUD } from '../ui/hud.js';
+import { nearestNpc } from '../systems/npcInteractSystem.js';
 
 export const player = {
   x: 220,
@@ -65,14 +67,28 @@ export function initControls() {
   if (btnAction) {
     btnAction.addEventListener('click', tryInteract);
   }
+
+  const canvas = document.getElementById('gameCanvas');
+  if (canvas) {
+    canvas.addEventListener('pointerdown', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const cam = window.cameraX || 0;
+      player.targetX = (e.clientX - rect.left) * (canvas.width / rect.width) + cam;
+    });
+  }
 }
 
 /**
  * 尝试与附近物体交互
  */
 export function tryInteract() {
-  if (!gameState.nearbyItem || gameState.activeAction) return;
-
+  if (gameState.activeAction) return;
+  const npc = nearestNpc(player.x, 70);
+  if (npc && (!gameState.nearbyItem || Math.abs(npc.x - player.x) < 55)) {
+    window.DeepGameplay?.talkNearbyNpc(player);
+    return;
+  }
+  if (!gameState.nearbyItem) return;
   startActivity(gameState.nearbyItem);
 }
 
@@ -202,14 +218,13 @@ export function updatePlayer(delta) {
   }
 
   player.x += player.vx;
-  player.x = Math.max(50, Math.min(WORLD_WIDTH - 50, player.x));
+  player.x = Math.max(50, Math.min(getWorldWidth() - 50, player.x));
   player.isMoving = moving;
 
   if (moving) {
     player.walkCycle += delta * 11;
   }
 
-  // 检测附近地标
   updateNearbyLandmark();
 }
 
@@ -220,7 +235,7 @@ function updateNearbyLandmark() {
   let nearest = null;
   let minDistance = 80;
 
-  for (const item of landmarks) {
+  for (const item of getActiveLandmarks()) {
     const cx = item.x + item.width / 2;
     const dist = Math.abs(player.x - cx);
     if (dist < minDistance) {
@@ -230,14 +245,25 @@ function updateNearbyLandmark() {
   }
 
   gameState.nearbyItem = nearest;
+  const npc = nearestNpc(player.x, 70);
+  gameState.nearbyNpc = npc || null;
 
   const prompt = document.getElementById('interactPrompt');
   const promptLabel = document.getElementById('promptActionLabel');
 
-  if (nearest && !gameState.activeAction) {
+  if (gameState.activeAction) {
+    if (prompt) prompt.classList.add('hidden');
+    return;
+  }
+  if (npc && (!nearest || Math.abs(npc.x - player.x) < 55)) {
+    if (prompt) prompt.classList.remove('hidden');
+    if (promptLabel) promptLabel.innerText = `${npc.name}（${npc.role}）：聊天 / 拉去推拿馆`;
+    return;
+  }
+  if (nearest) {
     if (prompt) prompt.classList.remove('hidden');
     if (promptLabel) promptLabel.innerText = `${nearest.name}: ${nearest.prompt}`;
-  } else {
-    if (prompt) prompt.classList.add('hidden');
+  } else if (prompt) {
+    prompt.classList.add('hidden');
   }
 }

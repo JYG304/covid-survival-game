@@ -28,6 +28,18 @@
       display: block;
       background: #090a0f;
     }
+    .need-bar {
+      height: 6px;
+      background: #18181b;
+      border-radius: 99px;
+      overflow: hidden;
+      border: 1px solid #3f3f46;
+    }
+    .need-bar > i {
+      display: block;
+      height: 100%;
+      border-radius: 99px;
+    }
     .font-code { font-family: 'JetBrains Mono', monospace; }
     .crt-vignette {
       box-shadow: inset 0 0 90px rgba(0, 0, 0, 0.55);
@@ -140,10 +152,35 @@
     <div class="absolute inset-0 crt-vignette"></div>
     <div id="feverFX" class="absolute inset-0 fever-overlay hidden"></div>
 
-    <!-- 区域标签 -->
     <div id="zoneTag" class="absolute top-3 left-3 pointer-events-none bg-zinc-900/90 backdrop-blur-md px-3 py-1 rounded border border-zinc-700/80 text-xs font-code text-zinc-200 z-10 flex items-center gap-2 shadow-lg">
       <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-      <span id="zoneTitle">🏠 出租单间 · 卧室书桌与小灶台</span>
+      <span id="zoneTitle">🏠 朝阳里街区</span>
+    </div>
+    <div class="absolute top-12 left-3 z-10 flex flex-wrap gap-1 max-w-[70vw] pointer-events-auto">
+      <button data-travel="street" data-spawn="1760" class="px-2 py-0.5 rounded bg-zinc-900/90 border border-zinc-600 text-[10px] text-zinc-200">🏠街区</button>
+      <button data-travel="metro" data-spawn="160" class="px-2 py-0.5 rounded bg-zinc-900/90 border border-sky-700 text-[10px] text-sky-200">🚇地铁</button>
+      <button data-travel="bus" data-spawn="160" class="px-2 py-0.5 rounded bg-zinc-900/90 border border-amber-700 text-[10px] text-amber-200">🚌公交</button>
+      <button data-travel="club" data-spawn="180" class="px-2 py-0.5 rounded bg-zinc-900/90 border border-fuchsia-700 text-[10px] text-fuchsia-200">🎵夜店</button>
+      <button data-travel="hospital" data-spawn="160" class="px-2 py-0.5 rounded bg-zinc-900/90 border border-yellow-700 text-[10px] text-yellow-100">🏥医院</button>
+      <button data-travel="office" data-spawn="160" class="px-2 py-0.5 rounded bg-zinc-900/90 border border-blue-700 text-[10px] text-blue-200">💼写字楼</button>
+      <button data-travel="river" data-spawn="160" class="px-2 py-0.5 rounded bg-zinc-900/90 border border-cyan-700 text-[10px] text-cyan-200">🌊江边</button>
+    </div>
+    <div id="simsPanel" class="absolute top-3 right-3 z-10 w-56 bg-zinc-900/92 backdrop-blur-md border border-lime-400/30 rounded-xl p-2.5 shadow-2xl pointer-events-none">
+      <div class="flex items-center justify-between mb-1.5">
+        <span class="text-[10px] font-black tracking-widest text-lime-400">SIM 需求</span>
+        <span id="moodScoreLabel" class="text-[10px] font-code text-amber-300">心情 72</span>
+      </div>
+      <div id="needBars" class="space-y-1 text-[10px] text-zinc-300"></div>
+      <div class="mt-2 pt-1.5 border-t border-zinc-800">
+        <p class="text-[10px] text-amber-200 font-bold mb-0.5">今日心愿</p>
+        <ul id="wantList" class="text-[10px] text-zinc-400 space-y-0.5"></ul>
+      </div>
+      <div class="mt-2 pt-1.5 border-t border-zinc-800">
+        <p class="text-[10px] text-sky-200 font-bold mb-0.5">任务</p>
+        <ul id="questList" class="text-[10px] text-zinc-400 space-y-0.5"></ul>
+      </div>
+      <div id="statsMini" class="mt-1.5 text-[9px] text-zinc-500 font-code leading-tight"></div>
+      <div id="moodletRow" class="mt-1.5 flex flex-wrap gap-1"></div>
     </div>
 
     <!-- 交互提示 -->
@@ -513,7 +550,72 @@
     </div>
   </div>
 
-  <!-- 引入模块化 JS（使用 ES6 模块） -->
+  <div id="modalKitchen" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-zinc-700 rounded-2xl max-w-md w-full p-4 shadow-2xl flex flex-col gap-3">
+      <div class="flex items-center justify-between border-b border-zinc-800 pb-2">
+        <div class="flex items-center gap-1.5 text-sm font-bold text-amber-300"><span>🍳</span> 出租屋厨房</div>
+        <button id="btnCloseKitchen" class="text-zinc-400 hover:text-white text-lg font-bold px-2">✕</button>
+      </div>
+      <p class="text-xs text-zinc-400">一顿热饭能稳住心境。封控日子里，灶台就是最后的生活仪式。</p>
+      <div class="flex flex-col gap-2 text-xs">
+        <div class="p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl flex items-center justify-between gap-2">
+          <div>
+            <div class="font-bold text-amber-300">🍜 阳春挂面卧荷包蛋</div>
+            <div class="text-[11px] text-zinc-400">饱腹 +35，舒适 +8（耗 1 份鲜食）</div>
+          </div>
+          <button id="btnCookNoodles" class="bg-amber-600 hover:bg-amber-500 text-black font-bold px-3 py-1.5 rounded-lg shrink-0">下锅煮面</button>
+        </div>
+        <div class="p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl flex items-center justify-between gap-2">
+          <div>
+            <div class="font-bold text-rose-300">🫖 浓熬热姜丝红糖水</div>
+            <div class="text-[11px] text-zinc-400">降温 0.4°C，舒适 +6</div>
+          </div>
+          <button id="btnCookGingerTea" class="bg-rose-900/60 hover:bg-rose-900 border border-rose-500/50 text-rose-200 font-bold px-3 py-1.5 rounded-lg shrink-0">熬煮姜汤</button>
+        </div>
+        <div class="p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl flex items-center justify-between gap-2">
+          <div>
+            <div class="font-bold text-orange-300">🍱 自热牛肉煲仔饭</div>
+            <div class="text-[11px] text-zinc-400">饱腹 +55（耗 1 盒便当）</div>
+          </div>
+          <button id="btnEatInstantMeal" class="bg-orange-600 hover:bg-orange-500 text-black font-bold px-3 py-1.5 rounded-lg shrink-0">加热食用</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalParlor" class="hidden fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-zinc-900 border-2 border-rose-700/50 rounded-2xl max-w-lg w-full p-4 shadow-2xl">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-lg font-black text-rose-300">林记推拿馆 · 排班</h3>
+        <button id="btnCloseParlor" class="text-zinc-400 hover:text-white text-2xl leading-none">×</button>
+      </div>
+      <p id="parlorStats" class="text-xs text-zinc-400 mb-3">今日营收 ¥0</p>
+      <p class="text-[11px] text-zinc-500 mb-2">辐射避难所玩法：把技师/客人派到床位。你可以当技师赚钱，也可以当客人被按。</p>
+      <div id="parlorRoomList" class="space-y-2 max-h-[50vh] overflow-y-auto"></div>
+    </div>
+  </div>
+
+  <div id="modalDialogue" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-amber-500/40 rounded-2xl max-w-md w-full p-4">
+      <div class="flex justify-between items-center mb-2">
+        <h3 id="dlgTitle" class="font-bold text-amber-300">对话</h3>
+        <button id="btnCloseDialogue" class="text-zinc-400 text-xl">×</button>
+      </div>
+      <p id="dlgBody" class="text-sm text-zinc-200 mb-3 leading-relaxed"></p>
+      <div id="dlgOptions" class="space-y-2"></div>
+    </div>
+  </div>
+
+  <div id="modalMapPick" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-zinc-700 rounded-2xl max-w-sm w-full p-4">
+      <div class="flex justify-between items-center mb-3">
+        <h3 class="font-bold text-amber-300">下车去哪</h3>
+        <button id="btnCloseMapPick" class="text-zinc-400 text-xl">×</button>
+      </div>
+      <div id="mapPickList" class="space-y-2"></div>
+    </div>
+  </div>
+
   <script type="module" src="./src/main.js"></script>
 </body>
 </html>

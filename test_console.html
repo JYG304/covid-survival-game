@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>控制台捕获</title></head>
+<body>
+<h1>测试中...</h1>
+<div id="log"></div>
+<script>
+const errors = [];
+const logs = [];
+window.onerror = function(msg, url, line, col, error) {
+  errors.push({type: 'error', msg, url, line, col, stack: error?.stack});
+  document.getElementById('log').innerHTML += '<p style="color:red">ERROR: ' + msg + '</p>';
+};
+console.error = (function(old) {
+  return function(...args) {
+    errors.push({type: 'console.error', args: args.map(String)});
+    document.getElementById('log').innerHTML += '<p style="color:red">CONSOLE ERROR: ' + args.join(' ') + '</p>';
+    old.apply(console, args);
+  };
+})(console.error);
+console.log = (function(old) {
+  return function(...args) {
+    logs.push(args.map(String));
+    document.getElementById('log').innerHTML += '<p style="color:green">LOG: ' + args.join(' ') + '</p>';
+    old.apply(console, args);
+  };
+})(console.log);
+</script>
+<script type="module">
+try {
+  console.log('开始导入模块...');
+  const { gameState } = await import('./src/data/gameState.js');
+  console.log('✅ gameState导入成功');
+  const { updatePlayer } = await import('./src/game/player.js');
+  console.log('✅ player导入成功');
+  const { render } = await import('./src/game/renderer.js');
+  console.log('✅ renderer导入成功');
+  console.log('🎉 所有模块加载成功！');
+} catch(e) {
+  console.error('❌ 模块导入失败:', e.message);
+  console.error('堆栈:', e.stack);
+}
+setTimeout(() => {
+  document.getElementById('log').innerHTML += '<hr><h2>错误汇总:</h2><pre>' + JSON.stringify(errors, null, 2) + '</pre>';
+}, 2000);
+</script>
+</body>
+</html>

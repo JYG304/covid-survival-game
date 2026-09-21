@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>最小测试</title>
+</head>
+<body>
+  <h1>最小ES6模块测试</h1>
+  <div id="result"></div>
+
+  <script type="module">
+    const resultEl = document.getElementById('result');
+
+    window.onerror = (msg, url, line, col, err) => {
+      resultEl.innerHTML += `<p style="color:red">❌ 错误: ${msg}<br>位置: ${url}:${line}<br>${err?.stack}</p>`;
+    };
+
+    window.addEventListener('unhandledrejection', e => {
+      resultEl.innerHTML += `<p style="color:red">❌ Promise拒绝: ${e.reason}<br>${e.reason?.stack}</p>`;
+    });
+
+    try {
+      resultEl.innerHTML += '<p>⏳ 开始加载 gameState.js...</p>';
+      const { gameState } = await import('./src/data/gameState.js');
+      resultEl.innerHTML += `<p style="color:green">✅ gameState 加载成功！</p>`;
+      resultEl.innerHTML += `<p>当前金钱: ${gameState.money}</p>`;
+
+      resultEl.innerHTML += '<p>⏳ 开始加载 main.js...</p>';
+      const main = await import('./src/main.js');
+      resultEl.innerHTML += `<p style="color:green">✅ main.js 加载成功！</p>`;
+      resultEl.innerHTML += `<p>导出: ${Object.keys(main).join(', ')}</p>`;
+
+    } catch (err) {
+      resultEl.innerHTML += `<p style="color:red">❌ 捕获错误: ${err.message}</p>`;
+      resultEl.innerHTML += `<pre style="color:red">${err.stack}</pre>`;
+      console.error('详细错误:', err);
+    }
+  </script>
+</body>
+</html>

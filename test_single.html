@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>单模块测试</title>
+</head>
+<body>
+    <h1>测试 groceryRushSystem.js</h1>
+    <pre id="log"></pre>
+
+    <script type="module">
+        const log = document.getElementById('log');
+
+        try {
+            log.textContent = '正在加载 groceryRushSystem.js...\n';
+            const module = await import('./src/systems/groceryRushSystem.js');
+            log.textContent += '✅ 加载成功！\n';
+            log.textContent += '导出的函数:\n' + Object.keys(module).join('\n');
+        } catch (error) {
+            log.textContent += '❌ 加载失败!\n\n';
+            log.textContent += '错误信息: ' + error.message + '\n\n';
+            log.textContent += '错误堆栈:\n' + error.stack;
+            log.style.color = 'red';
+        }
+    </script>
+</body>
+</html>

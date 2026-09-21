@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>渲染测试</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #000;
+      color: #0f0;
+      font-family: monospace;
+    }
+    canvas {
+      border: 2px solid #0f0;
+      display: block;
+      margin: 20px 0;
+    }
+    .log {
+      background: #111;
+      padding: 10px;
+      margin: 10px 0;
+      border-left: 3px solid #0f0;
+    }
+    .error {
+      border-left-color: #f00;
+      color: #f00;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎮 游戏渲染系统测试</h1>
+  <div id="logs"></div>
+  <canvas id="testCanvas" width="800" height="600"></canvas>
+
+  <script type="module">
+    const logs = document.getElementById('logs');
+    
+    function log(msg, isError = false) {
+      const div = document.createElement('div');
+      div.className = isError ? 'log error' : 'log';
+      div.textContent = msg;
+      logs.appendChild(div);
+      console.log(msg);
+    }
+
+    log('开始测试...');
+
+    // 测试 1: 基础 Canvas 绘制
+    const canvas = document.getElementById('testCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    if (!ctx) {
+      log('❌ Canvas 上下文创建失败', true);
+    } else {
+      log('✓ Canvas 上下文创建成功');
+    }
+
+    // 测试 2: 简单绘制
+    ctx.fillStyle = '#1a1a2e';
+    ctx.fillRect(0, 0, 800, 600);
+    log('✓ 背景绘制完成');
+
+    // 测试 3: 加载游戏模块
+    try {
+      log('正在加载 gameState...');
+      const { gameState } = await import('./src/data/gameState.js');
+      log(`✓ gameState 加载成功: day=${gameState.day}, money=${gameState.money}`);
+
+      log('正在加载 player...');
+      const { player } = await import('./src/game/player.js');
+      log(`✓ player 加载成功: x=${player.x}, y=${player.y}`);
+
+      log('正在加载 landmarks...');
+      const { landmarks, FLOOR_Y, WORLD_WIDTH } = await import('./src/data/landmarks.js');
+      log(`✓ landmarks 加载成功: ${landmarks.length} 个地标, FLOOR_Y=${FLOOR_Y}`);
+
+      log('正在加载 renderer...');
+      const renderer = await import('./src/game/renderer.js');
+      log(`✓ renderer 加载成功: ${Object.keys(renderer).join(', ')}`);
+
+      // 测试 4: 尝试手动渲染
+      log('尝试手动调用渲染函数...');
+      
+      // 渲染天空
+      const { renderFarSky, renderMidgroundWorld } = renderer;
+      
+      renderFarSky(ctx, canvas);
+      log('✓ renderFarSky 执行完成');
+
+      renderMidgroundWorld(ctx, canvas);
+      log('✓ renderMidgroundWorld 执行完成');
+
+      // 测试像素是否有内容
+      const imageData = ctx.getImageData(400, 300, 1, 1);
+      const hasContent = imageData.data[0] !== 0 || imageData.data[1] !== 0 || imageData.data[2] !== 0;
+      
+      if (hasContent) {
+        log('✓ Canvas 有绘制内容（像素非黑色）');
+      } else {
+        log('⚠ Canvas 中心像素为黑色', true);
+      }
+
+      log('========================================');
+      log('✅ 所有测试完成！如果你能看到上面的图形，说明渲染正常。');
+      log('如果 Canvas 是黑色的，请截图并把控制台错误信息发给我。');
+
+    } catch (err) {
+      log(`❌ 模块加载失败: ${err.message}`, true);
+      log(`Stack: ${err.stack}`, true);
+    }
+
+    // 测试 5: 检查实际游戏初始化
+    log('========================================');
+    log('检查实际游戏初始化...');
+    
+    setTimeout(async () => {
+      try {
+        const mainModule = await import('./src/main.js');
+        log('✓ main.js 已加载');
+        
+        // 检查游戏 Canvas
+        const gameCanvas = document.getElementById('gameCanvas');
+        if (gameCanvas) {
+          log('⚠ 注意: 当前页面没有 #gameCanvas，这是测试页面');
+          log('请访问 index.html 查看实际游戏');
+        }
+      } catch (err) {
+        log(`❌ main.js 加载出错: ${err.message}`, true);
+      }
+    }, 100);
+  </script>
+</body>
+</html>

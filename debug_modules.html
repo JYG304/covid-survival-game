@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>模块加载调试</title>
+  <style>
+    body {
+      font-family: monospace;
+      background: #1a1a1a;
+      color: #00ff00;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .success { color: #00ff00; }
+    .error { color: #ff0000; }
+    .info { color: #00aaff; }
+    .warning { color: #ffaa00; }
+    pre {
+      background: #000;
+      padding: 10px;
+      border: 1px solid #333;
+      overflow-x: auto;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 模块加载调试器</h1>
+  <div id="output"></div>
+
+  <script>
+    const output = document.getElementById('output');
+
+    function log(msg, type = 'info') {
+      const p = document.createElement('p');
+      p.className = type;
+      p.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      output.appendChild(p);
+      console.log(msg);
+    }
+
+    function logError(msg, error) {
+      const div = document.createElement('div');
+      div.innerHTML = `<p class="error">[${new Date().toLocaleTimeString()}] ❌ ${msg}</p>`;
+      if (error) {
+        div.innerHTML += `<pre class="error">${error.message}\n${error.stack}</pre>`;
+      }
+      output.appendChild(div);
+      console.error(msg, error);
+    }
+
+    // 捕获所有错误
+    window.onerror = function(msg, url, line, col, error) {
+      logError(`全局错误: ${msg} at ${url}:${line}:${col}`, error);
+      return false;
+    };
+
+    window.addEventListener('unhandledrejection', event => {
+      logError('未处理的Promise拒绝', event.reason);
+    });
+
+    // 开始测试
+    log('开始加载模块...', 'info');
+
+    const modules = [
+      './src/data/gameState.js',
+      './src/data/landmarks.js',
+      './src/game/player.js',
+      './src/game/renderer.js',
+      './src/game/enhancedRenderer.js',
+      './src/systems/timeSystem.js',
+      './src/systems/actionSystem.js',
+      './src/systems/groceryRushSystem.js',
+      './src/systems/officeWorkSystem.js',
+      './src/systems/feverSystem.js',
+      './src/systems/communitySystem.js',
+      './src/systems/newsSystem.js',
+      './src/systems/sleepSystem.js',
+      './src/systems/neighborSystem.js',
+      './src/systems/mentalHealthSystem.js',
+      './src/systems/blackMarketSystem.js',
+      './src/systems/deepGameplayIntegration.js',
+      './src/ui/hud.js',
+      './src/ui/toast.js',
+      './src/utils/audio.js',
+      './src/main.js'
+    ];
+
+    let successCount = 0;
+    let failCount = 0;
+
+    async function testModule(path) {
+      try {
+        log(`正在加载: ${path}`, 'info');
+        const module = await import(path);
+        log(`✅ 成功: ${path} - exports: ${Object.keys(module).join(', ')}`, 'success');
+        successCount++;
+        return { path, success: true, exports: Object.keys(module) };
+      } catch (error) {
+        logError(`❌ 失败: ${path}`, error);
+        failCount++;
+        return { path, success: false, error: error.message };
+      }
+    }
+
+    async function runTests() {
+      const results = [];
+
+      for (const mod of modules) {
+        const result = await testModule(mod);
+        results.push(result);
+        await new Promise(resolve => setTimeout(resolve, 100)); // 延迟100ms
+      }
+
+      // 总结
+      log('', 'info');
+      log('='.repeat(60), 'info');
+      log(`测试完成！成功: ${successCount}, 失败: ${failCount}`, failCount > 0 ? 'error' : 'success');
+      log('='.repeat(60), 'info');
+
+      if (failCount > 0) {
+        log('', 'info');
+        log('失败的模块:', 'error');
+        results.filter(r => !r.success).forEach(r => {
+          log(`  - ${r.path}: ${r.error}`, 'error');
+        });
+      }
+
+      // 尝试初始化游戏
+      if (failCount === 0) {
+        log('', 'info');
+        log('所有模块加载成功！尝试初始化游戏...', 'success');
+        try {
+          const { initGame } = await import('./src/main.js');
+          log('✅ 游戏主模块加载成功', 'success');
+          log('⚠️  警告: 游戏需要canvas和UI元素才能完全初始化', 'warning');
+        } catch (e) {
+          logError('游戏初始化失败', e);
+        }
+      }
+    }
+
+    runTests().catch(e => logError('测试流程失败', e));
+  </script>
+</body>
+</html>

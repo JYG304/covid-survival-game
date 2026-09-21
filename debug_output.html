@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>游戏调试版 - 带控制台输出</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Noto Sans SC', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+    .font-code { font-family: 'JetBrains Mono', monospace; }
+    #gameCanvas {
+      background: #1a1a2e; /* 添加明显的背景色用于调试 */
+      image-rendering: pixelated;
+    }
+    #debugLog {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.9);
+      color: #0f0;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 11px;
+      max-width: 400px;
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid #0f0;
+      border-radius: 4px;
+      z-index: 9999;
+    }
+  </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.absolute{position:absolute}.relative{position:relative}.left-3{left:0.75rem}.top-3{top:0.75rem}.z-10{z-index:10}.z-30{z-index:30}.block{display:block}.flex{display:flex}.h-2\.5{height:0.625rem}.h-full{height:100%}.h-screen{height:100vh}.w-2\.5{width:0.625rem}.w-full{width:100%}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}@keyframes pulse{50%{opacity:.5}}.animate-pulse{animation:pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite}.flex-col{flex-direction:column}.items-center{align-items:center}.justify-between{justify-content:space-between}.gap-2{gap:0.5rem}.overflow-hidden{overflow:hidden}.rounded{border-radius:0.25rem}.rounded-full{border-radius:9999px}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-emerald-500\/30{border-color:rgb(16 185 129 / 0.3)}.border-zinc-700{--tw-border-opacity:1;border-color:rgb(63 63 70 / var(--tw-border-opacity, 1))}.border-zinc-700\/80{border-color:rgb(63 63 70 / 0.8)}.border-zinc-800{--tw-border-opacity:1;border-color:rgb(39 39 42 / var(--tw-border-opacity, 1))}.bg-emerald-500{--tw-bg-opacity:1;background-color:rgb(16 185 129 / var(--tw-bg-opacity, 1))}.bg-zinc-900\/90{background-color:rgb(24 24 27 / 0.9)}.bg-zinc-900\/95{background-color:rgb(24 24 27 / 0.95)}.bg-zinc-950{--tw-bg-opacity:1;background-color:rgb(9 9 11 / var(--tw-bg-opacity, 1))}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-2\.5{padding-left:0.625rem;padding-right:0.625rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-bold{font-weight:700}.text-amber-300{--tw-text-opacity:1;color:rgb(252 211 77 / var(--tw-text-opacity, 1))}.text-emerald-400{--tw-text-opacity:1;color:rgb(52 211 153 / var(--tw-text-opacity, 1))}.text-zinc-100{--tw-text-opacity:1;color:rgb(244 244 245 / var(--tw-text-opacity, 1))}.text-zinc-200{--tw-text-opacity:1;color:rgb(228 228 231 / var(--tw-text-opacity, 1))}</style></head>
+<body class="bg-zinc-950 text-zinc-100 flex flex-col h-screen overflow-hidden">
+
+  <!-- 顶部UI栏 -->
+  <header class="w-full bg-zinc-900/95 border-b border-zinc-800 px-3 py-1.5 flex items-center justify-between z-30 shrink-0">
+    <div class="flex items-center gap-2">
+      <div class="bg-zinc-950 px-2.5 py-1 rounded border border-zinc-700/80 flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="font-bold text-sm font-code text-amber-300" id="clockDisplay">第 1 天 · 07:30</span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 text-xs font-code">
+      <div class="bg-zinc-950 px-2 py-0.5 rounded border border-emerald-500/30 text-emerald-400">
+        💳 ¥<span id="resMoney">1,850</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- 游戏画布区域 -->
+  <main class="relative flex-1 w-full bg-zinc-950 overflow-hidden">
+    <canvas id="gameCanvas" class="w-full h-full block" width="800" height="557"></canvas>
+
+    <!-- 区域标签 -->
+    <div class="absolute top-3 left-3 bg-zinc-900/90 px-3 py-1 rounded border border-zinc-700 text-xs text-zinc-200 z-10">
+      🏠 出租单间
+    </div>
+  </main>
+
+  <!-- 调试日志 -->
+  <div id="debugLog">
+    <div style="color: #ff0; margin-bottom: 5px;">🐛 调试控制台</div>
+    <div id="logContent"><div style="color: rgb(0, 255, 255);">1:11:26 AM - 🚀 开始初始化游戏...</div><div style="color: rgb(0, 255, 0);">1:11:26 AM - ✅ Canvas元素已获取</div><div style="color: rgb(0, 255, 255);">1:11:26 AM - Canvas尺寸: 800x557</div><div style="color: rgb(0, 255, 0);">1:11:26 AM - ✅ 2D上下文已获取</div><div style="color: rgb(0, 255, 255);">1:11:26 AM - Canvas调整: 300x150 → 800x557</div><div style="color: rgb(0, 255, 255);">1:11:26 AM - 🎨 测试基础绘制...</div><div style="color: rgb(0, 255, 0);">1:11:26 AM - ✅ RGB色块绘制完成</div><div style="color: rgb(0, 255, 255);">1:11:26 AM - 📦 导入游戏模块...</div><div style="color: rgb(255, 0, 0);">1:11:26 AM - ❌ 错误: Unexpected identifier 'groceryRush'</div><div style="color: rgb(255, 0, 0);">1:11:26 AM - 堆栈: SyntaxError: Unexpected identifier 'groceryRush'</div></div>
+  </div>
+
+  <script type="module">
+    const logEl = document.getElementById('logContent');
+
+    function debugLog(msg, type = 'info') {
+      const colors = {
+        info: '#0ff',
+        success: '#0f0',
+        error: '#f00',
+        warn: '#fa0'
+      };
+      const line = document.createElement('div');
+      line.style.color = colors[type] || '#fff';
+      line.textContent = `${new Date().toLocaleTimeString()} - ${msg}`;
+      logEl.appendChild(line);
+      logEl.scrollTop = logEl.scrollHeight;
+      console.log(msg);
+    }
+
+    debugLog('🚀 开始初始化游戏...', 'info');
+
+    const canvas = document.getElementById('gameCanvas');
+    if (!canvas) {
+      debugLog('❌ Canvas元素未找到！', 'error');
+    } else {
+      debugLog(`✅ Canvas元素已获取`, 'success');
+      debugLog(`Canvas尺寸: ${canvas.offsetWidth}x${canvas.offsetHeight}`, 'info');
+    }
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      debugLog('❌ 2D上下文获取失败！', 'error');
+    } else {
+      debugLog('✅ 2D上下文已获取', 'success');
+    }
+
+    // 设置Canvas尺寸
+    function resizeCanvas() {
+      const oldW = canvas.width;
+      const oldH = canvas.height;
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+      debugLog(`Canvas调整: ${oldW}x${oldH} → ${canvas.width}x${canvas.height}`, 'info');
+    }
+    resizeCanvas();
+
+    // 测试基础绘制
+    debugLog('🎨 测试基础绘制...', 'info');
+    ctx.fillStyle = '#ff0000';
+    ctx.fillRect(50, 50, 100, 100);
+    ctx.fillStyle = '#00ff00';
+    ctx.fillRect(200, 50, 100, 100);
+    ctx.fillStyle = '#0000ff';
+    ctx.fillRect(350, 50, 100, 100);
+    debugLog('✅ RGB色块绘制完成', 'success');
+
+    // 导入并初始化游戏
+    try {
+      debugLog('📦 导入游戏模块...', 'info');
+
+      const { gameState } = await import('./src/data/gameState.js');
+      debugLog('✅ gameState模块加载成功', 'success');
+
+      const { player, initControls } = await import('./src/game/player.js');
+      debugLog('✅ player模块加载成功', 'success');
+
+      const renderer = await import('./src/game/renderer.js');
+      debugLog('✅ renderer模块加载成功', 'success');
+
+      // 初始化控制
+      initControls();
+      debugLog('✅ 控制系统初始化完成', 'success');
+
+      // 初始化雨滴和NPC
+      renderer.initRain(canvas.width, canvas.height);
+      debugLog('✅ 雨滴系统初始化完成', 'success');
+
+      renderer.initNPCs();
+      debugLog('✅ NPC系统初始化完成', 'success');
+
+      // 开始渲染循环
+      debugLog('🎬 启动渲染循环...', 'info');
+
+      let frameCount = 0;
+      function gameLoop() {
+        // 清屏
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 渲染天空
+        renderer.renderFarSky(ctx, canvas);
+
+        // 渲染世界
+        renderer.renderMidgroundWorld(ctx, canvas);
+
+        // 渲染雨
+        renderer.renderRainForeground(ctx, canvas);
+
+        frameCount++;
+        if (frameCount === 1) {
+          debugLog('✅ 第一帧渲染完成！', 'success');
+        }
+        if (frameCount === 60) {
+          debugLog('✅ 60帧渲染完成，游戏运行正常', 'success');
+        }
+
+        requestAnimationFrame(gameLoop);
+      }
+
+      gameLoop();
+      debugLog('🎉 游戏初始化完成！', 'success');
+
+    } catch (err) {
+      debugLog(`❌ 错误: ${err.message}`, 'error');
+      debugLog(`堆栈: ${err.stack}`, 'error');
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+  </script>
+
+
+</body></html>

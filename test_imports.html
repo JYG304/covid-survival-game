@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>模块导入测试</title>
+</head>
+<body>
+    <h1>逐个测试模块导入</h1>
+    <pre id="log"></pre>
+
+    <script type="module">
+        const log = document.getElementById('log');
+
+        function addLog(msg, isError = false) {
+            const line = document.createElement('div');
+            line.textContent = msg;
+            line.style.color = isError ? 'red' : 'green';
+            log.appendChild(line);
+        }
+
+        async function testImport(name, path) {
+            try {
+                await import(path);
+                addLog(`✅ ${name} 加载成功`);
+                return true;
+            } catch (error) {
+                addLog(`❌ ${name} 加载失败: ${error.message}`, true);
+                console.error(`${name} 详细错误:`, error);
+                return false;
+            }
+        }
+
+        (async () => {
+            addLog('=== 开始测试模块导入 ===\n');
+
+            // 按依赖顺序测试
+            await testImport('gameState', './src/data/gameState.js');
+            await testImport('landmarks', './src/data/landmarks.js');
+            await testImport('audio', './src/utils/audio.js');
+            await testImport('toast', './src/ui/toast.js');
+            await testImport('hud', './src/ui/hud.js');
+            await testImport('timeSystem', './src/systems/timeSystem.js');
+            await testImport('actionSystem', './src/systems/actionSystem.js');
+            await testImport('groceryRushSystem', './src/systems/groceryRushSystem.js');
+            await testImport('officeWorkSystem', './src/systems/officeWorkSystem.js');
+            await testImport('feverSystem', './src/systems/feverSystem.js');
+            await testImport('communitySystem', './src/systems/communitySystem.js');
+            await testImport('newsSystem', './src/systems/newsSystem.js');
+            await testImport('sleepSystem', './src/systems/sleepSystem.js');
+            await testImport('neighborSystem', './src/systems/neighborSystem.js');
+            await testImport('mentalHealthSystem', './src/systems/mentalHealthSystem.js');
+            await testImport('blackMarketSystem', './src/systems/blackMarketSystem.js');
+            await testImport('deepGameplayIntegration', './src/systems/deepGameplayIntegration.js');
+            await testImport('player', './src/game/player.js');
+            await testImport('renderer', './src/game/renderer.js');
+            await testImport('main', './src/main.js');
+
+            addLog('\n=== 测试完成 ===');
+        })();
+    </script>
+</body>
+</html>

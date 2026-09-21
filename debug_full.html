@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>完整调试页面</title>
+  <style>
+    body { font-family: monospace; background: #1a1a1a; color: #0f0; padding: 20px; }
+    .success { color: #0f0; }
+    .error { color: #f00; }
+    .warning { color: #ff0; }
+    .info { color: #0ff; }
+    pre { background: #000; padding: 10px; border: 1px solid #333; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>🔍 游戏完整调试</h1>
+  <div id="output"></div>
+
+  <script type="module">
+    const output = document.getElementById('output');
+
+    function log(msg, type = 'info') {
+      const p = document.createElement('p');
+      p.className = type;
+      p.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      output.appendChild(p);
+      console.log(msg);
+    }
+
+    function logError(msg, err) {
+      const div = document.createElement('div');
+      div.className = 'error';
+      div.innerHTML = `<strong>❌ ${msg}</strong><pre>${err?.message || err}\n${err?.stack || ''}</pre>`;
+      output.appendChild(div);
+      console.error(msg, err);
+    }
+
+    window.onerror = (msg, url, line, col, err) => {
+      logError(`全局错误: ${msg}`, err);
+      return false;
+    };
+
+    window.addEventListener('unhandledrejection', e => {
+      logError('未处理的Promise拒绝', e.reason);
+    });
+
+    try {
+      log('开始加载游戏模块...', 'info');
+
+      // 1. 加载gameState
+      log('⏳ 加载 gameState.js...', 'info');
+      const { gameState } = await import('./src/data/gameState.js');
+      log(`✅ gameState加载成功! 金钱: ¥${gameState.money}`, 'success');
+
+      // 2. 加载landmarks
+      log('⏳ 加载 landmarks.js...', 'info');
+      const landmarks = await import('./src/data/landmarks.js');
+      log(`✅ landmarks加载成功! 世界宽度: ${landmarks.WORLD_WIDTH}`, 'success');
+
+      // 3. 加载timeSystem
+      log('⏳ 加载 timeSystem.js...', 'info');
+      const timeSystem = await import('./systems/timeSystem.js');
+      log('✅ timeSystem加载成功!', 'success');
+
+      // 4. 加载player
+      log('⏳ 加载 player.js...', 'info');
+      const playerModule = await import('./src/game/player.js');
+      log('✅ player加载成功!', 'success');
+
+      // 5. 加载renderer
+      log('⏳ 加载 renderer.js...', 'info');
+      const renderer = await import('./src/game/renderer.js');
+      log('✅ renderer加载成功!', 'success');
+
+      // 6. 加载enhancedRenderer
+      log('⏳ 加载 enhancedRenderer.js...', 'info');
+      const enhancedRenderer = await import('./src/game/enhancedRenderer.js');
+      log('✅ enhancedRenderer加载成功!', 'success');
+
+      // 7. 加载deepGameplayIntegration
+      log('⏳ 加载 deepGameplayIntegration.js...', 'info');
+      const deepGameplay = await import('./src/systems/deepGameplayIntegration.js');
+      log('✅ deepGameplayIntegration加载成功!', 'success');
+
+      // 8. 最后加载main.js
+      log('⏳ 加载 main.js (主模块)...', 'warning');
+      const main = await import('./src/main.js');
+      log(`✅ main.js加载成功! 导出: ${Object.keys(main).join(', ')}`, 'success');
+
+      // 9. 尝试初始化游戏
+      log('⏳ 尝试初始化游戏...', 'warning');
+
+      // 创建canvas元素（如果不存在）
+      if (!document.getElementById('gameCanvas')) {
+        const canvas = document.createElement('canvas');
+        canvas.id = 'gameCanvas';
+        canvas.width = 800;
+        canvas.height = 600;
+        canvas.style.border = '2px solid #0f0';
+        canvas.style.marginTop = '20px';
+        document.body.appendChild(canvas);
+        log('✅ Canvas元素已创建', 'success');
+      }
+
+      if (typeof main.initGame === 'function') {
+        main.initGame();
+        log('🎮 游戏初始化完成！', 'success');
+      } else {
+        log('⚠️ main.js没有导出initGame函数', 'warning');
+      }
+
+      log('\n========================================', 'success');
+      log('🎉 所有模块加载成功！没有发现错误！', 'success');
+      log('========================================', 'success');
+
+    } catch (err) {
+      logError('模块加载失败', err);
+    }
+  </script>
+</body>
+</html>

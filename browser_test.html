@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>模块实时检测</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #000;
+      color: #0f0;
+      font-family: 'Consolas', 'Courier New', monospace;
+      padding: 20px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    h2 { color: #ff0; margin-bottom: 20px; }
+    .log { margin: 5px 0; padding: 5px 10px; border-left: 3px solid #0f0; }
+    .error { color: #f00; border-left-color: #f00; background: #200; }
+    .success { color: #0f0; border-left-color: #0f0; }
+    .info { color: #0af; border-left-color: #0af; }
+    pre {
+      background: #111;
+      padding: 10px;
+      margin: 5px 0;
+      overflow-x: auto;
+      border-left: 3px solid #f00;
+      font-size: 12px;
+    }
+    .summary {
+      margin-top: 30px;
+      padding: 20px;
+      background: #111;
+      border: 2px solid #ff0;
+    }
+  </style>
+</head>
+<body>
+  <h2>🔥 浏览器环境模块检测 (实时)</h2>
+  <div id="log"></div>
+  <div id="summary" class="summary" style="display:none;"></div>
+
+  <script type="module">
+    const logEl = document.getElementById('log');
+    const summaryEl = document.getElementById('summary');
+    const errors = [];
+    const success = [];
+
+    function addLog(msg, type = 'info') {
+      const div = document.createElement('div');
+      div.className = `log ${type}`;
+      div.innerHTML = msg;
+      logEl.appendChild(div);
+      window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    // 全局错误捕获
+    window.onerror = (msg, url, line, col, err) => {
+      addLog(`❌ 全局错误: ${msg}<br>位置: ${url}:${line}:${col}<pre>${err?.stack || ''}</pre>`, 'error');
+      errors.push({ type: 'global', msg, url, line, col, stack: err?.stack });
+    };
+
+    window.addEventListener('unhandledrejection', e => {
+      addLog(`❌ Promise拒绝: ${e.reason}<pre>${e.reason?.stack || ''}</pre>`, 'error');
+      errors.push({ type: 'promise', reason: e.reason, stack: e.reason?.stack });
+    });
+
+    const modules = [
+      './src/data/gameState.js',
+      './src/data/landmarks.js',
+      './src/utils/audio.js',
+      './src/ui/toast.js',
+      './src/ui/hud.js',
+      './src/game/player.js',
+      './src/game/renderer.js',
+      './src/game/enhancedRenderer.js',
+      './src/systems/timeSystem.js',
+      './src/systems/actionSystem.js',
+      './src/systems/sleepSystem.js',
+      './src/systems/officeWorkSystem.js',
+      './src/systems/groceryRushSystem.js',
+      './src/systems/feverSystem.js',
+      './src/systems/mentalHealthSystem.js',
+      './src/systems/neighborSystem.js',
+      './src/systems/newsSystem.js',
+      './src/systems/communitySystem.js',
+      './src/systems/blackMarketSystem.js',
+      './src/systems/deepGameplayIntegration.js',
+      './src/main.js'
+    ];
+
+    addLog(`开始检测 ${modules.length} 个模块...`, 'info');
+    addLog('', 'info');
+
+    for (const mod of modules) {
+      try {
+        addLog(`⏳ 加载: <strong>${mod}</strong>`, 'info');
+        const m = await import(mod);
+        const exports = Object.keys(m).join(', ');
+        addLog(`✅ 成功: <strong>${mod}</strong><br>&nbsp;&nbsp;&nbsp;导出: ${exports || '(无)'}`, 'success');
+        success.push({ mod, exports: Object.keys(m) });
+      } catch (err) {
+        addLog(`❌ 失败: <strong>${mod}</strong><br>&nbsp;&nbsp;&nbsp;错误: ${err.message}<pre>${err.stack}</pre>`, 'error');
+        errors.push({ mod, error: err.message, stack: err.stack });
+      }
+    }
+
+    // 显示总结
+    summaryEl.style.display = 'block';
+    summaryEl.innerHTML = `
+      <h3 style="color: #ff0;">📊 检测完成</h3>
+      <p style="color: #0f0;">✅ 成功: ${success.length} / ${modules.length}</p>
+      <p style="color: #f00;">❌ 失败: ${errors.length} / ${modules.length}</p>
+      ${errors.length > 0 ? '<h4 style="color: #f00; margin-top: 20px;">失败的模块:</h4>' : ''}
+      ${errors.map((e, i) => `<p>${i+1}. ${e.mod}</p>`).join('')}
+    `;
+
+    addLog('', 'info');
+    addLog('========================================', 'info');
+    addLog(`✅ 成功: ${success.length} / ${modules.length}`, 'success');
+    addLog(`❌ 失败: ${errors.length} / ${modules.length}`, 'error');
+    addLog('========================================', 'info');
+
+    console.log('检测结果:', { success, errors });
+  </script>
+</body>
+</html>

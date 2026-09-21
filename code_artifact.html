@@ -1,0 +1,2207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>打工人抗疫日记 · 深度横板生活模拟与生存抉择</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Noto Sans SC', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+    .font-code { font-family: 'JetBrains Mono', monospace; }
+    .crt-vignette {
+      box-shadow: inset 0 0 90px rgba(0, 0, 0, 0.55);
+      pointer-events: none;
+    }
+    .fever-overlay {
+      background: radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, rgba(185, 28, 28, 0.35) 100%);
+      mix-blend-mode: color-burn;
+      pointer-events: none;
+      animation: fever-pulse 2s infinite ease-in-out;
+    }
+    @keyframes fever-pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.85; }
+    }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #18181b; }
+    ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #52525b; }
+  </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100 flex flex-col h-screen overflow-hidden select-none">
+
+  <header class="w-full bg-zinc-900/95 border-b border-zinc-800 px-3 py-1.5 flex flex-wrap items-center justify-between gap-2 z-30 shrink-0 shadow-md">
+    <!-- Left: Realtime Hour Clock & Health Code -->
+    <div class="flex items-center gap-2 sm:gap-3">
+      <div class="bg-zinc-950 px-2.5 py-1 rounded border border-zinc-700/80 flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" id="statusDot"></span>
+        <span class="font-bold text-xs sm:text-sm font-code text-amber-300" id="clockDisplay">第 1 天 · 07:30</span>
+      </div>
+      <!-- Clock Speed Controls -->
+      <div class="flex items-center bg-zinc-800 rounded p-0.5 border border-zinc-700 text-xs">
+        <button id="btnPauseTime" class="px-1.5 py-0.5 hover:bg-zinc-700 rounded text-zinc-300 font-bold" title="暂停时间">⏸</button>
+        <button id="btnSpeed1" class="px-2 py-0.5 bg-amber-600 text-black font-bold rounded" title="正常流速 (1x)">1x</button>
+        <button id="btnSpeed2" class="px-2 py-0.5 hover:bg-zinc-700 rounded text-zinc-300 font-bold" title="快速流动 (3x)">3x</button>
+      </div>
+      <!-- Health Code Badge -->
+      <div id="badgeCovidStatus" class="px-2 py-0.5 rounded text-xs font-bold border border-emerald-500/40 bg-emerald-950/40 text-emerald-400 flex items-center gap-1 cursor-pointer" title="点击查看健康码核酸详情">
+        <span>🟢</span>
+        <span id="txtCovid">48h绿码</span>
+      </div>
+      <!-- Mask Toggle Status -->
+      <button id="btnToggleMask" class="px-2 py-0.5 rounded text-xs font-bold border border-sky-500/40 bg-sky-950/40 text-sky-300 hover:bg-sky-900/60 flex items-center gap-1 transition">
+        <span>😷</span>
+        <span id="txtMaskState">已佩戴 N95</span>
+      </button>
+    </div>
+
+    <div class="flex items-center gap-2 sm:gap-3 text-xs font-code overflow-x-auto py-0.5">
+      <div class="flex items-center gap-1 bg-zinc-950 px-2 py-0.5 rounded border border-emerald-500/30 text-emerald-400" title="银行存款可用活期余额">
+        <span>💳 ¥</span>
+        <span id="resMoney" class="font-bold">1,850</span>
+      </div>
+      <div class="flex items-center gap-1 bg-zinc-950 px-2 py-0.5 rounded border border-amber-500/30 text-amber-300" title="食材原料：面饼、鸡蛋、蔬菜">
+        <span>🥚 鲜食:</span>
+        <span id="resRawFood" class="font-bold">4</span>
+      </div>
+      <div class="flex items-center gap-1 bg-zinc-950 px-2 py-0.5 rounded border border-orange-500/30 text-orange-300" title="自热便当与速冻水饺储备">
+        <span>🍱 便当:</span>
+        <span id="resInstantFood" class="font-bold">2</span>
+      </div>
+      <div class="flex items-center gap-1 bg-zinc-950 px-2 py-0.5 rounded border border-rose-500/30 text-rose-300" title="布洛芬退热胶囊与连花清瘟">
+        <span>💊 药品:</span>
+        <span id="resPills" class="font-bold">2</span>
+      </div>
+      <div class="flex items-center gap-1 bg-zinc-950 px-2 py-0.5 rounded border border-purple-500/30 text-purple-300" title="新型冠状病毒抗原自测试剂盒">
+        <span>🧪 抗原:</span>
+        <span id="resKits" class="font-bold">2</span>
+      </div>
+      <div class="flex items-center gap-1 bg-zinc-950 px-2 py-0.5 rounded border border-cyan-500/30 text-cyan-300" title="社区互助声望点数">
+        <span>🤝 声望:</span>
+        <span id="resReputation" class="font-bold">10</span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <div class="hidden xl:flex items-center gap-3 bg-zinc-950/80 px-2.5 py-0.5 rounded border border-zinc-800 text-xs">
+        <span title="饱食度">🍔 <b id="barHunger" class="text-amber-400">85%</b></span>
+        <span title="精力与体能">⚡ <b id="barEnergy" class="text-sky-400">95%</b></span>
+        <span title="心理压力与心情">🧘 <b id="barSanity" class="text-violet-400">85%</b></span>
+        <span title="核心体温监测">🌡️ <b id="barTemp" class="text-emerald-400">36.6°C</b></span>
+      </div>
+
+      <button id="btnOpenGroceryRush" class="bg-gradient-to-r from-emerald-800/80 to-teal-800/80 hover:from-emerald-700 hover:to-teal-700 border border-emerald-500/50 text-emerald-100 px-2 py-1 rounded text-xs flex items-center gap-1 font-semibold animate-pulse" title="叮咚/朴朴早晨清晨平价抢菜通道">
+        <span>🥦</span>
+        <span>清晨抢菜</span>
+      </button>
+
+      <button id="btnOpenAntigen" class="bg-purple-900/60 hover:bg-purple-800 border border-purple-500/50 text-purple-200 px-2 py-1 rounded text-xs flex items-center gap-1 font-semibold">
+        <span>🧪</span>
+        <span>自测抗原</span>
+      </button>
+
+      <button id="btnOpenPhone" class="bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 px-2 py-1 rounded text-xs flex items-center gap-1 font-semibold">
+        <span>📱</span>
+        <span>社区互助网</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="relative flex-1 w-full bg-zinc-950 overflow-hidden flex items-center justify-center">
+    <canvas id="gameCanvas" class="w-full h-full block cursor-pointer"></canvas>
+
+    <!-- CRT & Fever Vignette -->
+    <div class="absolute inset-0 crt-vignette"></div>
+    <div id="feverFX" class="absolute inset-0 fever-overlay hidden"></div>
+
+    <!-- Zone location breadcrumb -->
+    <div id="zoneTag" class="absolute top-3 left-3 pointer-events-none bg-zinc-900/90 backdrop-blur-md px-3 py-1 rounded border border-zinc-700/80 text-xs font-code text-zinc-200 z-10 flex items-center gap-2 shadow-lg">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span id="zoneTitle">🏠 出租单间 · 卧室书桌与小灶台</span>
+    </div>
+
+    <!-- Floating Interaction Prompt -->
+    <div id="interactPrompt" class="absolute bottom-16 pointer-events-none hidden transition-all duration-150 flex flex-col items-center z-20">
+      <div class="bg-zinc-900/95 text-amber-300 font-code font-bold text-xs sm:text-sm px-4 py-1.5 rounded-full shadow-2xl border border-amber-500/60 flex items-center gap-2 animate-bounce">
+        <span class="bg-amber-500 text-black px-1.5 py-0.5 rounded text-[10px] font-black">[E] / 触击</span>
+        <span id="promptActionLabel">互动操作</span>
+      </div>
+    </div>
+
+    <!-- Timed Activity Progress Overlay -->
+    <div id="actionProgressOverlay" class="absolute top-1/3 pointer-events-none hidden flex flex-col items-center z-20">
+      <div class="bg-zinc-900/95 border border-amber-500/70 px-6 py-3.5 rounded-xl shadow-2xl flex flex-col items-center gap-2 min-w-[260px] backdrop-blur-md">
+        <div class="flex items-center gap-2">
+          <span class="text-amber-400 animate-spin">⏱️</span>
+          <span id="actionProgressTitle" class="text-xs sm:text-sm font-bold text-amber-200">正在进行操作...</span>
+        </div>
+        <div class="w-56 bg-zinc-950 h-2.5 rounded-full overflow-hidden border border-zinc-700 p-0.5">
+          <div id="actionFillBar" class="bg-gradient-to-r from-amber-500 to-emerald-400 h-full w-0 transition-all duration-75 rounded-full"></div>
+        </div>
+        <span id="actionTimeLabel" class="text-[11px] text-zinc-400 font-code">耗时 30 分钟</span>
+      </div>
+    </div>
+
+    <!-- Toast Notification Area -->
+    <div id="toastContainer" class="absolute inset-0 pointer-events-none overflow-hidden z-20"></div>
+  </main>
+
+  <footer class="w-full bg-zinc-900/95 border-t border-zinc-800 px-3 py-1.5 flex items-center justify-between gap-2 shrink-0 z-30">
+    <div class="text-xs text-zinc-400 font-code flex items-center gap-2">
+      <span class="hidden md:inline">⌨️ <kbd class="px-1.5 py-0.5 bg-zinc-800 border border-zinc-700 rounded text-amber-300 font-mono">A</kbd>/<kbd class="px-1.5 py-0.5 bg-zinc-800 border border-zinc-700 rounded text-amber-300 font-mono">D</kbd> 行走，靠近物品按 <kbd class="px-1.5 py-0.5 bg-zinc-800 border border-zinc-700 rounded text-amber-300 font-mono">E</kbd> 或空格交互。</span>
+      <span class="md:hidden">💡 触屏：点击地面直接行走，点击人物/建筑即刻交互</span>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button id="btnMobileLeft" class="bg-zinc-800 active:bg-zinc-700 border border-zinc-700 text-zinc-200 w-10 h-9 rounded-lg flex items-center justify-center text-base font-bold shadow">
+        ◀
+      </button>
+      <button id="btnMobileRight" class="bg-zinc-800 active:bg-zinc-700 border border-zinc-700 text-zinc-200 w-10 h-9 rounded-lg flex items-center justify-center text-base font-bold shadow">
+        ▶
+      </button>
+      <button id="btnMobileAction" class="bg-amber-600 active:bg-amber-500 text-black font-bold px-3 h-9 rounded-lg flex items-center justify-center text-xs shadow">
+        ⚡ 交互
+      </button>
+    </div>
+  </footer>
+
+  <div id="modalAntigen" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-purple-500/60 rounded-2xl max-w-sm w-full p-5 shadow-2xl flex flex-col gap-3 text-center">
+      <div class="flex items-center justify-between border-b border-zinc-800 pb-2">
+        <h3 class="font-bold text-sm text-purple-300 flex items-center gap-1.5">
+          <span>🧪</span> 新型冠状病毒抗原自测盒 (胶体金法)
+        </h3>
+        <button id="btnCloseAntigen" class="text-zinc-400 hover:text-white text-lg font-bold px-2">✕</button>
+      </div>
+
+      <p class="text-xs text-zinc-400">
+        鼻拭子采样并滴入裂解液。观察加样孔渗流：**C线变红为测试有效；若T线亦显色变红，则为抗原阳性感染！**
+      </p>
+
+      <!-- Antigen Cassette Graphic -->
+      <div class="my-3 mx-auto w-64 bg-slate-100 rounded-xl p-3 border-2 border-slate-300 shadow-inner flex items-center justify-between text-zinc-800 font-code select-none">
+        <!-- Sample well (S) -->
+        <div class="flex flex-col items-center gap-1">
+          <div class="w-8 h-8 rounded-full bg-slate-300 border-2 border-slate-400 flex items-center justify-center shadow-inner">
+            <div id="antigenDroplet" class="w-4 h-4 rounded-full bg-indigo-500/20"></div>
+          </div>
+          <span class="text-[10px] font-bold text-slate-500">S孔 (加样)</span>
+        </div>
+
+        <!-- Detection Window (C & T) -->
+        <div class="relative w-36 h-12 bg-white rounded border border-slate-300 flex items-center justify-around px-2 shadow-inner overflow-hidden">
+          <div class="flex flex-col items-center">
+            <span class="text-[9px] font-black text-slate-400">C</span>
+            <div id="antigenLineC" class="w-1.5 h-6 bg-slate-200 rounded-sm transition-all duration-700"></div>
+          </div>
+          <div class="flex flex-col items-center">
+            <span class="text-[9px] font-black text-slate-400">T</span>
+            <div id="antigenLineT" class="w-1.5 h-6 bg-slate-200 rounded-sm transition-all duration-700"></div>
+          </div>
+        </div>
+
+        <div class="text-[9px] font-mono text-slate-500 writing-vertical">COVID-19</div>
+      </div>
+
+      <div id="antigenVerdict" class="text-xs font-bold font-code py-1 min-h-[24px] text-zinc-400">
+        准备就绪，点击开始滴入采样液
+      </div>
+
+      <button id="btnRunAntigenTest" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 text-white font-bold py-2 rounded-lg text-xs shadow transition active:scale-95">
+        💧 滴入样本并显色 (耗费1个抗原盒)
+      </button>
+    </div>
+  </div>
+
+  <div id="modalCommute" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-zinc-700 rounded-2xl max-w-md w-full p-4 shadow-2xl flex flex-col gap-3">
+      <div class="flex items-center justify-between border-b border-zinc-800 pb-2">
+        <div class="flex items-center gap-1.5 text-sm font-bold text-amber-300">
+          <span>🚇</span> 前往公司上班 · 通勤方式抉择
+        </div>
+        <button id="btnCloseCommute" class="text-zinc-400 hover:text-white text-lg font-bold px-2">✕</button>
+      </div>
+
+      <p class="text-xs text-zinc-400 leading-relaxed">
+        打工人每日必须按时赶往公司工位打卡完成日薪结算。当前外界有气溶胶风险，请权衡金钱开销、体能消耗与感染概率：
+      </p>
+
+      <div class="flex flex-col gap-2 text-xs">
+        <!-- Option 1: Subway -->
+        <div class="p-3 bg-zinc-950 border border-zinc-800 hover:border-amber-500/50 rounded-xl flex items-center justify-between">
+          <div>
+            <div class="font-bold text-amber-300 flex items-center gap-1">
+              <span>🚇 挤早高峰地铁</span>
+              <span class="text-[10px] bg-red-950 text-red-400 px-1 py-0.2 rounded">高密度</span>
+            </div>
+            <div class="text-[11px] text-zinc-400 mt-1">耗时 40分钟 · 票价 ¥4 · 人挤人感染几率高</div>
+          </div>
+          <button id="btnChooseSubway" class="bg-amber-600 hover:bg-amber-500 text-black font-bold px-3 py-1.5 rounded-lg text-xs transition">
+            乘地铁 (¥4)
+          </button>
+        </div>
+
+        <!-- Option 2: Shared Bike -->
+        <div class="p-3 bg-zinc-950 border border-zinc-800 hover:border-sky-500/50 rounded-xl flex items-center justify-between">
+          <div>
+            <div class="font-bold text-sky-300 flex items-center gap-1">
+              <span>🚲 扫码美团单车 (骑行8公里)</span>
+              <span class="text-[10px] bg-emerald-950 text-emerald-400 px-1 py-0.2 rounded">零密闭风险</span>
+            </div>
+            <div class="text-[11px] text-zinc-400 mt-1">耗时 60分钟 · 票价 ¥2.5 · 耗精力 35%</div>
+          </div>
+          <button id="btnChooseBike" class="bg-sky-600 hover:bg-sky-500 text-black font-bold px-3 py-1.5 rounded-lg text-xs transition">
+            扫码骑行
+          </button>
+        </div>
+
+        <!-- Option 3: Taxi -->
+    <div class="p-3 bg-zinc-950 border border-zinc-800 hover:border-emerald-500/50 rounded-xl flex items-center justify-between">
+      <div>
+        <div class="font-bold text-emerald-300 flex items-center gap-1">
+          <span>🚖 呼叫专车直达</span>
+          <span class="text-[10px] bg-emerald-950 text-emerald-400 px-1 py-0.2 rounded">安全舒适</span>
+        </div>
+        <div class="text-[11px] text-zinc-400 mt-1">耗时 25分钟 · 费用 ¥48 · 感染率极低</div>
+      </div>
+      <button id="btnChooseTaxi" class="bg-zinc-800 hover:bg-zinc-700 text-emerald-400 border border-emerald-500/40 font-bold px-3 py-1.5 rounded-lg text-xs transition">
+        呼叫专车 (¥48)
+      </button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Modal: Office Work Shift Interactive Console (工位搬砖与摸鱼) -->
+<div id="modalOfficeWork" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+  <div class="bg-zinc-900 border border-amber-500/60 rounded-2xl max-w-lg w-full p-5 shadow-2xl flex flex-col gap-4">
+    <div class="flex items-center justify-between border-b border-zinc-800 pb-2">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">🏢</span>
+        <div>
+          <h3 class="font-bold text-sm text-amber-300">科技园 12 楼工位 · 日常打卡搬砖中</h3>
+          <span id="workClockText" class="text-[11px] text-zinc-400 font-code">班次进度: 09:00 - 18:00</span>
+        </div>
+      </div>
+      <span id="workShiftKpi" class="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-500/40 font-code">KPI: 0%</span>
+    </div>
+
+    <!-- Office Dynamic Alert -->
+    <div id="officeEventBanner" class="p-2.5 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-zinc-300 flex items-start gap-2">
+      <span id="officeEventIcon" class="text-base">💼</span>
+      <div id="officeEventDesc" class="leading-relaxed">
+        周围键盘敲击声不断，HR 正在走廊巡视是否全员佩戴口罩。请在保持体力与绩效之间权衡！
+      </div>
+    </div>
+
+    <!-- Work Actions -->
+    <div class="grid grid-cols-2 gap-2 text-xs">
+      <button id="btnWorkHard" class="p-3 bg-zinc-950 hover:bg-zinc-800 border border-zinc-700 hover:border-amber-400 rounded-xl flex flex-col items-center gap-1 text-center transition">
+        <span class="text-base">💻</span>
+        <span class="font-bold text-amber-300">埋头狂写汇报 (硬拼)</span>
+        <span class="text-[10px] text-zinc-400">KPI +30% · 精力 -20% · 免疫力微降</span>
+      </button>
+
+      <button id="btnWorkSlack" class="p-3 bg-zinc-950 hover:bg-zinc-800 border border-zinc-700 hover:border-sky-400 rounded-xl flex flex-col items-center gap-1 text-center transition">
+        <span class="text-base">☕</span>
+        <span class="font-bold text-sky-300">去茶水间带薪摸鱼</span>
+        <span class="text-[10px] text-zinc-400">心境 +15% · 精力 +10% (有概率撞见HR)</span>
+      </button>
+
+      <button id="btnWorkMaskCheck" class="p-3 bg-zinc-950 hover:bg-zinc-800 border border-zinc-700 hover:border-emerald-400 rounded-xl flex flex-col items-center gap-1 text-center transition">
+        <span class="text-base">🧴</span>
+        <span class="font-bold text-emerald-300">酒精喷桌 & 压紧鼻夹</span>
+        <span class="text-[10px] text-zinc-400">本次班次感染风险降低 80%</span>
+      </button>
+
+      <button id="btnFinishWorkDay" class="p-3 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 text-black font-bold rounded-xl flex flex-col items-center justify-center gap-1 text-center transition">
+        <span class="text-base">🚪</span>
+        <span>打卡下班 / 结算今日日薪</span>
+        <span class="text-[10px] text-zinc-900 font-semibold" id="txtEstimatedSalary">预估日薪: ¥380</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Grocery Flash Rush Minigame (叮咚/朴朴清晨抢菜) -->
+<div id="modalGroceryRush" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+  <div class="bg-zinc-900 border border-emerald-500/60 rounded-2xl max-w-sm w-full p-5 shadow-2xl flex flex-col gap-3 text-center">
+    <div class="flex items-center justify-between border-b border-zinc-800 pb-2">
+      <h3 class="font-bold text-sm text-emerald-300 flex items-center gap-1.5">
+        <span>🥦</span> 叮咚生鲜 · 早上 06:00 准点抢菜
+      </h3>
+      <button id="btnCloseGroceryRush" class="text-zinc-400 hover:text-white text-lg font-bold px-2">✕</button>
+    </div>
+
+    <p class="text-xs text-zinc-400 leading-relaxed text-left">
+      疫情防控期间运力紧张！早晨 06:00~06:30 释放平价鲜蔬包配额，需拼手速在绿灯亮起瞬间连续点击【立即结算】！
+    </p>
+
+    <!-- Grocery Rush Status Banner -->
+    <div id="rushStatusBox" class="p-3 bg-zinc-950 border border-zinc-800 rounded-xl flex flex-col items-center gap-1.5 font-code">
+      <div id="rushQueueText" class="text-xs text-amber-400 font-bold">前方排队中：正在连接服务器...</div>
+      <div class="w-full bg-zinc-800 h-2 rounded-full overflow-hidden">
+        <div id="rushQueueBar" class="bg-emerald-500 h-full w-1/4 transition-all duration-300"></div>
+      </div>
+      <span id="rushTimerCount" class="text-[11px] text-zinc-400">剩余倒计时: 10 秒</span>
+    </div>
+
+    <button id="btnClickPayGrocery" class="bg-emerald-600 hover:bg-emerald-500 text-black font-extrabold py-3 rounded-xl text-sm shadow transition active:scale-95">
+      ⚡ 疯狂点击抢购！(¥38 / 4份鲜蔬肉蛋)
+    </button>
+  </div>
+</div>
+            <div class="text-[11px] text-zinc-400 mt-1">耗时 25分钟 · 费用 ¥48 · 感染率极低</div>
+          </div>
+          <button id="btnChooseTaxi" class="bg-zinc-800 hover:bg-zinc-700 text-emerald-400 border border-emerald-500/40 font-bold px-3 py-1.5 rounded-lg text-xs transition">
+            呼叫专车 (¥48)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalKitchen" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-zinc-700 rounded-2xl max-w-md w-full p-4 shadow-2xl flex flex-col gap-3">
+      <div class="flex items-center justify-between border-b border-zinc-800 pb-2">
+        <div class="flex items-center gap-1.5 text-sm font-bold text-amber-300">
+          <span>🍳</span> 出租屋厨房 · 饮食自理与热汤
+        </div>
+        <button id="btnCloseKitchen" class="text-zinc-400 hover:text-white text-lg font-bold px-2">✕</button>
+      </div>
+
+      <p class="text-xs text-zinc-400">
+        生病或居家隔离时，一顿热腾腾的饭菜和姜汤能大幅稳住心境、降低虚汗体温！
+      </p>
+
+      <div class="flex flex-col gap-2 text-xs">
+        <!-- Recipe 1: Noodles with Egg -->
+        <div class="p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl flex items-center justify-between">
+          <div>
+            <div class="font-bold text-amber-300">🍜 阳春挂面卧荷包蛋</div>
+            <div class="text-[11px] text-zinc-400">饱腹 +35%，心境 +10% (耗 1 份鲜食材)</div>
+          </div>
+          <button id="btnCookNoodles" class="bg-amber-600 hover:bg-amber-500 text-black font-bold px-3 py-1.5 rounded-lg">
+            下锅煮面 (30分)
+          </button>
+        </div>
+
+        <!-- Recipe 2: Ginger Lemon Hot Water -->
+        <div class="p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl flex items-center justify-between">
+          <div>
+            <div class="font-bold text-rose-300">🫖 浓熬热姜丝红糖水</div>
+            <div class="text-[11px] text-zinc-400">缓解头晕寒颤，出透虚汗降温 0.4°C</div>
+          </div>
+          <button id="btnCookGingerTea" class="bg-rose-900/60 hover:bg-rose-900 border border-rose-500/50 text-rose-200 font-bold px-3 py-1.5 rounded-lg">
+            熬煮姜汤 (20分)
+          </button>
+        </div>
+
+        <!-- Recipe 3: Instant Meal Box -->
+        <div class="p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl flex items-center justify-between">
+          <div>
+            <div class="font-bold text-orange-300">🍱 热腾腾自热牛肉煲仔饭</div>
+            <div class="text-[11px] text-zinc-400">大份能量，饱腹 +55% (消耗 1 盒便当)</div>
+          </div>
+          <button id="btnEatInstantMeal" class="bg-orange-600 hover:bg-orange-500 text-black font-bold px-3 py-1.5 rounded-lg">
+            加热食用 (15分)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalPhone" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-zinc-700 rounded-2xl max-w-md w-full p-4 shadow-2xl flex flex-col gap-3 max-h-[90vh]">
+      <div class="flex items-center justify-between border-b border-zinc-800 pb-2">
+        <div class="flex items-center gap-1.5 font-bold text-sm text-zinc-200">
+          <span>📱</span> 朝阳里业主群 & 远程外快网
+        </div>
+        <button id="btnClosePhone" class="text-zinc-400 hover:text-white text-lg font-bold px-2">✕</button>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="grid grid-cols-3 gap-1.5 text-xs">
+        <button id="tabChat" class="bg-amber-600/20 border border-amber-500/40 text-amber-300 font-bold py-1.5 rounded-lg text-center">
+          💬 业主互助群
+        </button>
+        <button id="tabGigs" class="bg-zinc-800 border border-zinc-700 text-zinc-400 font-bold py-1.5 rounded-lg text-center">
+          💼 远程接私活
+        </button>
+        <button id="tabMarket" class="bg-zinc-800 border border-zinc-700 text-zinc-400 font-bold py-1.5 rounded-lg text-center">
+          🛵 闪送代买
+        </button>
+      </div>
+
+      <!-- View 1: WeChat Community Group Barter -->
+      <div id="viewChat" class="flex flex-col gap-2 overflow-y-auto max-h-72 pr-1">
+        <div class="p-2 bg-zinc-950 border border-zinc-800 rounded-lg text-xs flex flex-col gap-1">
+          <div class="flex justify-between text-zinc-400 text-[10px]">
+            <span>602室 王阿姨</span>
+            <span>刚刚</span>
+          </div>
+          <p class="text-zinc-200">“家里小孙子发烧急需美林/布洛芬！哪位邻居有多余的一盒？我愿意用家里 **整整 4 份新鲜蔬菜鸡蛋** 跟您换！”</p>
+          <button id="btnTradePillsForFood" class="mt-1 bg-emerald-900/50 hover:bg-emerald-800 border border-emerald-500/50 text-emerald-200 py-1 rounded text-xs font-bold">
+            🤝 奉献 1 盒布洛芬 换取 4 份新鲜食材 (+15声望)
+          </button>
+        </div>
+
+        <div class="p-2 bg-zinc-950 border border-zinc-800 rounded-lg text-xs flex flex-col gap-1">
+          <div class="flex justify-between text-zinc-400 text-[10px]">
+            <span>1204室 程序员小张</span>
+            <span>10分钟前</span>
+          </div>
+          <p class="text-zinc-200">“我多囤了抗原试剂盒！想要换 1 盒自热便当，有愿意置换的邻居挂在门把手即可！”</p>
+          <button id="btnTradeFoodForKit" class="mt-1 bg-purple-900/50 hover:bg-purple-800 border border-purple-500/50 text-purple-200 py-1 rounded text-xs font-bold">
+            🤝 用 1 盒自热便当 交换 1 盒抗原试剂
+          </button>
+        </div>
+
+        <!-- NEW: Community Group Buy (发起小区团购) -->
+        <div class="p-2 bg-zinc-950 border border-zinc-800 rounded-lg text-xs flex flex-col gap-1">
+          <div class="flex justify-between text-cyan-400 text-[10px]">
+            <span>🛒 社区自救团购专区</span>
+            <span>自发组团</span>
+          </div>
+          <p class="text-zinc-300">“发起消毒液与整箱鸡蛋挂面团购（需垫资 ¥200，成团后不仅全额返还并获丰厚物资与声望）”</p>
+          <button id="btnStartGroupBuy" class="mt-1 bg-cyan-900/50 hover:bg-cyan-800 border border-cyan-500/50 text-cyan-200 py-1 rounded text-xs font-bold">
+            🚀 垫资 ¥200 发起 10 人社区团购
+          </button>
+        </div>
+
+        <div class="p-2 bg-zinc-950 border border-zinc-800 rounded-lg text-xs flex flex-col gap-1">
+          <div class="flex justify-between text-amber-400 text-[10px]">
+            <span>📢 居委会网格员通告</span>
+            <span>置顶</span>
+          </div>
+          <p class="text-zinc-300">“请各楼栋居民保持绿码时效，如遇体温异常请立刻居家勿出，声望高的住户可优先申领爱心蔬菜包。”</p>
+        </div>
+      </div>
+
+      <!-- View 2: Freelance Remote Gigs -->
+      <div id="viewGigs" class="hidden flex flex-col gap-2 overflow-y-auto max-h-72 pr-1">
+        <div class="p-2.5 bg-zinc-950 border border-zinc-800 rounded-lg flex flex-col gap-1">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-amber-300">加急修改招商发布会 PPT (20页)</span>
+            <span class="text-emerald-400 font-code font-bold">+¥180</span>
+          </div>
+          <p class="text-[11px] text-zinc-400">耗费 2 小时 · 消耗 25% 精力 · 在单间书桌前即可完成</p>
+          <button id="btnDoGigPPT" class="mt-1 bg-zinc-800 hover:bg-zinc-700 border border-amber-500/40 text-amber-200 py-1 rounded text-xs font-bold">
+            💻 承接制作 (耗时 2h)
+          </button>
+        </div>
+
+        <div class="p-2.5 bg-zinc-950 border border-zinc-800 rounded-lg flex flex-col gap-1">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-amber-300">带货口播短视频剪辑与字幕特效</span>
+            <span class="text-emerald-400 font-code font-bold">+¥320</span>
+          </div>
+          <p class="text-[11px] text-zinc-400">耗费 3.5 小时 · 消耗 45% 精力 · 收入可观</p>
+          <button id="btnDoGigVideo" class="mt-1 bg-zinc-800 hover:bg-zinc-700 border border-amber-500/40 text-amber-200 py-1 rounded text-xs font-bold">
+            🎬 承接剪辑 (耗时 3.5h)
+          </button>
+        </div>
+      </div>
+
+      <!-- View 3: Urgent Flash Delivery -->
+      <div id="viewMarket" class="hidden flex flex-col gap-2 overflow-y-auto max-h-72 pr-1">
+        <div class="p-2.5 bg-zinc-950 border border-zinc-800 rounded-lg flex justify-between items-center text-xs">
+          <div>
+            <div class="font-bold text-rose-300">布洛芬缓释胶囊 (急送现货)</div>
+            <div class="text-[11px] text-zinc-400">发烧特效药，立即降温</div>
+          </div>
+          <button id="btnBuyMedsOnline" class="bg-rose-900/60 hover:bg-rose-900 border border-rose-500/50 text-rose-200 px-3 py-1.5 rounded font-bold">
+            ¥75 闪送
+          </button>
+        </div>
+
+        <div class="p-2.5 bg-zinc-950 border border-zinc-800 rounded-lg flex justify-between items-center text-xs">
+          <div>
+            <div class="font-bold text-amber-300">社区鲜蔬生鲜包 (4份)</div>
+            <div class="text-[11px] text-zinc-400">挂面、西红柿与鸡蛋包</div>
+          </div>
+          <button id="btnBuyRawFoodOnline" class="bg-amber-900/60 hover:bg-amber-900 border border-amber-500/50 text-amber-200 px-3 py-1.5 rounded font-bold">
+            ¥55 闪送
+          </button>
+        </div>
+
+        <div class="p-2.5 bg-zinc-950 border border-zinc-800 rounded-lg flex justify-between items-center text-xs">
+          <div>
+            <div class="font-bold text-purple-300">新冠抗原自测试剂盒 (2人份)</div>
+            <div class="text-[11px] text-zinc-400">快速排查自身感染</div>
+          </div>
+          <button id="btnBuyKitOnline" class="bg-purple-900/60 hover:bg-purple-900 border border-purple-500/50 text-purple-200 px-3 py-1.5 rounded font-bold">
+            ¥38 闪送
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    class WebAudioSynth {
+      constructor() {
+        this.ctx = null;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      playTone(freq = 440, duration = 0.15, type = 'sine', vol = 0.1) {
+        try {
+          this.init();
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch(e) {}
+      }
+      playCash() {
+        this.playTone(523, 0.08, 'triangle', 0.1);
+        setTimeout(() => this.playTone(659, 0.12, 'triangle', 0.1), 70);
+      }
+      playWarning() {
+        this.playTone(220, 0.2, 'sawtooth', 0.12);
+        setTimeout(() => this.playTone(180, 0.25, 'sawtooth', 0.12), 150);
+      }
+      playCough() {
+        this.playTone(140, 0.09, 'sawtooth', 0.08);
+      }
+      playSip() {
+        this.playTone(480, 0.15, 'sine', 0.08);
+        setTimeout(() => this.playTone(640, 0.18, 'sine', 0.08), 80);
+      }
+      playClick() {
+        this.playTone(800, 0.04, 'square', 0.05);
+      }
+    }
+    const audio = new WebAudioSynth();
+
+    const gameState = {
+      // Time system
+      day: 1,
+      hour: 7,
+      minute: 30,
+      timeSpeed: 1, // 0 = paused, 1 = normal, 3 = fast
+      timeAccumulator: 0,
+
+      // Finances and basic rent
+      money: 1850,
+      rentDueDays: 3,
+      rentAmount: 450,
+      reputation: 10,  // Community prestige/reputation
+
+      // Inventory
+      rawFood: 4,      // 挂面鸡蛋食材
+      instantFood: 2,  // 自热便当
+      pillsCount: 2,   // 布洛芬退烧药
+      antigenKits: 2,  // 抗原自测试剂
+
+      // Biological vitals
+      hunger: 85,      // 0 - 100
+      energy: 95,      // 0 - 100
+      sanity: 85,      // 0 - 100
+      bodyTemp: 36.6,  // Celsius
+      viralLoad: 0,    // 0 = clean, 10-40 = incubation, >50 = symptomatic positive
+      pillCooldownMinutes: 0, // Safe med cooldown (6 hours)
+
+      // Office Shift State
+      workShift: {
+        active: false,
+        kpi: 0,
+        sanitized: false,
+        baseSalary: 380,
+        colleagueInfected: false
+      },
+
+      // Grocery Rush State
+      groceryRush: {
+        clicksNeeded: 6,
+        clicksCurrent: 0,
+        secondsLeft: 10,
+        timerId: null
+      },
+
+      // Status flags
+      hasMaskOn: true,
+      hasWorkedToday: false,
+      isPositiveKnown: false,
+      quarantineDaysLeft: 0,
+      nearbyItem: null,
+      activeAction: null,
+      lockdownLevel: 1 // 1: normal, 2: partial barriers, 3: full silence
+    };
+
+    const WORLD_WIDTH = 4400;
+    const FLOOR_Y = 415;
+
+    const landmarks = [
+      {
+        id: 'home_bed',
+        name: '单人行军床',
+        zone: '出租屋 · 卧室',
+        x: 120,
+        width: 110,
+        height: 70,
+        prompt: '盖好被子安睡休息 (快速补精力与退虚汗)',
+        timeCostMinutes: 120,
+        actionDuration: 2.2,
+        execute: () => {
+          gameState.energy = Math.min(100, gameState.energy + 45);
+          if (gameState.bodyTemp > 37.2) {
+            gameState.bodyTemp = Math.max(36.6, gameState.bodyTemp - 0.3);
+          }
+          audio.playTone(330, 0.4, 'sine', 0.1);
+          spawnFloatingText('+45 精力 · 缓解发热', player.x, player.y - 70, '#38bdf8');
+          showToast('钻进暖烘烘的被窝小睡了2个小时，体力有所恢复。', 'success');
+        }
+      },
+      {
+        id: 'home_tv',
+        name: '二手旧彩电',
+        zone: '出租屋 · 起居角',
+        x: 245,
+        width: 60,
+        height: 60,
+        prompt: '收看晨间疫情防控新闻快报',
+        timeCostMinutes: 15,
+        actionDuration: 1.2,
+        execute: () => {
+          broadcastDailyNews();
+        }
+      },
+      {
+        id: 'home_desk',
+        name: '工作书桌 & 笔记本电脑',
+        zone: '出租屋 · 工作台',
+        x: 350,
+        width: 90,
+        height: 80,
+        prompt: '打开电脑接私活兼职 / 查看业主群',
+        timeCostMinutes: 5,
+        actionDuration: 0.6,
+        execute: () => {
+          openPhoneModal(true);
+        }
+      },
+      {
+        id: 'home_stove',
+        name: '简易厨房灶台与食材柜',
+        zone: '出租屋 · 烹饪角',
+        x: 550,
+        width: 85,
+        height: 100,
+        prompt: '起火烹饪热饭热汤 / 煮红糖姜茶',
+        timeCostMinutes: 5,
+        actionDuration: 0.6,
+        execute: () => {
+          openKitchenModal();
+        }
+      },
+      {
+        id: 'home_door',
+        name: '出租屋防盗铁门',
+        zone: '单元防盗出入口',
+        x: 740,
+        width: 60,
+        height: 130,
+        prompt: '推开防盗门步入街道',
+        timeCostMinutes: 5,
+        actionDuration: 0.8,
+        execute: () => {
+          if (gameState.isPositiveKnown && gameState.quarantineDaysLeft > 0) {
+            audio.playWarning();
+            showToast(`⚠️ 隔离管控中：健康码为红码！还需强制居家 ${gameState.quarantineDaysLeft} 天，严禁出门下楼！`, 'error');
+            return;
+          }
+          player.x = 890;
+          showToast('来到楼下街道，空气中混杂着湿润的泥土与含氯消毒水气味。', 'info');
+        }
+      },
+      {
+        id: 'contactless_rack',
+        name: '小区门口无接触外卖置物架',
+        zone: '朝阳里小区出入口',
+        x: 1020,
+        width: 100,
+        height: 90,
+        prompt: '翻找自提快递或爱心蔬菜',
+        timeCostMinutes: 20,
+        actionDuration: 1.8,
+        execute: () => {
+          // Reputation boosts free care package chances
+          const chance = gameState.reputation >= 20 ? 0.8 : 0.45;
+          if (Math.random() < chance) {
+            gameState.rawFood += 2;
+            audio.playCash();
+            spawnFloatingText('+2 份社区配发蔬菜包', player.x, player.y - 70, '#34d399');
+            showToast('在无接触架子上领到了居委会配发的新鲜白菜与挂面！', 'success');
+          } else {
+            showToast('货架空空如也，暂无新的外卖或蔬菜包。', 'info');
+          }
+        }
+      },
+      {
+        id: 'pcr_sampling_booth',
+        name: '常态化便民核酸排查采样亭',
+        zone: '便民核酸点',
+        x: 1320,
+        width: 110,
+        height: 110,
+        prompt: '排队进行咽拭子核酸排查 (维持绿码)',
+        timeCostMinutes: 30,
+        actionDuration: 2.2,
+        execute: () => {
+          if (gameState.viralLoad >= 50 || gameState.bodyTemp >= 38.0) {
+            gameState.isPositiveKnown = true;
+            gameState.quarantineDaysLeft = 4;
+            audio.playWarning();
+            showToast('🚨 警报！核酸初筛呈阳性！健康码变红，被网格员勒令即刻返回单间居家隔离4天！', 'error');
+            player.x = 220; // Teleport home
+          } else {
+            audio.playTone(520, 0.25, 'triangle', 0.1);
+            showToast('核酸采样完成！结果为【阴性】，48小时健康码通行时效已刷新！', 'success');
+          }
+        }
+      },
+      {
+        id: 'subway_entrance',
+        name: '地铁10号线出入口 · 商务园区专线',
+        zone: '朝阳北大街 · 地铁站',
+        x: 1720,
+        width: 140,
+        height: 120,
+        prompt: '选择通勤方式前往公司工位打卡 (赚取全勤日薪)',
+        timeCostMinutes: 5,
+        actionDuration: 0.6,
+        execute: () => {
+          openCommuteModal();
+        }
+      },
+      {
+        id: 'stray_cat_shrine',
+        name: '绿化带旁避雨的流浪三花猫 (阿花)',
+        zone: '街角花坛',
+        x: 2180,
+        width: 70,
+        height: 50,
+        prompt: '蹲下轻轻抚摸小猫咪 (+25 心境)',
+        timeCostMinutes: 20,
+        actionDuration: 1.8,
+        execute: () => {
+          gameState.sanity = Math.min(100, gameState.sanity + 25);
+          audio.playSip();
+          spawnFloatingText('心境 +25 ❤️', player.x, player.y - 65, '#f43f5e');
+          showToast('在冷雨与封控的压力下rua到了软绵绵的小猫，焦虑感一扫而空！', 'success');
+        }
+      },
+      {
+        id: 'street_pharmacy',
+        name: '老百姓大药房 (实体店)',
+        zone: '商业街 · 药房门市',
+        x: 2600,
+        width: 140,
+        height: 120,
+        prompt: '排队线下平价买布洛芬退热药 (¥60/盒)',
+        timeCostMinutes: 30,
+        actionDuration: 2.0,
+        execute: () => {
+          if (gameState.money < 60) {
+            showToast('银行卡余额不足 ¥60，买不起退热药！', 'error');
+            return;
+          }
+          gameState.money -= 60;
+          gameState.pillsCount += 1;
+          audio.playCash();
+          spawnFloatingText('+1 盒布洛芬胶囊', player.x, player.y - 70, '#f43f5e');
+          showToast('在药店柜台买到了一盒退烧布洛芬备用！', 'success');
+        }
+      },
+      {
+        id: 'street_convenience_store',
+        name: '全家 24H 实体便利店',
+        zone: '商业街 · 24H便利店',
+        x: 3120,
+        width: 150,
+        height: 120,
+        prompt: '购买现热便当与生鲜鸡蛋 (¥35)',
+        timeCostMinutes: 20,
+        actionDuration: 1.8,
+        execute: () => {
+          if (gameState.money < 35) {
+            showToast('零钱不足 ¥35，买不起便当！', 'error');
+            return;
+          }
+          gameState.money -= 35;
+          gameState.instantFood += 1;
+          gameState.rawFood += 1;
+          audio.playCash();
+          spawnFloatingText('+1 便当 +1 生鲜蛋', player.x, player.y - 70, '#f59e0b');
+          showToast('采购了便当与鸡蛋塞进背包。', 'success');
+        }
+      },
+      {
+        id: 'disinfection_cannon_truck',
+        name: '大型防疫雾炮消杀车',
+        zone: '主干道消杀段',
+        x: 3750,
+        width: 160,
+        height: 110,
+        prompt: '接受含氯喷雾冲刷消毒外衣背包',
+        timeCostMinutes: 15,
+        actionDuration: 1.8,
+        execute: () => {
+          if (gameState.viralLoad > 0 && gameState.viralLoad < 40) {
+            gameState.viralLoad = Math.max(0, gameState.viralLoad - 15);
+          }
+          audio.playTone(880, 0.3, 'triangle', 0.08);
+          spawnFloatingText('外部气溶胶消杀完毕', player.x, player.y - 70, '#38bdf8');
+          showToast('雾炮车喷出的细密水雾清除了衣服表面的潜在病毒气溶胶。', 'info');
+        }
+      }
+    ];
+
+    function executeWorkShift(transportName, cost, timeMin, infectionProb) {
+      modalCommute.classList.add('hidden');
+      if (gameState.money < cost) {
+        showToast(`车费不足 ¥${cost}！`, 'error');
+        return;
+      }
+      if (gameState.energy < 25) {
+        showToast('极度虚脱，体力不够支撑一整天的高强度工位搬砖！', 'error');
+        return;
+      }
+
+      gameState.money -= cost;
+      advanceTime(timeMin); // Commute duration
+
+      // Mask protection reduction for transport
+      let finalRisk = infectionProb;
+      if (gameState.hasMaskOn) {
+        finalRisk *= 0.25;
+      }
+
+      if (Math.random() < finalRisk) {
+        gameState.viralLoad = Math.min(100, gameState.viralLoad + 40);
+        showToast(`搭乘【${transportName}】时人流拥挤，吸入微量气溶胶...`, 'error');
+      }
+
+      // Open Office Console
+      openOfficeWorkConsole();
+    }
+
+    const modalOfficeWork = document.getElementById('modalOfficeWork');
+    function openOfficeWorkConsole() {
+      gameState.workShift.active = true;
+      gameState.workShift.kpi = 0;
+      gameState.workShift.sanitized = false;
+      gameState.workShift.colleagueInfected = Math.random() < 0.35; // 35% chance neighbor colleague shows symptoms
+
+      const banner = document.getElementById('officeEventDesc');
+      const icon = document.getElementById('officeEventIcon');
+      if (gameState.workShift.colleagueInfected) {
+        icon.innerText = '😷';
+        banner.innerHTML = `<span class="text-rose-400 font-bold">隔壁工位同事持续低烧咳嗽！</span> 若未严格佩戴 N95 或未喷酒精消杀工位，吸入病毒载量将快速升高！`;
+      } else {
+        icon.innerText = '💼';
+        banner.innerText = '今天园区秩序井然，经理要求下午提交本周复盘。你可以努力拼绩效，也可以摸鱼养精蓄锐。';
+      }
+
+      updateOfficeWorkUI();
+      modalOfficeWork.classList.remove('hidden');
+    }
+
+    function updateOfficeWorkUI() {
+      document.getElementById('workShiftKpi').innerText = `KPI: ${gameState.workShift.kpi}%`;
+      const estSalary = gameState.workShift.baseSalary + Math.floor(gameState.workShift.kpi * 1.5);
+      document.getElementById('txtEstimatedSalary').innerText = `预估下班收入: ¥${estSalary}`;
+    }
+
+    document.getElementById('btnWorkHard').onclick = () => {
+      if (gameState.energy < 15) {
+        showToast('体力不支，打哈欠打得睁不开眼！', 'error');
+        return;
+      }
+      gameState.energy = Math.max(0, gameState.energy - 20);
+      gameState.hunger = Math.max(0, gameState.hunger - 15);
+      gameState.workShift.kpi = Math.min(100, gameState.workShift.kpi + 35);
+      advanceTime(90);
+      audio.playTone(600, 0.1, 'square', 0.08);
+      spawnFloatingText('KPI +35% · 键盘飞速', player.x, player.y - 70, '#facc15');
+      updateOfficeWorkUI();
+      updateHUD();
+    };
+
+    document.getElementById('btnWorkSlack').onclick = () => {
+      advanceTime(60);
+      gameState.sanity = Math.min(100, gameState.sanity + 15);
+      gameState.energy = Math.min(100, gameState.energy + 10);
+      audio.playSip();
+      spawnFloatingText('摸鱼心境 +15%', player.x, player.y - 70, '#38bdf8');
+      showToast('在茶水间冲了一杯速溶咖啡，刷了刷群消息，紧绷的神经放松了些。', 'success');
+      updateHUD();
+    };
+
+    document.getElementById('btnWorkMaskCheck').onclick = () => {
+      gameState.workShift.sanitized = true;
+      audio.playTone(750, 0.15, 'triangle', 0.1);
+      spawnFloatingText('工位双重防护启动', player.x, player.y - 70, '#34d399');
+      showToast('将桌面键盘全方位喷洒酒精擦拭，并紧密捏紧了 N95 鼻梁金属条。', 'success');
+    };
+
+    document.getElementById('btnFinishWorkDay').onclick = () => {
+      modalOfficeWork.classList.add('hidden');
+      gameState.workShift.active = false;
+      gameState.hasWorkedToday = true;
+      advanceTime(240); // Rest of shift
+
+      // Colleague infection check
+      if (gameState.workShift.colleagueInfected) {
+        let colleagueRisk = 0.55;
+        if (gameState.hasMaskOn) colleagueRisk *= 0.3;
+        if (gameState.workShift.sanitized) colleagueRisk *= 0.2;
+
+        if (Math.random() < colleagueRisk) {
+          audio.playCough();
+          gameState.viralLoad = 65;
+          gameState.bodyTemp = 38.6;
+          gameState.isPositiveKnown = true;
+          gameState.quarantineDaysLeft = 4;
+          showToast('🚨 突发！同工位同事确诊发烧！全组被判定为密接，你被勒令即刻返回出租屋居家隔离4天！', 'error');
+          player.x = 220; // Teleport home
+          updateHUD();
+          return;
+        }
+      }
+
+      const totalEarnings = gameState.workShift.baseSalary + Math.floor(gameState.workShift.kpi * 1.5);
+      gameState.money += totalEarnings;
+      audio.playCash();
+      spawnFloatingText(`+¥${totalEarnings} 工资已到账`, player.x, player.y - 70, '#10b981');
+      showToast(`顺利打卡下班！完成日薪结算：获得底薪与绩效奖金 ¥${totalEarnings}。`, 'success');
+      updateHUD();
+    };
+
+    const modalGroceryRush = document.getElementById('modalGroceryRush');
+    document.getElementById('btnOpenGroceryRush').onclick = () => {
+      // Must be morning 06:00 to 09:00 for flash sale
+      if (gameState.hour < 6 || gameState.hour > 9) {
+        showToast('叮咚抢菜每日限时开放：请在早晨 06:00 ~ 09:00 准时定闹钟蹲点抢配额！', 'info');
+        return;
+      }
+      openGroceryRushWindow();
+    };
+
+    function openGroceryRushWindow() {
+      modalGroceryRush.classList.remove('hidden');
+      gameState.groceryRush.clicksNeeded = 5;
+      gameState.groceryRush.clicksCurrent = 0;
+      gameState.groceryRush.secondsLeft = 8;
+
+      document.getElementById('rushQueueText').innerText = '服务器拥堵：正在排队挤进结算通道...';
+      document.getElementById('rushQueueBar').style.width = '20%';
+      document.getElementById('rushTimerCount').innerText = `倒计时: ${gameState.groceryRush.secondsLeft} 秒`;
+
+      if (gameState.groceryRush.timerId) clearInterval(gameState.groceryRush.timerId);
+      gameState.groceryRush.timerId = setInterval(() => {
+        gameState.groceryRush.secondsLeft -= 1;
+        document.getElementById('rushTimerCount').innerText = `倒计时: ${gameState.groceryRush.secondsLeft} 秒`;
+        if (gameState.groceryRush.secondsLeft <= 0) {
+          clearInterval(gameState.groceryRush.timerId);
+          modalGroceryRush.classList.add('hidden');
+          showToast('手慢了！本场平价鲜蔬包配额已全城抢光，明天早上 06:00 请早！', 'error');
+        }
+      }, 1000);
+    }
+
+    document.getElementById('btnCloseGroceryRush').onclick = () => {
+      if (gameState.groceryRush.timerId) clearInterval(gameState.groceryRush.timerId);
+      modalGroceryRush.classList.add('hidden');
+    };
+
+    document.getElementById('btnClickPayGrocery').onclick = () => {
+      audio.playClick();
+      gameState.groceryRush.clicksCurrent += 1;
+      const progress = Math.min(100, Math.floor((gameState.groceryRush.clicksCurrent / gameState.groceryRush.clicksNeeded) * 100));
+      document.getElementById('rushQueueBar').style.width = `${progress}%`;
+      document.getElementById('rushQueueText').innerText = `正在狂戳提交订单：(${gameState.groceryRush.clicksCurrent}/${gameState.groceryRush.clicksNeeded})`;
+
+      if (gameState.groceryRush.clicksCurrent >= gameState.groceryRush.clicksNeeded) {
+        clearInterval(gameState.groceryRush.timerId);
+        modalGroceryRush.classList.add('hidden');
+        if (gameState.money < 38) {
+          showToast('抢到了配额但银行卡余额不足 ¥38，订单被取消！', 'error');
+          return;
+        }
+        gameState.money -= 38;
+        gameState.rawFood += 4;
+        audio.playCash();
+        spawnFloatingText('+4 份平价生鲜包', player.x, player.y - 70, '#34d399');
+        showToast('🎉 拼手速大获全胜！仅以 ¥38 抢到了整整 4 份新鲜蔬菜鸡蛋肉类！', 'success');
+        updateHUD();
+      }
+    };
+
+    document.getElementById('btnStartGroupBuy').onclick = () => {
+      if (gameState.money < 200) {
+        showToast('垫资资金不足 ¥200，无法作为团长开团！', 'error');
+        return;
+      }
+      gameState.money -= 200;
+      advanceTime(60);
+      // Group buy yields food, meds and reputation
+      setTimeout(() => {
+        gameState.money += 200; // refund advance capital
+        gameState.rawFood += 6;
+        gameState.pillsCount += 1;
+        gameState.reputation += 20;
+        audio.playCash();
+        spawnFloatingText('+20 社区声望 · 团购大获成功', player.x, player.y - 70, '#22d3ee');
+        showToast('🎉 本栋楼团购成团到货！本金已退回，获得 6 份生鲜蛋菜与 1 盒布洛芬，邻里声望暴涨！', 'success');
+        updateHUD();
+      }, 1200);
+    };
+
+    const DAILY_NEWS_POOL = [
+      { text: "【早间防疫速递】市疾控中心通报：昨日新增无症状感染者微幅上升，呼吁非必要不聚会。", change: () => {} },
+      { text: "【物流动态通告】各大生鲜电商加大清晨运力投放，鼓励市民合理错峰按需采购。", change: () => { gameState.reputation += 2; } },
+      { text: "【药品产能恢复】国家退烧类药物产能翻倍释放，街区大药房逐步恢复现货直供！", change: () => {} },
+      { text: "【气溶胶预警】近期阴雨高湿，公共交通人员密度上升，请务必佩戴好 N95 口罩。", change: () => {} }
+    ];
+
+    function broadcastDailyNews() {
+      const news = DAILY_NEWS_POOL[Math.floor(Math.random() * DAILY_NEWS_POOL.length)];
+      audio.playTone(440, 0.3, 'sine', 0.1);
+      showToast(news.text, 'info');
+      news.change();
+      advanceTime(15);
+      updateHUD();
+    }
+
+    function advanceTime(minutes) {
+      gameState.minute += minutes;
+      while (gameState.minute >= 60) {
+        gameState.minute -= 60;
+        gameState.hour += 1;
+        onHourTick();
+      }
+      if (gameState.hour >= 24) {
+        gameState.hour -= 24;
+        gameState.day += 1;
+        onNewDayTick();
+      }
+      updateHUD();
+    }
+
+    function onHourTick() {
+      // Natural hunger burn
+      gameState.hunger = Math.max(0, gameState.hunger - 3);
+      if (gameState.hunger === 0) {
+        gameState.sanity = Math.max(0, gameState.sanity - 4);
+        gameState.energy = Math.max(0, gameState.energy - 3);
+      }
+
+      // Pill safe interval countdown
+      if (gameState.pillCooldownMinutes > 0) {
+        gameState.pillCooldownMinutes = Math.max(0, gameState.pillCooldownMinutes - 60);
+      }
+
+      // Fever / viral incubation logic
+      if (gameState.viralLoad > 30) {
+        gameState.bodyTemp = Math.min(39.6, gameState.bodyTemp + 0.1);
+        if (gameState.bodyTemp >= 38.5) {
+          gameState.energy = Math.max(0, gameState.energy - 4);
+        }
+      }
+    }
+
+    function onNewDayTick() {
+      gameState.hasWorkedToday = false;
+
+      // Deduct rent every 3 days
+      if (gameState.day % 3 === 0) {
+        if (gameState.money >= gameState.rentAmount) {
+          gameState.money -= gameState.rentAmount;
+          showToast(`【银行自动代扣】向房东支付了近3天的房租与水电杂费 ¥${gameState.rentAmount}。`, 'info');
+        } else {
+          gameState.sanity = Math.max(0, gameState.sanity - 30);
+          showToast('【房东催租警告】账户余额不足扣缴房租！面临断电风险，压力剧增！', 'error');
+        }
+      }
+
+      // Update lockdown level dynamically based on days
+      if (gameState.day === 2) {
+        gameState.lockdownLevel = 2;
+        audio.playWarning();
+        showToast('📢 市政通告：周边社区出现确诊，街区设立红白水马，防控警戒升级！', 'error');
+      } else if (gameState.day >= 4) {
+        gameState.lockdownLevel = 3;
+        audio.playWarning();
+        showToast('⚠️ 紧急封控：实施全域静态管理，地铁停运，请非必要居家勿出！', 'error');
+      }
+
+      // Quarantine countdown
+      if (gameState.isPositiveKnown && gameState.quarantineDaysLeft > 0) {
+        gameState.quarantineDaysLeft -= 1;
+        if (gameState.quarantineDaysLeft === 0 && gameState.bodyTemp <= 37.1) {
+          gameState.isPositiveKnown = false;
+          gameState.viralLoad = 0;
+          showToast('🎉 解除隔离！身体指标恢复正常，健康码恢复绿码通行！', 'success');
+        } else {
+          showToast(`仍在居家隔离中（还剩 ${gameState.quarantineDaysLeft} 天），可通过电脑接外快度日。`, 'info');
+        }
+      }
+    }
+
+    // Clock speed toggle events
+    document.getElementById('btnPauseTime').onclick = () => { gameState.timeSpeed = 0; updateClockButtons(); };
+    document.getElementById('btnSpeed1').onclick = () => { gameState.timeSpeed = 1; updateClockButtons(); };
+    document.getElementById('btnSpeed2').onclick = () => { gameState.timeSpeed = 3; updateClockButtons(); };
+
+    function updateClockButtons() {
+      const p = document.getElementById('btnPauseTime');
+      const s1 = document.getElementById('btnSpeed1');
+      const s2 = document.getElementById('btnSpeed2');
+      p.className = gameState.timeSpeed === 0 ? 'px-1.5 py-0.5 bg-amber-600 text-black font-bold rounded' : 'px-1.5 py-0.5 hover:bg-zinc-700 rounded text-zinc-300 font-bold';
+      s1.className = gameState.timeSpeed === 1 ? 'px-2 py-0.5 bg-amber-600 text-black font-bold rounded' : 'px-2 py-0.5 hover:bg-zinc-700 rounded text-zinc-300 font-bold';
+      s2.className = gameState.timeSpeed === 3 ? 'px-2 py-0.5 bg-amber-600 text-black font-bold rounded' : 'px-2 py-0.5 hover:bg-zinc-700 rounded text-zinc-300 font-bold';
+    }
+
+    // Toggle Mask
+    document.getElementById('btnToggleMask').onclick = () => {
+      gameState.hasMaskOn = !gameState.hasMaskOn;
+      audio.playTone(400, 0.1, 'triangle', 0.1);
+      showToast(gameState.hasMaskOn ? '已严密佩戴 N95 口罩，有效阻隔外界气溶胶。' : '已摘下口罩。请注意公共场所飞沫感染风险！', 'info');
+      updateHUD();
+    };
+
+    // Floating text notifications
+    const floatingTexts = [];
+    function spawnFloatingText(text, x, y, color = '#fbbf24') {
+      floatingTexts.push({ text, x, y, color, life: 1.0, dy: -1.1 });
+    }
+
+    function showToast(msg, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      let border = 'border-zinc-700 bg-zinc-900/95 text-zinc-200';
+      if (type === 'success') border = 'border-emerald-500/60 bg-zinc-900/95 text-emerald-300';
+      if (type === 'error') border = 'border-rose-500/60 bg-zinc-900/95 text-rose-300';
+
+      toast.className = `absolute top-3 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg border text-xs sm:text-sm font-code shadow-2xl transition-all duration-300 transform -translate-y-3 opacity-0 pointer-events-none flex items-center gap-2 ${border}`;
+      toast.innerHTML = `<span>⚡</span><span>${msg}</span>`;
+
+      container.appendChild(toast);
+      requestAnimationFrame(() => {
+        toast.classList.remove('-translate-y-3', 'opacity-0');
+        toast.classList.add('translate-y-0', 'opacity-100');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', '-translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 2600);
+    }
+
+    // 1. Antigen Test Modal
+    const modalAntigen = document.getElementById('modalAntigen');
+    document.getElementById('btnOpenAntigen').onclick = () => {
+      modalAntigen.classList.remove('hidden');
+      document.getElementById('antigenLineC').style.backgroundColor = '#e2e8f0';
+      document.getElementById('antigenLineT').style.backgroundColor = '#e2e8f0';
+      document.getElementById('antigenVerdict').innerText = '准备就绪，点击开始滴入采样液';
+      document.getElementById('antigenVerdict').className = 'text-xs font-bold font-code py-1 min-h-[24px] text-zinc-400';
+    };
+    document.getElementById('btnCloseAntigen').onclick = () => modalAntigen.classList.add('hidden');
+
+    document.getElementById('btnRunAntigenTest').onclick = () => {
+      if (gameState.antigenKits <= 0) {
+        showToast('抗原试剂盒已耗尽！请在业主互助群中置换或线上闪送购买。', 'error');
+        return;
+      }
+      gameState.antigenKits -= 1;
+      audio.playSip();
+      advanceTime(15);
+
+      const lineC = document.getElementById('antigenLineC');
+      const lineT = document.getElementById('antigenLineT');
+      const verdict = document.getElementById('antigenVerdict');
+      verdict.innerText = '正在层析渗透显色... (15分钟)';
+
+      setTimeout(() => {
+        lineC.style.backgroundColor = '#ef4444'; // C is always visible if valid test
+        if (gameState.viralLoad >= 40 || gameState.bodyTemp >= 38.0) {
+          lineT.style.backgroundColor = '#ef4444'; // Two lines = Positive
+          verdict.innerText = '🔴 两道红杠！抗原检测阳性！病毒载量高，请立即居家隔离服药！';
+          verdict.className = 'text-xs font-bold font-code py-1 min-h-[24px] text-rose-400';
+          gameState.isPositiveKnown = true;
+          gameState.quarantineDaysLeft = 4;
+          audio.playWarning();
+        } else {
+          lineT.style.backgroundColor = '#e2e8f0'; // One line = Negative
+          verdict.innerText = '🟢 一道红杠 (C线有效)！抗原呈阴性，尚未发现抗原感染！';
+          verdict.className = 'text-xs font-bold font-code py-1 min-h-[24px] text-emerald-400';
+          audio.playTone(580, 0.25, 'triangle', 0.1);
+        }
+        updateHUD();
+      }, 800);
+    };
+
+    // 2. Commute Modal
+    const modalCommute = document.getElementById('modalCommute');
+    function openCommuteModal() {
+      if (gameState.isPositiveKnown) {
+        showToast('健康码红码！门禁与公共交通均已拦截，无法通勤！', 'error');
+        return;
+      }
+      if (gameState.lockdownLevel >= 3) {
+        showToast('全区启动静态管理，公司写字楼关闭，地铁停运！', 'error');
+        return;
+      }
+      if (gameState.hasWorkedToday) {
+        showToast('今天已经在工位上打过卡完成工作了，明天再去吧！', 'info');
+        return;
+      }
+      modalCommute.classList.remove('hidden');
+    }
+    document.getElementById('btnCloseCommute').onclick = () => modalCommute.classList.add('hidden');
+
+    function executeWorkShift(transportName, cost, timeMin, infectionProb) {
+      modalCommute.classList.add('hidden');
+      if (gameState.money < cost) {
+        showToast(`车费不足 ¥${cost}！`, 'error');
+        return;
+      }
+      if (gameState.energy < 30) {
+        showToast('极度虚脱，体力不够支撑一整天的高强度工位搬砖！', 'error');
+        return;
+      }
+
+      gameState.money -= cost;
+      gameState.energy -= 35;
+      gameState.hunger = Math.max(0, gameState.hunger - 30);
+      gameState.hasWorkedToday = true;
+      advanceTime(timeMin + 480); // Commute + 8 hours work shift
+
+      // Mask protection reduction
+      let finalRisk = infectionProb;
+      if (gameState.hasMaskOn) {
+        finalRisk *= 0.25;
+      }
+
+      if (Math.random() < finalRisk) {
+        audio.playCough();
+        gameState.viralLoad = 65;
+        gameState.bodyTemp = 38.6;
+        gameState.isPositiveKnown = true;
+        gameState.quarantineDaysLeft = 4;
+        showToast('🚨 突发！同工位同事持续咳嗽，你被感染发热并遭HR勒令遣返居家隔离4天！', 'error');
+        player.x = 220; // Teleport home
+      } else {
+        const salary = 380;
+        gameState.money += salary;
+        audio.playCash();
+        spawnFloatingText(`+¥${salary} 日薪入账`, player.x, player.y - 70, '#10b981');
+        showToast(`搭乘【${transportName}】顺利完成一天工位打卡，到手日薪 ¥${salary}！`, 'success');
+      }
+      updateHUD();
+    }
+
+    document.getElementById('btnChooseSubway').onclick = () => executeWorkShift('地铁', 4, 40, 0.35);
+    document.getElementById('btnChooseBike').onclick = () => executeWorkShift('美团单车', 2.5, 60, 0.05);
+    document.getElementById('btnChooseTaxi').onclick = () => executeWorkShift('专车', 48, 25, 0.03);
+
+    // 3. Kitchen Modal
+    const modalKitchen = document.getElementById('modalKitchen');
+    function openKitchenModal() {
+      modalKitchen.classList.remove('hidden');
+    }
+    document.getElementById('btnCloseKitchen').onclick = () => modalKitchen.classList.add('hidden');
+
+    document.getElementById('btnCookNoodles').onclick = () => {
+      if (gameState.rawFood < 1) {
+        showToast('食材已空！请在业主群互助交换或出门采购挂面鸡蛋。', 'error');
+        return;
+      }
+      gameState.rawFood -= 1;
+      gameState.hunger = Math.min(100, gameState.hunger + 35);
+      gameState.sanity = Math.min(100, gameState.sanity + 10);
+      advanceTime(30);
+      audio.playCash();
+      spawnFloatingText('+35 饱腹 · 面汤暖胃', player.x, player.y - 70, '#34d399');
+      showToast('热腾腾的阳春挂面卧荷包蛋，暖胃又踏实！', 'success');
+      modalKitchen.classList.add('hidden');
+      updateHUD();
+    };
+
+    document.getElementById('btnCookGingerTea').onclick = () => {
+      advanceTime(20);
+      gameState.bodyTemp = Math.max(36.6, gameState.bodyTemp - 0.4);
+      gameState.sanity = Math.min(100, gameState.sanity + 15);
+      audio.playSip();
+      spawnFloatingText('体温 -0.4°C · 头脑清醒', player.x, player.y - 70, '#f43f5e');
+      showToast('喝下一大碗热腾腾的姜丝红糖水，出了一身虚汗，发热明显缓解！', 'success');
+      modalKitchen.classList.add('hidden');
+      updateHUD();
+    };
+
+    document.getElementById('btnEatInstantMeal').onclick = () => {
+      if (gameState.instantFood < 1) {
+        showToast('自热便当已经吃光了！', 'error');
+        return;
+      }
+      gameState.instantFood -= 1;
+      gameState.hunger = Math.min(100, gameState.hunger + 55);
+      advanceTime(15);
+      audio.playCash();
+      spawnFloatingText('+55 饱腹感', player.x, player.y - 70, '#f59e0b');
+      showToast('自热牛肉煲仔饭开盖热气腾腾，饱腹感拉满！', 'success');
+      modalKitchen.classList.add('hidden');
+      updateHUD();
+    };
+
+    // 4. Phone & Community Network Modal
+    const modalPhone = document.getElementById('modalPhone');
+    const tabChat = document.getElementById('tabChat');
+    const tabGigs = document.getElementById('tabGigs');
+    const tabMarket = document.getElementById('tabMarket');
+    const viewChat = document.getElementById('viewChat');
+    const viewGigs = document.getElementById('viewGigs');
+    const viewMarket = document.getElementById('viewMarket');
+
+    function openPhoneModal(focusGigs = false) {
+      modalPhone.classList.remove('hidden');
+      if (focusGigs) tabGigs.click();
+    }
+    document.getElementById('btnOpenPhone').onclick = () => openPhoneModal(false);
+    document.getElementById('btnClosePhone').onclick = () => modalPhone.classList.add('hidden');
+
+    tabChat.onclick = () => {
+      tabChat.className = 'bg-amber-600/20 border border-amber-500/40 text-amber-300 font-bold py-1.5 rounded-lg text-center';
+      tabGigs.className = 'bg-zinc-800 border border-zinc-700 text-zinc-400 font-bold py-1.5 rounded-lg text-center';
+      tabMarket.className = 'bg-zinc-800 border border-zinc-700 text-zinc-400 font-bold py-1.5 rounded-lg text-center';
+      viewChat.classList.remove('hidden');
+      viewGigs.classList.add('hidden');
+      viewMarket.classList.add('hidden');
+    };
+
+    tabGigs.onclick = () => {
+      tabGigs.className = 'bg-amber-600/20 border border-amber-500/40 text-amber-300 font-bold py-1.5 rounded-lg text-center';
+      tabChat.className = 'bg-zinc-800 border border-zinc-700 text-zinc-400 font-bold py-1.5 rounded-lg text-center';
+      tabMarket.className = 'bg-zinc-800 border border-zinc-700 text-zinc-400 font-bold py-1.5 rounded-lg text-center';
+      viewGigs.classList.remove('hidden');
+      viewChat.classList.add('hidden');
+      viewMarket.classList.add('hidden');
+    };
+
+    tabMarket.onclick = () => {
+      tabMarket.className = 'bg-amber-600/20 border border-amber-500/40 text-amber-300 font-bold py-1.5 rounded-lg text-center';
+      tabChat.className = 'bg-zinc-800 border border-zinc-700 text-zinc-400 font-bold py-1.5 rounded-lg text-center';
+      tabGigs.className = 'bg-zinc-800 border border-zinc-700 text-zinc-400 font-bold py-1.5 rounded-lg text-center';
+      viewMarket.classList.remove('hidden');
+      viewChat.classList.add('hidden');
+      viewGigs.classList.add('hidden');
+    };
+
+    // Chat barter trade handlers
+    document.getElementById('btnTradePillsForFood').onclick = () => {
+      if (gameState.pillsCount < 1) {
+        showToast('你手头没有富余的布洛芬退热药！', 'error');
+        return;
+      }
+      gameState.pillsCount -= 1;
+      gameState.rawFood += 4;
+      audio.playCash();
+      spawnFloatingText('+4 份鲜食材 (邻里赠送)', player.x, player.y - 70, '#34d399');
+      showToast('在门把手完成置换，给邻居家送去应急退烧药，换回了4份鸡蛋和面条！', 'success');
+      updateHUD();
+    };
+
+    document.getElementById('btnTradeFoodForKit').onclick = () => {
+      if (gameState.instantFood < 1) {
+        showToast('没有多余的自热便当进行置换！', 'error');
+        return;
+      }
+      gameState.instantFood -= 1;
+      gameState.antigenKits += 1;
+      audio.playCash();
+      spawnFloatingText('+1 盒抗原自测试剂', player.x, player.y - 70, '#c084fc');
+      showToast('用一盒自热便当与小张置换到了1盒宝贵的抗原试剂盒！', 'success');
+      updateHUD();
+    };
+
+    // Freelance side gigs
+    document.getElementById('btnDoGigPPT').onclick = () => {
+      if (gameState.energy < 25) {
+        showToast('精力不够，头脑昏沉无法集中修改PPT！先去睡觉。', 'error');
+        return;
+      }
+      gameState.energy -= 25;
+      gameState.money += 180;
+      advanceTime(120); // 2 hours
+      audio.playCash();
+      spawnFloatingText('+¥180 兼职劳务报酬', player.x, player.y - 70, '#10b981');
+      showToast('在单间电脑前奋战2小时改完招商汇报PPT，¥180 外快到账！', 'success');
+      updateHUD();
+    };
+
+    document.getElementById('btnDoGigVideo').onclick = () => {
+      if (gameState.energy < 45) {
+        showToast('短视频剪辑耗费脑力，当前体力不足！', 'error');
+        return;
+      }
+      gameState.energy -= 45;
+      gameState.money += 320;
+      advanceTime(210); // 3.5 hours
+      audio.playCash();
+      spawnFloatingText('+¥320 剪辑报酬', player.x, player.y - 70, '#10b981');
+      showToast('完成商业短视频精剪，入账 ¥320 外快补贴家用！', 'success');
+      updateHUD();
+    };
+
+    // Urgent flash delivery purchases
+    document.getElementById('btnBuyMedsOnline').onclick = () => {
+      if (gameState.money < 75) {
+        showToast('账户余额不足 ¥75！', 'error');
+        return;
+      }
+      gameState.money -= 75;
+      gameState.pillsCount += 1;
+      audio.playCash();
+      spawnFloatingText('+1 盒闪送布洛芬', player.x, player.y - 70, '#f43f5e');
+      showToast('闪送小哥已将布洛芬挂在门把手上，顺利签收！', 'success');
+      updateHUD();
+    };
+
+    document.getElementById('btnBuyRawFoodOnline').onclick = () => {
+      if (gameState.money < 55) {
+        showToast('账户余额不足 ¥55！', 'error');
+        return;
+      }
+      gameState.money -= 55;
+      gameState.rawFood += 4;
+      audio.playCash();
+      spawnFloatingText('+4 份生鲜食材', player.x, player.y - 70, '#f59e0b');
+      showToast('配送的4份生鲜鸡蛋挂面已送达门口！', 'success');
+      updateHUD();
+    };
+
+    document.getElementById('btnBuyKitOnline').onclick = () => {
+      if (gameState.money < 38) {
+        showToast('账户余额不足 ¥38！', 'error');
+        return;
+      }
+      gameState.money -= 38;
+      gameState.antigenKits += 2;
+      audio.playCash();
+      spawnFloatingText('+2 盒抗原试剂', player.x, player.y - 70, '#c084fc');
+      showToast('网购的2盒新冠抗原自测试剂盒已签收！', 'success');
+      updateHUD();
+    };
+
+    function updateHUD() {
+      // Clock label
+      const mm = gameState.minute < 10 ? `0${gameState.minute}` : gameState.minute;
+      const hh = gameState.hour < 10 ? `0${gameState.hour}` : gameState.hour;
+      document.getElementById('clockDisplay').innerText = `第 ${gameState.day} 天 · ${hh}:${mm}`;
+
+      // Resources
+      document.getElementById('resMoney').innerText = gameState.money.toLocaleString();
+      document.getElementById('resRawFood').innerText = gameState.rawFood;
+      document.getElementById('resInstantFood').innerText = gameState.instantFood;
+      document.getElementById('resPills').innerText = gameState.pillsCount;
+      document.getElementById('resKits').innerText = gameState.antigenKits;
+      document.getElementById('resReputation').innerText = gameState.reputation;
+
+      // Vitals
+      document.getElementById('barHunger').innerText = `${Math.round(gameState.hunger)}%`;
+      document.getElementById('barEnergy').innerText = `${Math.round(gameState.energy)}%`;
+      document.getElementById('barSanity').innerText = `${Math.round(gameState.sanity)}%`;
+      document.getElementById('barTemp').innerText = `${gameState.bodyTemp.toFixed(1)}°C`;
+
+      // Mask state text
+      document.getElementById('txtMaskState').innerText = gameState.hasMaskOn ? '已戴 N95' : '未佩戴口罩';
+      document.getElementById('btnToggleMask').className = gameState.hasMaskOn
+        ? 'px-2 py-0.5 rounded text-xs font-bold border border-sky-500/40 bg-sky-950/40 text-sky-300 hover:bg-sky-900/60 flex items-center gap-1 transition'
+        : 'px-2 py-0.5 rounded text-xs font-bold border border-rose-500/40 bg-rose-950/40 text-rose-300 hover:bg-rose-900/60 flex items-center gap-1 transition animate-pulse';
+
+      // Health code pill
+      const badge = document.getElementById('badgeCovidStatus');
+      const txt = document.getElementById('txtCovid');
+      const dot = document.getElementById('statusDot');
+      const feverFX = document.getElementById('feverFX');
+
+      if (gameState.isPositiveKnown) {
+        badge.className = 'px-2 py-0.5 rounded text-xs font-bold border border-rose-500/60 bg-rose-950/60 text-rose-300 flex items-center gap-1 animate-pulse';
+        txt.innerText = `🔴 红码隔离 (${gameState.quarantineDaysLeft}天)`;
+        dot.className = 'w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping';
+      } else {
+        badge.className = 'px-2 py-0.5 rounded text-xs font-bold border border-emerald-500/40 bg-emerald-950/40 text-emerald-400 flex items-center gap-1';
+        txt.innerText = '🟢 48h绿码';
+        dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse';
+      }
+
+      // High fever visual blur effect
+      if (gameState.bodyTemp >= 38.5) {
+        feverFX.classList.remove('hidden');
+      } else {
+        feverFX.classList.add('hidden');
+      }
+
+      // Zone tag
+      const zTitle = document.getElementById('zoneTitle');
+      if (player.x < 780) {
+        zTitle.innerText = '🏠 出租单间 · 卧室书桌与小灶台';
+      } else if (player.x >= 780 && player.x < 1550) {
+        zTitle.innerText = '🚪 朝阳里社区门前 · 无接触货架与便民采样亭';
+      } else if (player.x >= 1550 && player.x < 2400) {
+        zTitle.innerText = '🚇 朝阳北大街 · 地铁站与花坛小猫阿花';
+      } else {
+        zTitle.innerText = '🏬 商业街 · 老百姓大药房与消杀雾炮车';
+      }
+    }
+
+    function updatePlayer(delta) {
+      // Handle automatic continuous time flow
+      if (gameState.timeSpeed > 0) {
+        gameState.timeAccumulator += delta * gameState.timeSpeed;
+        if (gameState.timeAccumulator >= 1.2) { // Every 1.2s advances 1 minute
+          const minPassed = Math.floor(gameState.timeAccumulator / 1.2);
+          gameState.timeAccumulator %= 1.2;
+          advanceTime(minPassed);
+        }
+      }
+
+      // Handle ongoing action progress
+      if (gameState.activeAction) {
+        gameState.activeAction.elapsed += delta;
+        const progress = Math.min(1, gameState.activeAction.elapsed / gameState.activeAction.duration);
+        document.getElementById('actionFillBar').style.width = `${progress * 100}%`;
+
+        if (progress >= 1) {
+          completeActivity(gameState.activeAction);
+        }
+        return;
+      }
+
+      // Movement logic
+      let moving = false;
+      if (keys.left) {
+        player.vx = -player.speed;
+        player.facing = -1;
+        player.targetX = null;
+        moving = true;
+      } else if (keys.right) {
+        player.vx = player.speed;
+        player.facing = 1;
+        player.targetX = null;
+        moving = true;
+      } else if (player.targetX !== null) {
+        const dx = player.targetX - player.x;
+        if (Math.abs(dx) > 6) {
+          player.vx = Math.sign(dx) * player.speed;
+          player.facing = Math.sign(dx);
+          moving = true;
+        } else {
+          player.vx = 0;
+          player.x = player.targetX;
+          player.targetX = null;
+          if (player.pendingTarget) {
+            startActivity(player.pendingTarget);
+            player.pendingTarget = null;
+          }
+        }
+      } else {
+        player.vx = 0;
+      }
+
+      player.x += player.vx;
+      player.x = Math.max(50, Math.min(WORLD_WIDTH - 50, player.x));
+      player.isMoving = moving;
+      if (moving) {
+        player.walkCycle += delta * 11;
+        if (player.x > 800 && Math.random() < 0.25) {
+          splashes.push({
+            x: player.x + (Math.random() * 16 - 8),
+            y: FLOOR_Y + 12,
+            radius: 2,
+            maxRadius: 10 + Math.random() * 8,
+            alpha: 0.8
+          });
+        }
+      }
+
+      // Landmark proximity check
+      let nearest = null;
+      let minDistance = 80;
+      for (const item of landmarks) {
+        const cx = item.x + item.width / 2;
+        const dist = Math.abs(player.x - cx);
+        if (dist < minDistance) {
+          nearest = item;
+          minDistance = dist;
+        }
+      }
+      gameState.nearbyItem = nearest;
+
+      const prompt = document.getElementById('interactPrompt');
+      const promptLabel = document.getElementById('promptActionLabel');
+      if (nearest && !gameState.activeAction) {
+        prompt.classList.remove('hidden');
+        promptLabel.innerText = `${nearest.name}: ${nearest.prompt}`;
+      } else {
+        prompt.classList.add('hidden');
+      }
+
+      // Update street NPCs
+      dynamicNPCs.forEach(npc => {
+        if (npc.type === 'scooter') {
+          npc.x += npc.speed * npc.dir;
+          if (npc.dir > 0 && npc.x > WORLD_WIDTH + 200) {
+            npc.x = 800;
+          } else if (npc.dir < 0 && npc.x < 750) {
+            npc.x = WORLD_WIDTH + 100;
+          }
+        } else if (npc.type === 'hazmat') {
+          npc.x += npc.speed * npc.dir;
+          if (npc.x > npc.maxX) npc.dir = -1;
+          if (npc.x < npc.minX) npc.dir = 1;
+        } else if (npc.type === 'pedestrian') {
+          npc.x += npc.speed * npc.dir;
+          if (npc.x > npc.maxX) npc.dir = -1;
+          if (npc.x < npc.minX) npc.dir = 1;
+
+          // Pedestrian sneeze risk
+          const distToPlayer = Math.abs(player.x - npc.x);
+          if (distToPlayer < 55) {
+            npc.coughTimer += delta;
+            if (npc.coughTimer > 2.2) {
+              npc.coughTimer = 0;
+              audio.playCough();
+              if (!gameState.hasMaskOn) {
+                gameState.viralLoad = Math.min(100, gameState.viralLoad + 25);
+                spawnFloatingText('⚠️ 吸入飞沫！', player.x, player.y - 70, '#f43f5e');
+                showToast('与咳嗽行人距离过近且未戴口罩！吸入了飞沫颗粒！', 'error');
+              } else {
+                showToast('佩戴的 N95 口罩严密阻隔了路人的咳嗽飞沫。', 'info');
+              }
+            }
+          }
+        }
+      });
+
+      // Update water ripples
+      for (let s = splashes.length - 1; s >= 0; s--) {
+        const sp = splashes[s];
+        sp.radius += delta * 24;
+        sp.alpha -= delta * 1.8;
+        if (sp.alpha <= 0) splashes.splice(s, 1);
+      }
+
+      // Camera smoothly tracks player
+      const targetCam = player.x - canvas.width / 2;
+      cameraX += (targetCam - cameraX) * 0.08;
+      cameraX = Math.max(0, Math.min(WORLD_WIDTH - canvas.width, cameraX));
+    }
+
+    function renderFarSky() {
+      const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      if (gameState.lockdownLevel >= 3) {
+        grad.addColorStop(0, '#130e15');
+        grad.addColorStop(0.5, '#1e1b26');
+        grad.addColorStop(1, '#2c1920');
+      } else {
+        grad.addColorStop(0, '#090a0f');
+        grad.addColorStop(0.6, '#141824');
+        grad.addColorStop(1, '#1e2433');
+      }
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Distant Hazy Moon
+      ctx.fillStyle = 'rgba(254, 240, 138, 0.12)';
+      ctx.beginPath();
+      ctx.arc(canvas.width * 0.75, 75, 45, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Parallax 1: Distant City Skyscrapers (0.15x)
+      const farOffset = cameraX * 0.15;
+      ctx.fillStyle = '#10131a';
+      for (let bx = -60; bx <= canvas.width + 60; bx += 85) {
+        const worldX = bx + farOffset;
+        const bHeight = 155 + Math.sin(worldX * 0.005) * 55 + Math.cos(worldX * 0.01) * 35;
+        ctx.fillRect(bx, FLOOR_Y - bHeight, 70, bHeight);
+
+        if (Math.floor(worldX / 85) % 2 === 0) {
+          ctx.fillStyle = (Date.now() % 1000 > 500) ? '#ef4444' : '#581c1c';
+          ctx.fillRect(bx + 33, FLOOR_Y - bHeight - 8, 4, 8);
+          ctx.fillStyle = '#10131a';
+        }
+      }
+
+      // Parallax 2: Mid-distance viaducts (0.32x)
+      const midOffset = cameraX * 0.32;
+      ctx.fillStyle = '#181b22';
+      for (let mx = -80; mx <= canvas.width + 80; mx += 110) {
+        const worldMX = mx + midOffset;
+        const mHeight = 90 + Math.sin(worldMX * 0.007) * 30;
+        ctx.fillRect(mx, FLOOR_Y - mHeight, 95, mHeight);
+      }
+
+      // Lockdown Searchlight sweep
+      if (gameState.lockdownLevel >= 2) {
+        const t = Date.now() * 0.0012;
+        const beamX = (canvas.width * 0.45) + Math.sin(t) * 140;
+        const searchLight = ctx.createRadialGradient(beamX, 20, 5, beamX + Math.sin(t) * 90, FLOOR_Y, 220);
+        searchLight.addColorStop(0, gameState.lockdownLevel === 3 ? 'rgba(239, 68, 68, 0.18)' : 'rgba(56, 189, 248, 0.12)');
+        searchLight.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = searchLight;
+        ctx.beginPath();
+        ctx.moveTo(beamX, 10);
+        ctx.lineTo(beamX - 180 + Math.sin(t) * 70, FLOOR_Y);
+        ctx.lineTo(beamX + 180 + Math.sin(t) * 70, FLOOR_Y);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+
+    function renderMidgroundWorld() {
+      ctx.save();
+      ctx.translate(-cameraX, 0);
+
+      // Asphalt Road
+      ctx.fillStyle = '#1c1f26';
+      ctx.fillRect(0, FLOOR_Y, WORLD_WIDTH, 140);
+      ctx.fillStyle = '#14161d';
+      ctx.fillRect(0, FLOOR_Y + 45, WORLD_WIDTH, 95);
+
+      // Wet puddles with street neon reflections
+      for (let px = 850; px < WORLD_WIDTH; px += 340) {
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.12)';
+        ctx.beginPath();
+        ctx.ellipse(px + 40, FLOOR_Y + 30, 65, 12, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = 'rgba(244, 63, 94, 0.15)';
+        ctx.fillRect(px + 20, FLOOR_Y + 26, 40, 6);
+      }
+
+      // Lane divider markings
+      ctx.fillStyle = '#e2e8f0';
+      for (let rx = 30; rx < WORLD_WIDTH; rx += 85) {
+        ctx.fillRect(rx, FLOOR_Y + 80, 42, 4);
+      }
+
+      // --- SCENE 1: Rental Apartment Room ---
+      ctx.fillStyle = '#1e1b18';
+      ctx.fillRect(20, 150, 720, FLOOR_Y - 150);
+      ctx.fillStyle = '#292524';
+      ctx.fillRect(20, 140, 720, 10);
+
+      // Rain Window
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(230, 185, 75, 60);
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(230, 185, 75, 60);
+      ctx.beginPath();
+      // Posters & TV on room wall
+      ctx.fillStyle = '#3f3f46';
+      ctx.fillRect(245, FLOOR_Y - 80, 50, 40);
+      ctx.fillStyle = '#06b6d4';
+      ctx.fillRect(249, FLOOR_Y - 76, 42, 32); // TV glowing screen
+
+      ctx.fillStyle = '#3b82f6';
+      ctx.fillRect(140, 200, 50, 65);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '10px "Noto Sans SC"';
+      ctx.fillText('打工人加油', 143, 235);
+
+      // Security iron door
+      ctx.fillStyle = '#52525b';
+      ctx.fillRect(740, 180, 10, FLOOR_Y - 180);
+
+      // --- SCENE 2: Community gate & Contactless Rack ---
+      ctx.fillStyle = '#78350f';
+      ctx.fillRect(1020, FLOOR_Y - 50, 95, 12);
+      ctx.fillRect(1030, FLOOR_Y - 38, 8, 38);
+      ctx.fillRect(1095, FLOOR_Y - 38, 8, 38);
+
+      ctx.fillStyle = '#d97706';
+      ctx.fillRect(1035, FLOOR_Y - 72, 28, 22);
+      ctx.fillRect(1070, FLOOR_Y - 66, 32, 16);
+
+      // Red water barrier barricades
+      if (gameState.lockdownLevel >= 2) {
+        for (let bx = 900; bx <= 960; bx += 30) {
+          ctx.fillStyle = '#ef4444';
+          ctx.fillRect(bx, FLOOR_Y - 55, 28, 55);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(bx + 4, FLOOR_Y - 40, 20, 6);
+          ctx.fillRect(bx + 4, FLOOR_Y - 22, 20, 6);
+        }
+
+        ctx.fillStyle = '#b91c1c';
+        ctx.fillRect(1150, 175, 260, 28);
+        ctx.fillStyle = '#fef08a';
+        ctx.font = 'bold 12px "Noto Sans SC"';
+        ctx.fillText('众志成城 · 共克时艰 · 严防扩散', 1175, 194);
+      }
+
+      // Subway glass canopy
+      ctx.fillStyle = '#0f766e';
+      ctx.fillRect(1700, 190, 180, 24);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 13px "Noto Sans SC"';
+      ctx.fillText('🚇 地铁10号线 · 商务通勤口', 1715, 207);
+
+      // Stray cat in the bush
+      ctx.fillStyle = '#14532d';
+      ctx.fillRect(2150, FLOOR_Y - 25, 90, 25);
+      ctx.fillStyle = '#f97316';
+      ctx.beginPath();
+      ctx.ellipse(2200, FLOOR_Y - 12, 14, 9, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.ellipse(2196, FLOOR_Y - 10, 8, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#1c1917';
+      ctx.beginPath();
+      ctx.arc(2212, FLOOR_Y - 18, 7, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Pharmacy Building
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(2580, 160, 180, FLOOR_Y - 160);
+      ctx.fillStyle = '#16a34a';
+      ctx.fillRect(2590, 175, 160, 24);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 13px "Noto Sans SC"';
+      ctx.fillText('💊 老百姓大药房 (绿码通道)', 2600, 192);
+
+      // 24H Convenience Store
+      ctx.fillStyle = '#18181b';
+      ctx.fillRect(3100, 160, 180, FLOOR_Y - 160);
+      ctx.fillStyle = '#0284c7';
+      ctx.fillRect(3110, 175, 160, 24);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 13px "Noto Sans SC"';
+      ctx.fillText('🏪 全家 24H 实体便利店', 3130, 192);
+
+      // Disinfection Mist Truck
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(3730, FLOOR_Y - 70, 170, 70);
+      ctx.fillStyle = '#0284c7';
+      ctx.fillRect(3770, FLOOR_Y - 105, 55, 35);
+      ctx.fillStyle = 'rgba(224, 242, 254, 0.25)';
+      ctx.beginPath();
+      ctx.moveTo(3770, FLOOR_Y - 95);
+      ctx.lineTo(3650, FLOOR_Y - 130);
+      ctx.lineTo(3630, FLOOR_Y);
+      ctx.closePath();
+      ctx.fill();
+
+      // Render NPCs
+      renderStreetNPCs();
+
+      // Render Interactive Landmarks
+      landmarks.forEach(item => {
+        const itemY = FLOOR_Y - item.height;
+
+        ctx.fillStyle = 'rgba(0,0,0,0.45)';
+        ctx.beginPath();
+        ctx.ellipse(item.x + item.width / 2, FLOOR_Y + 2, item.width * 0.45, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (item.id === 'home_bed') {
+          ctx.fillStyle = '#78350f';
+          ctx.fillRect(item.x, itemY + 25, item.width, 20);
+          ctx.fillStyle = '#0284c7';
+          ctx.fillRect(item.x + 10, itemY + 15, item.width - 20, 18);
+          ctx.fillStyle = '#f4f4f5';
+          ctx.fillRect(item.x + 15, itemY + 10, 22, 10);
+        } else if (item.id === 'home_desk') {
+          ctx.fillStyle = '#3f3f46';
+          ctx.fillRect(item.x, itemY + 30, item.width, 14);
+          ctx.fillRect(item.x + 8, itemY + 44, 6, item.height - 44);
+          ctx.fillRect(item.x + item.width - 14, itemY + 44, 6, item.height - 44);
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(item.x + 30, itemY + 8, 28, 20);
+          ctx.fillStyle = '#64748b';
+          ctx.fillRect(item.x + 26, itemY + 28, 36, 4);
+        } else if (item.id === 'home_stove') {
+          ctx.fillStyle = '#52525b';
+          ctx.fillRect(item.x, itemY + 20, item.width, item.height - 20);
+          ctx.fillStyle = '#18181b';
+          ctx.beginPath();
+          ctx.arc(item.x + 25, itemY + 22, 12, 0, Math.PI * 2);
+          ctx.arc(item.x + 60, itemY + 22, 12, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (item.id === 'pcr_sampling_booth') {
+          ctx.fillStyle = '#f8fafc';
+          ctx.fillRect(item.x, itemY, item.width, item.height);
+          ctx.fillStyle = '#0284c7';
+          ctx.fillRect(item.x, itemY, item.width, 22);
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 11px "Noto Sans SC"';
+          ctx.fillText('常态核酸采样亭', item.x + 16, itemY + 16);
+        }
+
+        // Highlight marker if near
+        if (gameState.nearbyItem === item) {
+          ctx.strokeStyle = '#f59e0b';
+          ctx.lineWidth = 2.5;
+          ctx.strokeRect(item.x - 3, itemY - 3, item.width + 6, item.height + 6);
+
+          ctx.fillStyle = '#f59e0b';
+          ctx.beginPath();
+          ctx.moveTo(item.x + item.width / 2, itemY - 6);
+          ctx.lineTo(item.x + item.width / 2 - 7, itemY - 18);
+          ctx.lineTo(item.x + item.width / 2 + 7, itemY - 18);
+          ctx.closePath();
+          ctx.fill();
+        }
+      });
+
+      // Render puddle splashes
+      splashes.forEach(sp => {
+        ctx.strokeStyle = `rgba(186, 230, 253, ${sp.alpha})`;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.ellipse(sp.x, sp.y, sp.radius * 1.6, sp.radius * 0.6, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+
+      renderPlayerEntity();
+      ctx.restore();
+    }
+
+    function renderStreetNPCs() {
+      dynamicNPCs.forEach(npc => {
+        if (npc.type === 'scooter') {
+          const sy = FLOOR_Y + npc.yOffset;
+          ctx.fillStyle = '#09090b';
+          ctx.beginPath();
+          ctx.arc(npc.x - 14, sy + 6, 7, 0, Math.PI * 2);
+          ctx.arc(npc.x + 14, sy + 6, 7, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = npc.brand === 'meituan' ? '#f59e0b' : '#0284c7';
+          ctx.fillRect(npc.x - 12, sy - 8, 26, 10);
+          ctx.beginPath();
+          ctx.arc(npc.x + (npc.dir * 4), sy - 24, 7, 0, Math.PI * 2);
+          ctx.fill();
+
+          const headGrad = ctx.createLinearGradient(npc.x, sy, npc.x + (npc.dir * 80), sy);
+          headGrad.addColorStop(0, 'rgba(254, 240, 138, 0.4)');
+          headGrad.addColorStop(1, 'rgba(254, 240, 138, 0)');
+          ctx.fillStyle = headGrad;
+          ctx.beginPath();
+          ctx.moveTo(npc.x + (npc.dir * 12), sy - 4);
+          ctx.lineTo(npc.x + (npc.dir * 80), sy - 14);
+          ctx.lineTo(npc.x + (npc.dir * 80), sy + 18);
+          ctx.closePath();
+          ctx.fill();
+        } else if (npc.type === 'hazmat') {
+          ctx.fillStyle = '#f8fafc';
+          ctx.fillRect(npc.x - 8, FLOOR_Y - 45, 16, 45);
+          ctx.beginPath();
+          ctx.arc(npc.x, FLOOR_Y - 52, 9, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#0284c7';
+          ctx.fillRect(npc.x - 8, FLOOR_Y - 26, 16, 4);
+
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(npc.x - 45, FLOOR_Y - 82, 120, 20);
+          ctx.fillStyle = '#09090b';
+          ctx.font = 'bold 10px "Noto Sans SC"';
+          ctx.fillText(npc.shout, npc.x - 40, FLOOR_Y - 68);
+        } else if (npc.type === 'pedestrian') {
+          ctx.fillStyle = '#334155';
+          ctx.fillRect(npc.x - 7, FLOOR_Y - 46, 14, 46);
+          ctx.fillStyle = '#fed7aa';
+          ctx.beginPath();
+          ctx.arc(npc.x, FLOOR_Y - 54, 8, 0, Math.PI * 2);
+          ctx.fill();
+
+          const pulse = (Date.now() % 1200) / 1200;
+          ctx.strokeStyle = `rgba(239, 68, 68, ${1 - pulse})`;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(npc.x, FLOOR_Y - 35, 15 + pulse * 25, 0, Math.PI * 2);
+          ctx.stroke();
+
+          ctx.fillStyle = '#ef4444';
+          ctx.font = 'bold 11px "Noto Sans SC"';
+          ctx.fillText('咳咳...', npc.x - 12, FLOOR_Y - 68);
+        }
+      });
+    }
+
+    function renderPlayerEntity() {
+      const px = player.x;
+      const py = player.y;
+      const f = player.facing;
+      const bob = player.isMoving ? Math.sin(player.walkCycle) * 6 : 0;
+      const armBob = player.isMoving ? Math.cos(player.walkCycle) * 7 : 0;
+
+      ctx.fillStyle = 'rgba(0,0,0,0.55)';
+      ctx.beginPath();
+      ctx.ellipse(px, py + 2, 16, 5, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Slacks and sneakers
+      ctx.fillStyle = '#18181b';
+      ctx.fillRect(px - 6, py - 20, 5, 20 + bob);
+      ctx.fillRect(px + 1, py - 20, 5, 20 - bob);
+
+      ctx.fillStyle = '#e4e4e7';
+      ctx.fillRect(px - 7, py - 2 + bob, 7, 3);
+      ctx.fillRect(px + 1, py - 2 - bob, 7, 3);
+
+      // Commuter Jacket
+      ctx.fillStyle = gameState.isPositiveKnown ? '#b91c1c' : '#2563eb';
+      ctx.fillRect(px - 9, py - 48, 18, 28);
+
+      ctx.fillStyle = '#1d4ed8';
+      ctx.fillRect(px - 12, py - 46 + armBob, 4, 18);
+      ctx.fillRect(px + 8, py - 46 - armBob, 4, 18);
+
+      // Head
+      ctx.fillStyle = '#fed7aa';
+      ctx.beginPath();
+      ctx.arc(px, py - 56, 10, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#09090b';
+      ctx.beginPath();
+      ctx.arc(px, py - 60, 11, Math.PI, Math.PI * 2);
+      ctx.fill();
+
+      // Mask (N95 or None)
+      if (gameState.hasMaskOn) {
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(px + (f * 3) - 4, py - 55, 7, 6);
+      }
+
+      // Eyes
+      ctx.fillStyle = '#09090b';
+      ctx.fillRect(px + (f * 3) - 2, py - 58, 2, 2);
+
+      // Fever heat halo
+      if (gameState.bodyTemp >= 38.0) {
+        ctx.fillStyle = 'rgba(239, 68, 68, 0.25)';
+        ctx.beginPath();
+        ctx.arc(px, py - 40, 24, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function renderNearForegroundLayer() {
+      ctx.save();
+      const fgOffset = cameraX * 1.35;
+
+      for (let i = 0; i < 7; i++) {
+        const lx = (i * 580) - (fgOffset % (WORLD_WIDTH * 1.2));
+        if (lx > -80 && lx < canvas.width + 80) {
+          ctx.fillStyle = '#3f3f46';
+          ctx.fillRect(lx, 60, 8, FLOOR_Y - 60);
+          ctx.fillRect(lx - 20, 60, 48, 6);
+
+          const lightCone = ctx.createRadialGradient(lx + 4, 66, 6, lx + 4, FLOOR_Y - 20, 140);
+          lightCone.addColorStop(0, 'rgba(251, 191, 36, 0.24)');
+          lightCone.addColorStop(1, 'rgba(251, 191, 36, 0)');
+          ctx.fillStyle = lightCone;
+          ctx.beginPath();
+          ctx.moveTo(lx + 4, 66);
+          ctx.lineTo(lx - 70, FLOOR_Y);
+          ctx.lineTo(lx + 78, FLOOR_Y);
+          ctx.closePath();
+          ctx.fill();
+        }
+      }
+
+      // Rain streaks
+      ctx.strokeStyle = 'rgba(186, 230, 253, 0.4)';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      rainDrops.forEach(drop => {
+        drop.y += drop.speed;
+        drop.x -= 4;
+        if (drop.y > canvas.height) {
+          drop.y = -20;
+          drop.x = Math.random() * canvas.width;
+        }
+        ctx.moveTo(drop.x, drop.y);
+        ctx.lineTo(drop.x - 3, drop.y + drop.len);
+      });
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function renderFloatingTexts(delta) {
+      ctx.save();
+      ctx.translate(-cameraX, 0);
+
+      for (let i = floatingTexts.length - 1; i >= 0; i--) {
+        const ft = floatingTexts[i];
+        ft.life -= delta * 0.85;
+        ft.y += ft.dy;
+
+        if (ft.life <= 0) {
+          floatingTexts.splice(i, 1);
+          continue;
+        }
+
+        ctx.fillStyle = ft.color;
+        ctx.globalAlpha = Math.max(0, ft.life);
+        ctx.font = 'bold 15px "JetBrains Mono", "Noto Sans SC"';
+        ctx.fillText(ft.text, ft.x - 20, ft.y);
+      }
+
+      ctx.restore();
+      ctx.globalAlpha = 1.0;
+    }
+
+    let lastTime = performance.now();
+    function gameLoop(current) {
+      const delta = (current - lastTime) / 1000;
+      lastTime = current;
+
+      updatePlayer(delta);
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      renderFarSky();
+      renderMidgroundWorld();
+      renderNearForegroundLayer();
+      renderFloatingTexts(delta);
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    window.onload = () => {
+      updateHUD();
+      requestAnimationFrame(gameLoop);
+    };
+  </script>
+</body>
+</html>

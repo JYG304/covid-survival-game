@@ -73,6 +73,14 @@ import {
   resetBlackMarketStock,
   autoDiscoverBlackMarket
 } from './blackMarketSystem.js';
+import { initSimsLife, tickSimsHour, onSimsNewDay, applyLifeAction } from './simsLifeSystem.js';
+import { initStreetNpcs, updateStreetNpcs, nearestNpc, talkToNpc, recruitNpc } from './npcInteractSystem.js';
+import { initMassageParlor, updateMassageParlor, openParlorFromStreet, closeParlorMenu } from './massageParlorSystem.js';
+import { initMaps, spawnMapNpcs, travelTo } from './mapSystem.js';
+import { bindMapPickModal } from './sceneActionSystem.js';
+import { initStats, tickStatsHour } from './statsSystem.js';
+import { initQuests, onQuestNewDay } from './questSystem.js';
+import { bindDialogueModal } from './npcInteractSystem.js';
 
 /**
  * 初始化所有深度玩法系统
@@ -80,6 +88,13 @@ import {
 export function initDeepGameplaySystems() {
   initFeverSystem();
   initNewsSystem();
+  initSimsLife();
+  initStats();
+  initQuests();
+  initStreetNpcs();
+  initMaps();
+  spawnMapNpcs();
+  initMassageParlor();
 
   // 初始化游戏状态的扩展字段
   if (!gameState.deepGameplay) {
@@ -278,12 +293,65 @@ function bindDeepGameplayEvents() {
   if (btnCloseBlackMarket) {
     btnCloseBlackMarket.onclick = closeBlackMarket;
   }
+
+  const closeKitchen = () => document.getElementById('modalKitchen')?.classList.add('hidden');
+  document.getElementById('btnCloseKitchen')?.addEventListener('click', closeKitchen);
+  document.getElementById('btnCookNoodles')?.addEventListener('click', () => cookMeal('noodles'));
+  document.getElementById('btnCookGingerTea')?.addEventListener('click', () => cookMeal('tea'));
+  document.getElementById('btnEatInstantMeal')?.addEventListener('click', () => cookMeal('instant'));
+  document.getElementById('btnCloseParlor')?.addEventListener('click', closeParlorMenu);
+  bindMapPickModal();
+  bindDialogueModal();
+  document.querySelectorAll('[data-travel]').forEach((btn) => {
+    btn.addEventListener('click', () => travelTo(btn.dataset.travel, Number(btn.dataset.spawn || 180)));
+  });
+}
+
+function cookMeal(kind) {
+  const { player } = window;
+  if (kind === 'noodles') {
+    if (gameState.rawFood < 1) { showToast('鲜食不够，煮不了面。', 'error'); return; }
+    gameState.rawFood -= 1;
+    gameState.hunger = Math.min(100, gameState.hunger + 35);
+    gameState.sanity = Math.min(100, gameState.sanity + 10);
+    applyLifeAction('cook', player);
+    showToast('热汤面下肚，出租屋里终于有了烟火气。', 'success');
+  } else if (kind === 'tea') {
+    gameState.bodyTemp = Math.max(36.6, gameState.bodyTemp - 0.4);
+    applyLifeAction('cook', player);
+    showToast('姜汤喝完，额头没那么烫了。', 'success');
+  } else {
+    if (gameState.instantFood < 1) { showToast('便当吃完了。', 'error'); return; }
+    gameState.instantFood -= 1;
+    gameState.hunger = Math.min(100, gameState.hunger + 55);
+    applyLifeAction('eatInstant', player);
+    showToast('自热米饭滋滋响，也算一顿正经饭。', 'success');
+  }
+  document.getElementById('modalKitchen')?.classList.add('hidden');
+  updateHUD();
 }
 
 /**
  * 每帧更新深度玩法系统
  */
+export function talkNearbyNpc(player) {
+  const npc = nearestNpc(player.x, 80);
+  if (!npc) {
+    showToast('附近没有能说话的人。', 'info');
+    return;
+  }
+  talkToNpc(npc, player);
+}
+
+export function recruitNearbyNpc(player) {
+  const npc = nearestNpc(player.x, 80);
+  if (!npc) return;
+  recruitNpc(npc);
+}
+
 export function updateDeepGameplay(delta) {
+  updateStreetNpcs(delta);
+  updateMassageParlor(delta);
   // 更新发热病程效果
   updateFeverEffects(delta);
 
@@ -338,6 +406,7 @@ export function onHourTick() {
 
   // 心理崩溃检查
   checkMentalBreakdown();
+  tickStatsHour();
 }
 
 /**
@@ -406,6 +475,15 @@ export const DeepGameplay = {
 
   // 黑市系统
   openBlackMarket,
+
+  // 模拟人生需求
+  tickSimsHour,
+  onSimsNewDay,
+  applyLifeAction,
+  openParlorFromStreet,
+  talkNearbyNpc,
+  recruitNearbyNpc,
+  travelTo,
 
   // 工具函数
   getAdjustedPrice

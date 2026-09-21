@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>游戏诊断工具</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0a0a;
+      color: #0f0;
+      font-family: 'Consolas', 'Courier New', monospace;
+      padding: 20px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    h1 { color: #ff0; margin-bottom: 20px; }
+    .section { 
+      margin: 20px 0; 
+      padding: 15px; 
+      background: #1a1a1a; 
+      border-left: 4px solid #0f0;
+      border-radius: 4px;
+    }
+    .error { 
+      border-left-color: #f00; 
+      background: #2a0000;
+    }
+    .success { 
+      border-left-color: #0f0; 
+    }
+    .warning { 
+      border-left-color: #ff0; 
+      background: #2a2a00;
+    }
+    pre {
+      background: #000;
+      padding: 10px;
+      margin: 10px 0;
+      overflow-x: auto;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    button {
+      background: #0f0;
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      font-family: 'Consolas', monospace;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 10px 5px 10px 0;
+      border-radius: 4px;
+    }
+    button:hover { background: #0c0; }
+    .status { display: inline-block; margin-right: 10px; }
+    .ok { color: #0f0; }
+    .fail { color: #f00; }
+  </style>
+</head>
+<body>
+  <h1>🔧 游戏黑屏诊断工具</h1>
+  
+  <button onclick="runDiagnostics()">▶ 运行完整诊断</button>
+  <button onclick="testCanvas()">测试 Canvas</button>
+  <button onclick="testModules()">测试模块加载</button>
+  <button onclick="window.location.href='index.html'">返回游戏</button>
+
+  <div id="output"></div>
+
+  <script type="module">
+    window.testResults = [];
+    
+    function log(msg, type = 'info') {
+      const div = document.createElement('div');
+      div.className = `section ${type}`;
+      div.innerHTML = msg;
+      document.getElementById('output').appendChild(div);
+    }
+
+    window.runDiagnostics = async function() {
+      document.getElementById('output').innerHTML = '';
+      log('<h2>开始诊断...</h2>');
+      
+      // 1. 检查 Canvas 支持
+      log('<h3>1️⃣ Canvas API 检查</h3>');
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        canvas.width = 800;
+        canvas.height = 600;
+        
+        // 测试绘制
+        ctx.fillStyle = '#ff0000';
+        ctx.fillRect(10, 10, 100, 100);
+        ctx.fillStyle = '#00ff00';
+        ctx.fillText('Test', 50, 50);
+        
+        const imageData = ctx.getImageData(50, 50, 1, 1);
+        const hasPixels = imageData.data[0] !== 0 || imageData.data[1] !== 0 || imageData.data[2] !== 0;
+        
+        if (hasPixels) {
+          log('<span class="ok">✓</span> Canvas 2D 上下文正常工作', 'success');
+        } else {
+          log('<span class="fail">✗</span> Canvas 绘制失败，像素数据为空', 'error');
+        }
+      } else {
+        log('<span class="fail">✗</span> Canvas 2D 上下文创建失败', 'error');
+      }
+
+      // 2. 检查模块加载
+      log('<h3>2️⃣ ES6 模块加载检查</h3>');
+      const modules = [
+        './src/data/gameState.js',
+        './src/game/player.js',
+        './src/game/renderer.js',
+        './src/systems/timeSystem.js',
+        './src/ui/hud.js'
+      ];
+      
+      for (const mod of modules) {
+        try {
+          await import(mod);
+          log(`<span class="ok">✓</span> ${mod}`, 'success');
+        } catch (err) {
+          log(`<span class="fail">✗</span> ${mod}<pre>${err.message}\n${err.stack}</pre>`, 'error');
+        }
+      }
+
+      // 3. 检查 main.js 初始化
+      log('<h3>3️⃣ 主模块初始化检查</h3>');
+      try {
+        const mainModule = await import('./src/main.js');
+        log('<span class="ok">✓</span> main.js 加载成功', 'success');
+        
+        // 检查是否有 initGame 函数
+        if (typeof mainModule.initGame === 'function') {
+          log('<span class="ok">✓</span> initGame 函数存在', 'success');
+        } else {
+          log('<span class="fail">✗</span> initGame 函数不存在', 'error');
+        }
+      } catch (err) {
+        log(`<span class="fail">✗</span> main.js 加载失败<pre>${err.message}\n${err.stack}</pre>`, 'error');
+      }
+
+      // 4. 检查 DOM 元素
+      log('<h3>4️⃣ DOM 元素检查</h3>');
+      const elements = [
+        'gameCanvas',
+        'clockDisplay',
+        'resMoney',
+        'barHunger',
+        'toastContainer'
+      ];
+      
+      for (const id of elements) {
+        const el = document.getElementById(id);
+        if (el) {
+          log(`<span class="ok">✓</span> #${id} 存在`, 'success');
+        } else {
+          log(`<span class="fail">✗</span> #${id} 不存在`, 'error');
+        }
+      }
+
+      // 5. 检查控制台错误
+      log('<h3>5️⃣ 浏览器控制台</h3>');
+      log('请打开浏览器开发者工具 (F12) 查看 Console 标签页的错误信息', 'warning');
+
+      log('<h3>✅ 诊断完成</h3>');
+      log('如果所有测试都通过但仍然黑屏，请将控制台截图发给我', 'warning');
+    };
+
+    window.testCanvas = function() {
+      document.getElementById('output').innerHTML = '';
+      log('<h2>Canvas 渲染测试</h2>');
+      
+      const testCanvas = document.createElement('canvas');
+      testCanvas.width = 800;
+      testCanvas.height = 400;
+      testCanvas.style.border = '2px solid #0f0';
+      testCanvas.style.marginTop = '10px';
+      
+      const ctx = testCanvas.getContext('2d');
+      
+      // 渲染测试图案
+      ctx.fillStyle = '#1a1a2e';
+      ctx.fillRect(0, 0, 800, 400);
+      
+      ctx.fillStyle = '#16213e';
+      ctx.fillRect(0, 300, 800, 100);
+      
+      ctx.fillStyle = '#0f3460';
+      ctx.fillRect(100, 250, 80, 50);
+      
+      ctx.fillStyle = '#e94560';
+      ctx.fillRect(200, 200, 60, 100);
+      
+      ctx.fillStyle = '#fed7aa';
+      ctx.beginPath();
+      ctx.arc(400, 250, 20, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 24px Arial';
+      ctx.fillText('Canvas 工作正常！', 250, 100);
+      
+      document.getElementById('output').appendChild(testCanvas);
+      log('如果你能看到上面的图形和文字，说明 Canvas 渲染正常', 'success');
+    };
+
+    window.testModules = async function() {
+      document.getElementById('output').innerHTML = '';
+      log('<h2>模块详细测试</h2>');
+      
+      try {
+        log('加载 gameState...', 'info');
+        const { gameState } = await import('./src/data/gameState.js');
+        log(`<span class="ok">✓</span> gameState: <pre>${JSON.stringify(gameState, null, 2).slice(0, 500)}...</pre>`, 'success');
+        
+        log('加载 player...', 'info');
+        const { player } = await import('./src/game/player.js');
+        log(`<span class="ok">✓</span> player: <pre>${JSON.stringify(player, null, 2)}</pre>`, 'success');
+        
+        log('加载 renderer...', 'info');
+        const renderer = await import('./src/game/renderer.js');
+        log(`<span class="ok">✓</span> renderer 导出: ${Object.keys(renderer).join(', ')}`, 'success');
+        
+      } catch (err) {
+        log(`<span class="fail">✗</span> 模块加载错误:<pre>${err.message}\n${err.stack}</pre>`, 'error');
+      }
+    };
+
+    // 自动运行
+    log('点击上方按钮开始诊断', 'warning');
+  </script>
+</body>
+</html>

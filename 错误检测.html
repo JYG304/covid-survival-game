@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>错误检测器</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      background: #1a1a1a;
+      color: #0f0;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .error { color: #ff4444; border-left: 4px solid #ff4444; padding-left: 10px; margin: 10px 0; }
+    .warning { color: #ffaa00; border-left: 4px solid #ffaa00; padding-left: 10px; margin: 10px 0; }
+    .success { color: #00ff00; border-left: 4px solid #00ff00; padding-left: 10px; margin: 10px 0; }
+    .info { color: #00aaff; border-left: 4px solid #00aaff; padding-left: 10px; margin: 10px 0; }
+    h1 { color: #fff; }
+    #output { margin-top: 20px; }
+    .section { margin: 20px 0; padding: 10px; border: 1px solid #333; }
+  </style>
+</head>
+<body>
+  <h1>🔍 游戏错误自动检测</h1>
+  <div id="output"></div>
+
+  <script>
+    const output = document.getElementById('output');
+    const allErrors = [];
+    const allWarnings = [];
+    let testsPassed = 0;
+    let testsFailed = 0;
+
+    function log(msg, type = 'info') {
+      const div = document.createElement('div');
+      div.className = type;
+      div.innerHTML = msg;
+      output.appendChild(div);
+    }
+
+    // 捕获所有错误
+    window.addEventListener('error', (e) => {
+      allErrors.push(`全局错误: ${e.message} (${e.filename}:${e.lineno})`);
+      log(`❌ 捕获到错误: ${e.message}`, 'error');
+    });
+
+    window.addEventListener('unhandledrejection', (e) => {
+      allErrors.push(`Promise错误: ${e.reason}`);
+      log(`❌ Promise错误: ${e.reason}`, 'error');
+    });
+
+    // 拦截console.error
+    const originalError = console.error;
+    console.error = function(...args) {
+      allErrors.push(args.join(' '));
+      originalError.apply(console, args);
+    };
+
+    const originalWarn = console.warn;
+    console.warn = function(...args) {
+      allWarnings.push(args.join(' '));
+      originalWarn.apply(console, args);
+    };
+
+    async function runTests() {
+      log('<div class="section"><h2>开始测试...</h2></div>');
+
+      // Test 1: 加载主模块
+      try {
+        log('📦 测试 1/10: 加载 main.js...', 'info');
+        const mainModule = await import('./src/main.js');
+        log('✅ main.js 加载成功', 'success');
+        testsPassed++;
+      } catch (err) {
+        log(`❌ main.js 加载失败: ${err.message}`, 'error');
+        allErrors.push(`main.js: ${err.message}`);
+        testsFailed++;
+      }
+
+      // Test 2: gameState
+      try {
+        log('📦 测试 2/10: 加载 gameState.js...', 'info');
+        const { gameState } = await import('./src/data/gameState.js');
+        if (gameState && typeof gameState.money !== 'undefined') {
+          log(`✅ gameState 正常 (金钱: ${gameState.money})`, 'success');
+          testsPassed++;
+        } else {
+          throw new Error('gameState结构异常');
+        }
+      } catch (err) {
+        log(`❌ gameState 错误: ${err.message}`, 'error');
+        allErrors.push(`gameState: ${err.message}`);
+        testsFailed++;
+      }
+
+      // Test 3: landmarks
+      try {
+        log('📦 测试 3/10: 加载 landmarks.js...', 'info');
+        const { landmarks } = await import('./src/data/landmarks.js');
+        if (Array.isArray(landmarks) && landmarks.length > 0) {
+          log(`✅ landmarks 正常 (共 ${landmarks.length} 个地标)`, 'success');
+          testsPassed++;
+        } else {
+          throw new Error('landmarks数组为空或结构异常');
+        }
+      } catch (err) {
+        log(`❌ landmarks 错误: ${err.message}`, 'error');
+        allErrors.push(`landmarks: ${err.message}`);
+        testsFailed++;
+      }
+
+      // Test 4: player
+      try {
+        log('📦 测试 4/10: 加载 player.js...', 'info');
+        const { player } = await import('./src/game/player.js');
+        if (player && typeof player.x !== 'undefined') {
+          log(`✅ player 正常 (位置: ${player.x}, ${player.y})`, 'success');
+          testsPassed++;
+        } else {
+          throw new Error('player对象结构异常');
+        }
+      } catch (err) {
+        log(`❌ player 错误: ${err.message}`, 'error');
+        allErrors.push(`player: ${err.message}`);
+        testsFailed++;
+      }
+
+      // Test 5: renderer
+      try {
+        log('📦 测试 5/10: 加载 renderer.js...', 'info');
+        await import('./src/game/renderer.js');
+        log('✅ renderer 加载成功', 'success');
+        testsPassed++;
+      } catch (err) {
+        log(`❌ renderer 错误: ${err.message}`, 'error');
+        allErrors.push(`renderer: ${err.message}`);
+        testsFailed++;
+      }
+
+      // Test 6-10: 其他模块
+      const modules = [
+        './src/systems/timeSystem.js',
+        './src/systems/actionSystem.js',
+        './src/ui/hud.js',
+        './src/ui/toast.js',
+        './src/utils/audio.js'
+      ];
+
+      for (let i = 0; i < modules.length; i++) {
+        try {
+          log(`📦 测试 ${6+i}/10: 加载 ${modules[i]}...`, 'info');
+          await import(modules[i]);
+          log(`✅ ${modules[i]} 加载成功`, 'success');
+          testsPassed++;
+        } catch (err) {
+          log(`❌ ${modules[i]} 错误: ${err.message}`, 'error');
+          allErrors.push(`${modules[i]}: ${err.message}`);
+          testsFailed++;
+        }
+      }
+
+      // 等待所有异步错误
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // 生成报告
+      log('<div class="section"><h2>📊 测试报告</h2></div>');
+      log(`<div class="info">✅ 通过: ${testsPassed} 个</div>`);
+      log(`<div class="error">❌ 失败: ${testsFailed} 个</div>`);
+      log(`<div class="warning">⚠️  警告: ${allWarnings.length} 个</div>`);
+      log(`<div class="error">🐛 错误: ${allErrors.length} 个</div>`);
+
+      if (allErrors.length > 0) {
+        log('<div class="section"><h2>❌ 错误详情</h2></div>');
+        allErrors.forEach((err, i) => {
+          log(`${i + 1}. ${err}`, 'error');
+        });
+      }
+
+      if (allWarnings.length > 0) {
+        log('<div class="section"><h2>⚠️ 警告详情</h2></div>');
+        allWarnings.forEach((warn, i) => {
+          log(`${i + 1}. ${warn}`, 'warning');
+        });
+      }
+
+      if (allErrors.length === 0 && testsFailed === 0) {
+        log('<div class="section success"><h2>🎉 所有测试通过！没有发现错误！</h2></div>');
+      } else {
+        log('<div class="section error"><h2>⚠️ 发现问题，请查看上面的错误详情</h2></div>');
+      }
+
+      // 导出日志
+      const logText = output.innerText;
+      const blob = new Blob([logText], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = '游戏错误日志.txt';
+      a.textContent = '💾 下载完整日志';
+      a.style.color = '#00ff00';
+      a.style.display = 'block';
+      a.style.marginTop = '20px';
+      a.style.fontSize = '18px';
+      output.appendChild(a);
+    }
+
+    // 开始测试
+    runTests();
+  </script>
+</body>
+</html>

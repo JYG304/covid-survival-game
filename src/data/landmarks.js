@@ -3,7 +3,7 @@
  * 定义所有可交互的场景物体
  */
 
-export const WORLD_WIDTH = 4400;
+export const WORLD_WIDTH = 5000;
 export const FLOOR_Y = 415;
 
 export const landmarks = [
@@ -42,6 +42,18 @@ export const landmarks = [
     timeCostMinutes: 5,
     actionDuration: 0.6,
     action: 'openPhone'
+  },
+  {
+    id: 'home_shower',
+    name: '狭窄卫生间 · 花洒',
+    zone: '出租屋 · 卫生间',
+    x: 455,
+    width: 70,
+    height: 110,
+    prompt: '洗个热水澡，把消毒水和汗冲掉',
+    timeCostMinutes: 25,
+    actionDuration: 1.6,
+    action: 'takeShower'
   },
   {
     id: 'home_stove',
@@ -140,10 +152,22 @@ export const landmarks = [
     action: 'buyFood'
   },
   {
+    id: 'massage_parlor',
+    name: '林记推拿馆',
+    zone: '商业街 · 推拿馆',
+    x: 3480,
+    width: 200,
+    height: 140,
+    prompt: '进馆：自己躺下被按 / 上岗给人按 / 给技师排班',
+    timeCostMinutes: 2,
+    actionDuration: 0.5,
+    action: 'openParlor'
+  },
+  {
     id: 'disinfection_cannon_truck',
     name: '大型防疫雾炮消杀车',
     zone: '主干道消杀段',
-    x: 3750,
+    x: 4300,
     width: 160,
     height: 110,
     prompt: '接受含氯喷雾冲刷消毒外衣背包',

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>快速错误检查</title>
+  <style>
+    body {
+      background: #000;
+      color: #0f0;
+      font-family: 'Courier New', monospace;
+      padding: 20px;
+      font-size: 14px;
+    }
+    .error { color: #f00; }
+    .success { color: #0f0; }
+    .info { color: #0af; }
+    pre { background: #111; padding: 10px; border-left: 3px solid #f00; }
+  </style>
+</head>
+<body>
+  <h2>🔥 实时错误监控</h2>
+  <div id="log"></div>
+
+  <script type="module">
+    const log = document.getElementById('log');
+
+    function addLog(msg, type = 'info') {
+      const p = document.createElement('p');
+      p.className = type;
+      p.innerHTML = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      log.appendChild(p);
+      console.log(msg);
+    }
+
+    // 全局错误捕获
+    window.onerror = (msg, url, line, col, err) => {
+      addLog(`❌ <strong>错误:</strong> ${msg}<br>&nbsp;&nbsp;&nbsp;位置: ${url}:${line}:${col}<br><pre>${err?.stack || ''}</pre>`, 'error');
+    };
+
+    window.addEventListener('unhandledrejection', e => {
+      addLog(`❌ <strong>Promise错误:</strong> ${e.reason}<br><pre>${e.reason?.stack || ''}</pre>`, 'error');
+    });
+
+    addLog('开始加载游戏模块...', 'info');
+
+    // 直接加载main.js
+    import('./src/main.js')
+      .then(module => {
+        addLog('✅ main.js 加载成功！', 'success');
+        addLog(`导出内容: ${Object.keys(module).join(', ')}`, 'info');
+
+        // 尝试初始化
+        if (typeof module.initGame === 'function') {
+          addLog('正在初始化游戏...', 'info');
+          try {
+            module.initGame();
+            addLog('✅ 游戏初始化成功！', 'success');
+          } catch (e) {
+            addLog(`⚠️ 初始化失败（可能缺少Canvas）: ${e.message}`, 'error');
+          }
+        }
+      })
+      .catch(err => {
+        addLog(`❌ <strong>main.js 加载失败:</strong> ${err.message}<br><pre>${err.stack}</pre>`, 'error');
+      });
+  </script>
+</body>
+</html>

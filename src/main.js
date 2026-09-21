@@ -54,6 +54,7 @@ export function initGame() {
 
   // 将深度玩法系统暴露到全局，供其他模块使用
   window.DeepGameplay = DeepGameplay;
+  window.player = player;
 
   updateHUD();
 

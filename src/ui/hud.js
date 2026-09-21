@@ -4,6 +4,9 @@
  */
 
 import { gameState } from '../data/gameState.js';
+import { NEED_KEYS, NEED_META, getNeed, getMoodScore } from '../systems/simsLifeSystem.js';
+import { getActiveQuests } from '../systems/questSystem.js';
+import { getStatsLines } from '../systems/statsSystem.js';
 
 /**
  * 更新所有 HUD 元素
@@ -15,6 +18,7 @@ export function updateHUD() {
   updateMaskState();
   updateHealthCode();
   updateZoneTag();
+  updateSimsPanel();
 }
 
 /**
@@ -156,14 +160,66 @@ function updateHealthCode() {
 function updateZoneTag() {
   const zTitle = document.getElementById('zoneTitle');
   if (!zTitle) return;
-
-  // 这里需要从外部传入 player.x，暂时使用简化版本
-  // 实际使用时需要导入 player 对象
+  const id = gameState.mapId || 'street';
+  const names = {
+    street: '🏠 朝阳里街区',
+    metro: '🚇 地铁10号线车厢',
+    bus: '🚌 126路公交车厢',
+    club: '🎵 午夜俱乐部',
+    hospital: '🏥 发热门诊走廊',
+    office: '💼 写字楼 23F',
+    river: '🌊 江边围挡栈道'
+  };
+  zTitle.innerText = names[id] || names.street;
+  const nearby = gameState.nearbyItem;
+  if (nearby?.zone) zTitle.innerText = `${names[id] || ''} · ${nearby.zone}`;
 }
 
 /**
  * 更新时钟速度按钮状态
  */
+function updateSimsPanel() {
+  const bars = document.getElementById('needBars');
+  const moodEl = document.getElementById('moodScoreLabel');
+  const wantsEl = document.getElementById('wantList');
+  const moodletsEl = document.getElementById('moodletRow');
+  if (!bars || !gameState.sims) return;
+
+  const mood = Math.round(getMoodScore());
+  if (moodEl) moodEl.innerText = `心情 ${mood}`;
+
+  bars.innerHTML = NEED_KEYS.map((key) => {
+    const meta = NEED_META[key];
+    const val = Math.round(getNeed(key));
+    const color = val < 25 ? '#f43f5e' : val < 50 ? '#f59e0b' : meta.color;
+    return `<div class="flex items-center gap-1.5">
+      <span class="w-8 shrink-0">${meta.icon}</span>
+      <div class="need-bar flex-1"><i style="width:${val}%;background:${color}"></i></div>
+      <span class="w-7 text-right font-code">${val}</span>
+    </div>`;
+  }).join('');
+
+  if (wantsEl) {
+    const wants = gameState.sims.wants || [];
+    wantsEl.innerHTML = wants.length
+      ? wants.map((w) => `<li>${w.done ? '✅' : '💎'} ${w.text}</li>`).join('')
+      : '<li>今天没有特别想做的事</li>';
+  }
+
+  if (moodletsEl) {
+    moodletsEl.innerHTML = (gameState.sims.moodlets || []).slice(0, 4).map((m) =>
+      `<span class="px-1 py-0.5 rounded bg-zinc-800 border border-zinc-700 text-[9px]">${m.icon} ${m.label}</span>`
+    ).join('');
+  }
+  const qEl = document.getElementById('questList');
+  if (qEl) {
+    const qs = getActiveQuests();
+    qEl.innerHTML = qs.length ? qs.map((q) => `<li>${q.done ? '✅' : '☐'} ${q.title}</li>`).join('') : '<li>暂无</li>';
+  }
+  const st = document.getElementById('statsMini');
+  if (st) st.innerText = getStatsLines().slice(0, 6).join(' · ');
+}
+
 export function updateClockButtons() {
   const buttons = {
     btnPauseTime: gameState.timeSpeed === 0,
