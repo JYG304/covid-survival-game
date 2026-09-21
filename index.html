@@ -40,6 +40,21 @@
       height: 100%;
       border-radius: 99px;
     }
+    #phoneShell {
+      width: 196px;
+      border-radius: 28px;
+      background: #0a0a0a;
+      border: 3px solid #27272a;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.45), inset 0 0 0 1px #3f3f46;
+      overflow: hidden;
+      pointer-events: auto;
+    }
+    #phoneShell .phone-notch {
+      width: 72px; height: 10px; margin: 8px auto 4px; background: #18181b; border-radius: 8px;
+    }
+    #phoneShell.phone-collapsed .phone-body { display: none; }
+    #phoneShell.phone-collapsed { width: 48px; height: 48px; border-radius: 16px; }
+    #phoneFab { cursor: pointer; }
     .font-code { font-family: 'JetBrains Mono', monospace; }
     .crt-vignette {
       box-shadow: inset 0 0 90px rgba(0, 0, 0, 0.55);
@@ -164,22 +179,26 @@
       <button data-travel="cbd" data-spawn="200" class="px-2 py-0.5 rounded bg-zinc-900/90 border border-indigo-700 text-[10px] text-indigo-200">💼办公区</button>
       <button data-travel="riverside" data-spawn="200" class="px-2 py-0.5 rounded bg-zinc-900/90 border border-cyan-700 text-[10px] text-cyan-200">🌊滨江区</button>
     </div>
-    <div id="simsPanel" class="absolute top-3 right-3 z-10 w-56 bg-zinc-900/92 backdrop-blur-md border border-lime-400/30 rounded-xl p-2.5 shadow-2xl pointer-events-none">
-      <div class="flex items-center justify-between mb-1.5">
-        <span class="text-[10px] font-black tracking-widest text-lime-400">SIM 需求</span>
-        <span id="moodScoreLabel" class="text-[10px] font-code text-amber-300">心情 72</span>
+    <div id="phoneShell" class="absolute top-3 right-3 z-20">
+      <div id="phoneFab" class="phone-notch" title="手机"></div>
+      <div class="phone-body px-2.5 pb-3 pt-1 bg-zinc-950">
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-[9px] text-zinc-500 font-code">中国联通 4G</span>
+          <span id="moodScoreLabel" class="text-[10px] font-code text-lime-400">心情 72</span>
+        </div>
+        <div class="text-[10px] font-black tracking-widest text-lime-400 mb-1">健康监测</div>
+        <div id="needBars" class="space-y-1 text-[10px] text-zinc-300"></div>
+        <div class="mt-2 pt-1.5 border-t border-zinc-800">
+          <p class="text-[10px] text-amber-200 font-bold mb-0.5">今日心愿</p>
+          <ul id="wantList" class="text-[10px] text-zinc-400 space-y-0.5"></ul>
+        </div>
+        <div class="mt-2 pt-1.5 border-t border-zinc-800">
+          <p class="text-[10px] text-sky-200 font-bold mb-0.5">任务</p>
+          <ul id="questList" class="text-[10px] text-zinc-400 space-y-0.5"></ul>
+        </div>
+        <div id="statsMini" class="mt-1.5 text-[9px] text-zinc-500 font-code leading-tight"></div>
+        <div id="moodletRow" class="mt-1.5 flex flex-wrap gap-1"></div>
       </div>
-      <div id="needBars" class="space-y-1 text-[10px] text-zinc-300"></div>
-      <div class="mt-2 pt-1.5 border-t border-zinc-800">
-        <p class="text-[10px] text-amber-200 font-bold mb-0.5">今日心愿</p>
-        <ul id="wantList" class="text-[10px] text-zinc-400 space-y-0.5"></ul>
-      </div>
-      <div class="mt-2 pt-1.5 border-t border-zinc-800">
-        <p class="text-[10px] text-sky-200 font-bold mb-0.5">任务</p>
-        <ul id="questList" class="text-[10px] text-zinc-400 space-y-0.5"></ul>
-      </div>
-      <div id="statsMini" class="mt-1.5 text-[9px] text-zinc-500 font-code leading-tight"></div>
-      <div id="moodletRow" class="mt-1.5 flex flex-wrap gap-1"></div>
     </div>
 
     <!-- 交互提示 -->
@@ -602,6 +621,17 @@
       </div>
       <p id="dlgBody" class="text-sm text-zinc-200 mb-3 leading-relaxed"></p>
       <div id="dlgOptions" class="space-y-2"></div>
+    </div>
+  </div>
+
+  <div id="modalMall" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-amber-500/40 rounded-2xl max-w-md w-full p-4">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="font-bold text-amber-300">试衣间 / 男装柜</h3>
+        <button id="btnCloseMall" class="text-zinc-400 text-xl">×</button>
+      </div>
+      <p class="text-[11px] text-zinc-400 mb-2">小票打印得很慢。更衣室要亮码。</p>
+      <div id="mallCatalog" class="space-y-2 max-h-[50vh] overflow-y-auto"></div>
     </div>
   </div>
 

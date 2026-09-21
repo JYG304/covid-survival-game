@@ -714,3 +714,34 @@ export function paintRiver(ctx, w) {
   ctx.fillStyle = '#14532d';
   ctx.fillRect(1460, FLOOR_Y - 18, 90, 18);
 }
+
+export function paintMall(ctx, w) {
+  paintRoad(ctx, w, '#e2e8f0', '#cbd5e1');
+  districtBanner(ctx, '朝阳汇商场 3F', '#0f172a', '#fde68a');
+  gradV(ctx, 0, 90, w, FLOOR_Y - 90, '#f8fafc', '#e2e8f0');
+  shopFace(ctx, 340, 140, 160, FLOOR_Y - 140, '#1e293b', '#fde68a', '#111827', '#fff', '试衣间');
+  shopFace(ctx, 680, 130, 200, FLOOR_Y - 130, '#0f172a', '#e2e8f0', '#334155', '#fff', '男装');
+  shopFace(ctx, 1080, 150, 180, FLOOR_Y - 150, '#7c2d12', '#fdba74', '#b45309', '#fff7ed', '食肆');
+  fillRR(ctx, 1480, FLOOR_Y - 80, 90, 80, 8, '#111827');
+  ctx.fillStyle = '#4ade80';
+  ctx.font = 'bold 12px "Noto Sans SC"';
+  ctx.fillText('ATM', 1504, FLOOR_Y - 40);
+  shopFace(ctx, 1840, 160, 140, FLOOR_Y - 160, '#155e75', '#67e8f9', '#0e7490', '#fff', '卫生间');
+  shopFace(ctx, 2240, 150, 150, FLOOR_Y - 150, '#1e3a8a', '#93c5fd', '#1d4ed8', '#fff', '保安台');
+}
+
+export function paintShop(ctx, w) {
+  paintRoad(ctx, w, '#fef3c7', '#292524');
+  districtBanner(ctx, gameState.mapId === 'pharmacyIn' ? '药房店内' : '便利店店内', '#14532d', '#fff');
+  gradV(ctx, 0, 100, w, FLOOR_Y - 100, '#fff7ed', '#e7e5e4');
+  for (let x = 300; x < w - 80; x += 160) {
+    ctx.fillStyle = '#a8a29e';
+    ctx.fillRect(x, FLOOR_Y - 90, 120, 90);
+    ctx.fillStyle = '#fef3c7';
+    ctx.fillRect(x + 8, FLOOR_Y - 82, 104, 20);
+    ctx.fillStyle = '#22c55e';
+    ctx.fillRect(x + 12, FLOOR_Y - 56, 28, 18);
+    ctx.fillStyle = '#f97316';
+    ctx.fillRect(x + 48, FLOOR_Y - 56, 28, 18);
+  }
+}

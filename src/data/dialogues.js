@@ -1,4 +1,12 @@
 export const DIALOGUES = {
+  mall_clerk: {
+    open: '导购把口罩往上提了提：这件有现货。更衣室要扫场所码。',
+    options: [
+      { t: '我试试黑工装。', rel: 4, line: '试衣间在左边。口罩别摘太久。' },
+      { t: '有便宜的吗？', rel: 2, line: '折扣区在角落。 pleats 是原价。' },
+      { t: '我就看看。', rel: 1, line: '好。别挡着镜子。' }
+    ]
+  },
   lin_jie: {
     open: '手还没散。馆里两张床空着，你是来躺，还是来顶班？',
     options: [

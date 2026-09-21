@@ -28,7 +28,8 @@ export const sceneActions = {
       ['redlight', '🔴 红灯区', '夜巷推拿夜店'],
       ['civic', '🏥 医疗区', '医院卡口'],
       ['cbd', '💼 办公区', '写字楼'],
-      ['riverside', '🌊 滨江区', '围挡栈道']
+      ['riverside', '🌊 滨江区', '围挡栈道'],
+      ['mall', '🏬 商场', '试衣间']
     ].map(([id, n, d]) => `<button data-map="${id}" class="w-full text-left px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 hover:border-amber-400">
       <b class="text-amber-200">${n}</b><span class="block text-[11px] text-zinc-400">${d}</span></button>`).join('');
     list.querySelectorAll('button').forEach((b) => {
@@ -40,7 +41,8 @@ export const sceneActions = {
           redlight: TRAVEL.enterRedlight,
           civic: TRAVEL.enterCivic,
           cbd: TRAVEL.enterCbd,
-          riverside: TRAVEL.enterRiverside
+          riverside: TRAVEL.enterRiverside,
+          mall: TRAVEL.enterMall
         }[b.dataset.map];
         if (fn) fn();
       };
@@ -274,6 +276,42 @@ export const sceneActions = {
   riverDeadend(player) {
     think('红灯一直转。');
     showToast('前面焊死了。江风更大。你只能往回走。', 'info');
+  },
+
+  openWardrobe() {
+    document.getElementById('modalMall')?.classList.remove('hidden');
+    import('./outfitSystem.js').then((m) => m.renderOutfitShop());
+  },
+  mallEat(player) {
+    if (gameState.money < 28) { showToast('盖浇饭 ¥28，不够。', 'error'); return; }
+    gameState.money -= 28;
+    addNeed('hunger', 32);
+    addNeed('fun', 4);
+    applyStatEvent('eat');
+    flagQuest('ateHot');
+    fx(player, '盖浇饭', '#fb923c');
+    showToast('饭是热的，塑料盒是软的。中央空调把葱花味吹走。', 'success');
+  },
+  mallAtm() {
+    showToast(`余额 ¥${gameState.money}。ATM 还要收跨行费，你没取。`, 'info');
+  },
+  eatInstant(player) {
+    if (gameState.instantFood < 1) {
+      showToast('你没带便当，微波台空转。', 'error');
+      return;
+    }
+    gameState.instantFood -= 1;
+    addNeed('hunger', 40);
+    applyStatEvent('eat');
+    showToast('叮。盒盖起雾。店员看了你一眼。', 'success');
+  },
+  storeOden(player) {
+    if (gameState.money < 8) { showToast('一串 ¥8。', 'error'); return; }
+    gameState.money -= 8;
+    addNeed('hunger', 10);
+    addNeed('comfort', 4);
+    fx(player, '关东煮', '#fdba74');
+    showToast('萝卜吸饱了汤。店员用夹子指了指口罩。', 'success');
   }
 };
 

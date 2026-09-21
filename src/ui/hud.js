@@ -173,7 +173,10 @@ function updateZoneTag() {
     bus: '🚌 126路车厢',
     club: '🎵 夜店室内',
     hospital: '🏥 发热门诊走廊',
-    office: '💼 写字楼 23F'
+    office: '💼 写字楼 23F',
+    mall: '🏬 朝阳汇商场',
+    pharmacyIn: '💊 药房店内',
+    storeIn: '🏪 全家店内'
   };
   zTitle.innerText = names[id] || names.street;
   const nearby = gameState.nearbyItem;

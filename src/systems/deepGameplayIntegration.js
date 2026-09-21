@@ -81,6 +81,7 @@ import { bindMapPickModal } from './sceneActionSystem.js';
 import { initStats, tickStatsHour } from './statsSystem.js';
 import { initQuests, onQuestNewDay } from './questSystem.js';
 import { bindDialogueModal } from './npcInteractSystem.js';
+import { initOutfit, renderOutfitShop } from './outfitSystem.js';
 
 /**
  * 初始化所有深度玩法系统
@@ -95,6 +96,7 @@ export function initDeepGameplaySystems() {
   initMaps();
   spawnMapNpcs();
   initMassageParlor();
+  initOutfit();
 
   // 初始化游戏状态的扩展字段
   if (!gameState.deepGameplay) {
@@ -302,6 +304,10 @@ function bindDeepGameplayEvents() {
   document.getElementById('btnCloseParlor')?.addEventListener('click', closeParlorMenu);
   bindMapPickModal();
   bindDialogueModal();
+  document.getElementById('btnCloseMall')?.addEventListener('click', () => document.getElementById('modalMall')?.classList.add('hidden'));
+  document.getElementById('phoneFab')?.addEventListener('click', () => {
+    document.getElementById('phoneShell')?.classList.toggle('phone-collapsed');
+  });
   document.querySelectorAll('[data-travel]').forEach((btn) => {
     btn.addEventListener('click', () => travelTo(btn.dataset.travel, Number(btn.dataset.spawn || 180)));
   });

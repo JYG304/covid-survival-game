@@ -84,5 +84,10 @@ export const TRAVEL = {
   enterHospital: () => travelTo('hospital', 160, '走廊里全是鞋套声。'),
   enterOffice: () => travelTo('office', 160, '23楼电梯门开。'),
   enterRiver: () => travelTo('riverside', 200, '江风灌进领口。'),
-  exitToStreet: () => travelTo('living', 900, '你又站回生活区人行道。')
+  exitToStreet: () => travelTo('living', 900, '你又站回生活区人行道。'),
+  enterMall: () => travelTo('mall', 180, '中央空调一灌，口罩内侧全是水汽。安检让你亮码。'),
+  enterPharmacy: () => travelTo('pharmacyIn', 160, '绿码通道。柜台玻璃上贴着“退热药限购”。'),
+  enterStore: () => travelTo('storeIn', 160, '门铃叮一声。关东煮在咕嘟。'),
+  enterSoy: () => travelTo('storeIn', 160, '豆浆铺太小，先在全家热一下。'),
+  enterMarket: () => travelTo('mall', 1120, '生鲜区连着商场负一层。')
 };

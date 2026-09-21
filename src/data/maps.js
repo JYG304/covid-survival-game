@@ -49,7 +49,7 @@ export const MAPS = {
     id: 'commerce',
     name: '商业区 · 朝阳北大街',
     tag: '🏪 药房 / 便利店 / 超市',
-    width: 3800,
+    width: 4100,
     theme: 'commerce',
     district: 'commerce',
     landmarks: [
@@ -59,10 +59,10 @@ export const MAPS = {
       L('com_breakfast', '胡记豆浆', '早点铺', 1220, 150, 120, '热豆浆油条 ¥12', 10, 1.0, 'riverFood'),
       L('com_market', '生鲜超市', '超市', 1620, 200, 140, '抢菜/买鲜食', 15, 1.2, 'buyFood'),
       L('com_clothes', '优衣库折扣窗', '服装', 2080, 160, 130, '看看不敢买', 8, 0.8, 'clubVip'),
-      L('com_to_cbd', '北口 → 办公区', '北大街', 2500, 130, 120, '去写字楼商务区', 10, 0.7, 'enterCbd'),
-      L('com_to_red', '巷口 → 红灯区', '南巷', 2920, 130, 120, '钻进夜巷', 8, 0.7, 'enterRedlight'),
-      L('com_metro', '商业区地铁', '北大街站', 3320, 140, 120, '进地铁', 8, 0.6, 'enterMetro'),
-      L('com_bus', '126路', '商业区站', 3580, 120, 90, '上公交', 6, 0.6, 'enterBus')
+      L('com_to_cbd', '北口 → 办公区', '北大街', 2880, 130, 120, '去写字楼商务区', 10, 0.7, 'enterCbd'),
+      L('com_to_red', '巷口 → 红灯区', '南巷', 3220, 130, 120, '钻进夜巷', 8, 0.7, 'enterRedlight'),
+      L('com_metro', '商业区地铁', '北大街站', 3520, 140, 120, '进地铁', 8, 0.6, 'enterMetro'),
+      L('com_bus', '126路', '商业区站', 3780, 120, 90, '上公交', 6, 0.6, 'enterBus')
     ],
     npcs: [
       N({ id: 'uncle_zhao', name: '赵叔', role: '常客', job: 'customer', skin: '#d4a574', hair: '#44403c', shirt: '#1e3a5f', pants: '#292524', x: 500, homeMin: 400, homeMax: 900, speed: 0.4, dir: 1, talk: ['腰椎不行了。'] }),
@@ -243,6 +243,45 @@ export const MAPS = {
       L('off_boss', '会议室', '写字楼', 1680, 160, 110, '开会', 35, 1.8, 'officeMeeting'),
       L('off_stair', '消防楼梯', '写字楼', 2200, 80, 140, '走去商务区', 15, 0.8, 'enterCbd'),
       L('off_roof', '天台', '写字楼', 2520, 90, 120, '去滨江风口', 8, 0.6, 'enterRiverside')
+    ],
+    npcs: []
+  },
+
+  mall: {
+    id: 'mall', name: '朝阳汇商场 3F', tag: '🏬 试衣间与中央空调', width: 2800, theme: 'mall', district: 'commerce',
+    landmarks: [
+      L('mall_exit', '扶梯出门', '商场', 70, 90, 140, '回到北大街', 5, 0.5, 'enterCommerce'),
+      L('mall_fit', '试衣间', '商场', 380, 120, 120, '换装', 8, 0.8, 'openWardrobe'),
+      L('mall_shop', '男装柜', '商场', 720, 160, 110, '买衣服', 6, 0.6, 'openWardrobe'),
+      L('mall_food', '食肆档口', '商场', 1120, 150, 100, '买一份盖浇饭 ¥28', 12, 1.1, 'mallEat'),
+      L('mall_atm', 'ATM', '商场', 1520, 80, 90, '查余额（没钱可取）', 4, 0.6, 'mallAtm'),
+      L('mall_wc', '卫生间', '商场', 1880, 90, 120, '洗手', 8, 0.9, 'clubWash'),
+      L('mall_guard', '保安台', '商场', 2280, 110, 100, '量体温才能继续逛', 6, 0.8, 'hospTriage'),
+      L('mall_to_metro', '地下连廊', '商场', 2580, 100, 120, '去地铁', 7, 0.6, 'enterMetro')
+    ],
+    npcs: [
+      N({ id: 'mall_clerk', name: '导购小张', role: '导购', job: 'clerk', skin: '#f2c9b0', hair: '#1f2937', shirt: '#f8fafc', pants: '#111827', x: 740, homeMin: 680, homeMax: 900, speed: 0.3, dir: 1, talk: ['这件有现货。口罩别摘。'] })
+    ]
+  },
+  pharmacyIn: {
+    id: 'pharmacyIn', name: '老百姓大药房店内', tag: '💊 柜台与绿码通道', width: 1800, theme: 'shop', district: 'commerce',
+    landmarks: [
+      L('pharm_exit', '店门', '药房', 60, 80, 140, '回到大街', 3, 0.4, 'enterCommerce'),
+      L('pharm_counter', '柜台', '药房', 420, 140, 90, '买布洛芬 ¥60', 20, 1.4, 'buyMedicine'),
+      L('pharm_shelf', '货架', '药房', 820, 120, 100, '翻维生素，没货', 8, 0.9, 'metroNews'),
+      L('pharm_queue', '一米线', '药房', 1200, 100, 50, '排队', 12, 1.1, 'hospQueue'),
+      L('pharm_cam', '监控', '药房', 1540, 70, 80, '摄像头一直亮', 2, 0.4, 'metroScan')
+    ],
+    npcs: []
+  },
+  storeIn: {
+    id: 'storeIn', name: '全家店内', tag: '🏪 关东煮与冰柜', width: 1800, theme: 'shop', district: 'commerce',
+    landmarks: [
+      L('store_exit', '自动门', '便利店', 60, 80, 140, '回到大街', 3, 0.4, 'enterCommerce'),
+      L('store_fridge', '便当柜', '便利店', 380, 100, 90, '买便当鸡蛋 ¥35', 12, 1.1, 'buyFood'),
+      L('store_oden', '关东煮', '便利店', 720, 90, 80, '买一串 ¥8', 8, 0.8, 'storeOden'),
+      L('store_atm', 'ATM', '便利店', 1060, 70, 80, '查卡', 4, 0.5, 'mallAtm'),
+      L('store_mic', '微波台', '便利店', 1400, 80, 70, '加热（店员盯着你）', 6, 0.7, 'eatInstant')
     ],
     npcs: []
   }

@@ -4,6 +4,7 @@ import { getActiveLandmarks, getWorldWidth, getActiveMap } from '../systems/mapS
 import { gameState } from '../data/gameState.js';
 import { livingNpcs } from '../systems/npcInteractSystem.js';
 import { getPlumbobColor, getThought, getTimeOfDayPalette } from '../systems/simsLifeSystem.js';
+import { outfitColor } from '../systems/outfitSystem.js';
 import { getPlayerParlorPose } from '../systems/massageParlorSystem.js';
 import {
   paintSkyline,
@@ -14,7 +15,9 @@ import {
   paintClub,
   paintHospital,
   paintOffice,
-  paintRiver
+  paintRiver,
+  paintMall,
+  paintShop
 } from './sceneArt.js';
 
 export let cameraX = 0;
@@ -43,7 +46,7 @@ export function renderFarSky(ctx, canvas) {
   const pal = getTimeOfDayPalette();
   const theme = getActiveMap().theme;
   const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-  if (theme === 'metro' || theme === 'bus' || theme === 'office' || theme === 'club' || theme === 'hospital') {
+  if (theme === 'metro' || theme === 'bus' || theme === 'office' || theme === 'club' || theme === 'hospital' || theme === 'mall' || theme === 'shop') {
     grad.addColorStop(0, pal.sky0);
     grad.addColorStop(1, pal.sky2);
     ctx.fillStyle = grad;
@@ -80,6 +83,8 @@ export function renderMidgroundWorld(ctx, canvas) {
   else if (theme === 'club') paintClub(ctx, w);
   else if (theme === 'hospital') paintHospital(ctx, w);
   else if (theme === 'office') paintOffice(ctx, w);
+  else if (theme === 'mall') paintMall(ctx, w);
+  else if (theme === 'shop') paintShop(ctx, w);
   else paintDistrict(ctx, w, theme);
 
   renderStreetNPCs(ctx);
@@ -298,9 +303,9 @@ function renderPlayer(ctx) {
     bob,
     pose: pose?.role === 'customer' ? 'lie' : (pose?.role === 'masseur' ? 'work' : 'walk'),
     skin: '#f2c29b',
-    hair: '#1e293b',
-    shirt: pose?.role === 'masseur' ? '#be123c' : (gameState.isPositiveKnown ? '#b91c1c' : '#2563eb'),
-    pants: '#111827',
+    hair: outfitColor('hair'),
+    shirt: pose?.role === 'masseur' ? '#be123c' : (gameState.isPositiveKnown ? '#b91c1c' : outfitColor('shirt')),
+    pants: outfitColor('pants'),
     mask: gameState.hasMaskOn
   });
   const gem = getPlumbobColor();

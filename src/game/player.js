@@ -72,10 +72,45 @@ export function initControls() {
   if (canvas) {
     canvas.addEventListener('pointerdown', (e) => {
       const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
       const cam = window.cameraX || 0;
-      player.targetX = (e.clientX - rect.left) * (canvas.width / rect.width) + cam;
+      const worldX = (e.clientX - rect.left) * scaleX + cam;
+      const worldY = (e.clientY - rect.top) * scaleY;
+      handleWorldClick(worldX, worldY);
     });
   }
+}
+
+function handleWorldClick(worldX, worldY) {
+  if (gameState.activeAction) return;
+  const npc = nearestNpc(worldX, 48);
+  if (npc && Math.abs(npc.x - worldX) < 48 && worldY > FLOOR_Y - 110) {
+    if (Math.abs(player.x - npc.x) < 40) {
+      window.DeepGameplay?.talkNearbyNpc(player);
+      return;
+    }
+    player.targetX = npc.x;
+    player.pendingTarget = { type: 'npc', npc };
+    return;
+  }
+  for (const item of getActiveLandmarks()) {
+    const left = item.x - 8;
+    const right = item.x + item.width + 8;
+    const top = FLOOR_Y - item.height - 24;
+    if (worldX >= left && worldX <= right && worldY >= top && worldY <= FLOOR_Y + 24) {
+      const cx = item.x + item.width / 2;
+      if (Math.abs(player.x - cx) < 50) {
+        startActivity(item);
+        return;
+      }
+      player.targetX = cx;
+      player.pendingTarget = { type: 'landmark', landmark: item };
+      return;
+    }
+  }
+  player.pendingTarget = null;
+  player.targetX = worldX;
 }
 
 /**
@@ -209,8 +244,10 @@ export function updatePlayer(delta) {
       player.x = player.targetX;
       player.targetX = null;
       if (player.pendingTarget) {
-        startActivity(player.pendingTarget);
+        const t = player.pendingTarget;
         player.pendingTarget = null;
+        if (t.type === 'npc') window.DeepGameplay?.talkNearbyNpc(player);
+        else if (t.landmark) startActivity(t.landmark);
       }
     }
   } else {
