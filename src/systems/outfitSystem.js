@@ -77,9 +77,33 @@ export function equipOutfit(id) {
   updateHUD();
 }
 
+function itemName(id) {
+  return CATALOG.find((c) => c.id === id)?.name || '空';
+}
+
+export function openGear() {
+  document.getElementById('modalGear')?.classList.remove('hidden');
+  renderOutfitShop();
+}
+
 export function renderOutfitShop() {
-  const box = document.getElementById('mallCatalog');
-  if (!box || !gameState.outfit) return;
+  if (!gameState.outfit) return;
+  const paper = document.getElementById('gearPaper');
+  if (paper) {
+    paper.innerText = `${gameState.outfit.gender === 'f' ? '女性' : '男性'} · 上衣 ${itemName(gameState.outfit.shirt)} · 下装 ${itemName(gameState.outfit.pants)} · 发型 ${itemName(gameState.outfit.hair)} · ${gameState.hasMaskOn ? 'N95' : '未戴口罩'}`;
+  }
+  const slots = document.getElementById('gearSlots');
+  if (slots) {
+    const rows = [
+      ['上衣', itemName(gameState.outfit.shirt)],
+      ['下装', itemName(gameState.outfit.pants)],
+      ['发型', itemName(gameState.outfit.hair)],
+      ['口罩', gameState.hasMaskOn ? 'N95' : '未戴']
+    ];
+    slots.innerHTML = rows.map(([k, v]) => `<div class="p-2 rounded-lg bg-zinc-950 border border-zinc-700"><div class="text-zinc-500">${k}</div><div class="text-amber-200 font-bold">${v}</div></div>`).join('');
+  }
+  const box = document.getElementById('mallCatalog') || document.getElementById('gearCatalog');
+  if (!box) return;
   box.innerHTML = CATALOG.filter((c) => c.lock !== 'positive').map((c) => {
     const own = gameState.outfit.owned.includes(c.id);
     const on = c.slot === 'mask' ? (gameState.hasMaskOn === c.on) : (c.slot === 'gender' ? gameState.outfit.gender === c.gender : gameState.outfit[c.slot] === c.id);

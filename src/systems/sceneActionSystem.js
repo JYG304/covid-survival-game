@@ -279,8 +279,7 @@ export const sceneActions = {
   },
 
   openWardrobe() {
-    document.getElementById('modalMall')?.classList.remove('hidden');
-    import('./outfitSystem.js').then((m) => m.renderOutfitShop());
+    import('./outfitSystem.js').then((m) => m.openGear());
   },
   mallEat(player) {
     if (gameState.money < 28) { showToast('盖浇饭 ¥28，不够。', 'error'); return; }

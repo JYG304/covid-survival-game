@@ -8,6 +8,12 @@ import { advanceTime } from './timeSystem.js';
 import { showToast, spawnFloatingText } from '../ui/toast.js';
 import { updateHUD } from '../ui/hud.js';
 import { audio } from '../utils/audio.js';
+import { salaryMultiplier, applyStatEvent } from './statsSystem.js';
+
+function logWork(msg) {
+  const el = document.getElementById('workLog');
+  if (el) el.innerText = msg;
+}
 
 // 工作系统配置
 const OFFICE_CONFIG = {
@@ -220,6 +226,7 @@ export function workHard() {
   }
 
   audio.playTone(600, 0.1, 'square', 0.08);
+  logWork(config.message);
   showToast(config.message, 'info');
 
   if (window.player) {
@@ -448,7 +455,9 @@ export function finishWorkDay() {
   // 结算工资
   const kpiBonus = Math.floor(gameState.workShift.kpi * OFFICE_CONFIG.kpiBonus);
   const penaltyTotal = gameState.workShift.hrCaughtCount * 50;
-  const totalEarnings = Math.max(0, gameState.workShift.baseSalary + kpiBonus - penaltyTotal);
+  const dress = gameState.outfit?.shirt === 'shirt_white' ? 40 : 0;
+  const mul = salaryMultiplier();
+  const totalEarnings = Math.max(0, Math.floor((gameState.workShift.baseSalary + kpiBonus - penaltyTotal + dress) * mul));
 
   gameState.money += totalEarnings;
 
@@ -468,4 +477,53 @@ export function finishWorkDay() {
 function closeOfficeModal() {
   const modal = document.getElementById('modalOfficeWork');
   if (modal) modal.classList.add('hidden');
+}
+
+export function workMail() {
+  if (!gameState.workShift?.active) return;
+  gameState.workShift.kpi = Math.min(100, gameState.workShift.kpi + 12);
+  gameState.workShift.elapsedMinutes += 40;
+  gameState.energy = Math.max(0, gameState.energy - 6);
+  applyStatEvent('work');
+  advanceTime(40);
+  const spam = Math.random() < 0.35;
+  logWork(spam ? '邮件链里有人把你加进一个没意义的群。KPI 还是涨了一点。' : '你把三条催更回掉。日历上又多了一个会。');
+  showToast(spam ? '无意义群聊 +1。KPI +12。' : '邮件清完。KPI +12。', 'info');
+  updateOfficeUI();
+  updateHUD();
+}
+
+export function workLunch() {
+  if (!gameState.workShift?.active) return;
+  if (gameState.instantFood > 0) {
+    gameState.instantFood -= 1;
+    gameState.hunger = Math.min(100, gameState.hunger + 28);
+    logWork('工位上掀开便当。隔壁说好香。你把口罩拉下来两分钟。');
+  } else if (gameState.money >= 25) {
+    gameState.money -= 25;
+    gameState.hunger = Math.min(100, gameState.hunger + 22);
+    logWork('点了外卖。骑手在大堂等你下楼扫场所码。');
+  } else {
+    showToast('没饭也没钱。你喝了一下午水。', 'error');
+    return;
+  }
+  gameState.workShift.elapsedMinutes += 30;
+  advanceTime(30);
+  updateOfficeUI();
+  updateHUD();
+}
+
+export function workOvertime() {
+  if (!gameState.workShift?.active) return;
+  gameState.workShift.kpi = Math.min(100, gameState.workShift.kpi + 18);
+  gameState.workShift.elapsedMinutes += 90;
+  gameState.energy = Math.max(0, gameState.energy - 16);
+  gameState.sanity = Math.max(0, gameState.sanity - 8);
+  gameState.workShift.baseSalary += 60;
+  applyStatEvent('work');
+  advanceTime(90);
+  logWork('灯一盏盏灭了。你还在改 PPT 页脚。加班费记在底薪上。');
+  showToast('加班 90 分钟。KPI +18，底薪 +60。', 'info');
+  updateOfficeUI();
+  updateHUD();
 }

@@ -16,7 +16,10 @@ import {
   workSlack,
   sanitizeWorkspace,
   finishWorkDay,
-  handleColleagueChoice
+  handleColleagueChoice,
+  workMail,
+  workLunch,
+  workOvertime
 } from './officeWorkSystem.js';
 import {
   getCurrentFeverStage,
@@ -81,7 +84,7 @@ import { bindMapPickModal } from './sceneActionSystem.js';
 import { initStats, tickStatsHour } from './statsSystem.js';
 import { initQuests, onQuestNewDay } from './questSystem.js';
 import { bindDialogueModal } from './npcInteractSystem.js';
-import { initOutfit, renderOutfitShop } from './outfitSystem.js';
+import { initOutfit, renderOutfitShop, openGear } from './outfitSystem.js';
 
 /**
  * 初始化所有深度玩法系统
@@ -152,6 +155,9 @@ function bindDeepGameplayEvents() {
   if (btnFinishWorkDay) {
     btnFinishWorkDay.onclick = finishWorkDay;
   }
+  document.getElementById('btnWorkMail')?.addEventListener('click', workMail);
+  document.getElementById('btnWorkLunch')?.addEventListener('click', workLunch);
+  document.getElementById('btnWorkOT')?.addEventListener('click', workOvertime);
 
   // 同事感染选择
   const btnColleagueReport = document.getElementById('btnColleagueReport');
@@ -308,6 +314,8 @@ function bindDeepGameplayEvents() {
   document.getElementById('phoneFab')?.addEventListener('click', () => {
     document.getElementById('phoneShell')?.classList.toggle('phone-collapsed');
   });
+  document.getElementById('btnOpenGear')?.addEventListener('click', openGear);
+  document.getElementById('btnCloseGear')?.addEventListener('click', () => document.getElementById('modalGear')?.classList.add('hidden'));
   document.querySelectorAll('[data-travel]').forEach((btn) => {
     btn.addEventListener('click', () => travelTo(btn.dataset.travel, Number(btn.dataset.spawn || 180)));
   });

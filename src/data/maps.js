@@ -36,7 +36,8 @@ export const MAPS = {
     npcs: [
       N({ id: 'neighbor_li', name: '李姐', role: '对门', job: 'neighbor', skin: '#eab308', hair: '#7c2d12', shirt: '#7c3aed', pants: '#27272a', x: 820, homeMin: 760, homeMax: 1100, speed: 0.4, dir: 1, talk: ['鸡蛋还够吗？'] }),
       N({ id: 'courier_wu', name: '吴骑手', role: '外卖', job: 'courier', skin: '#c98a62', hair: '#111827', shirt: '#f59e0b', pants: '#0f172a', x: 1180, homeMin: 900, homeMax: 1600, speed: 1.6, dir: 1, talk: ['单还在跑。'] }),
-      N({ id: 'grid_chen', name: '陈网格员', role: '网格员', job: 'official', skin: '#e2b48a', hair: '#292524', shirt: '#0369a1', pants: '#1e293b', x: 1900, homeMin: 1700, homeMax: 2200, speed: 0.5, dir: -1, talk: ['绿码通行。'] })
+      N({ id: 'grid_chen', name: '陈网格员', role: '网格员', job: 'official', skin: '#e2b48a', hair: '#292524', shirt: '#0369a1', pants: '#1e293b', x: 1900, homeMin: 1700, homeMax: 2200, speed: 0.5, dir: -1, talk: ['绿码通行。'] }),
+      N({ id: 'hua_cat', name: '阿花', role: '三花猫', job: 'cat', skin: '#fb923c', hair: '#9a3412', shirt: '#fdba74', pants: '#7c2d12', x: 1580, homeMin: 1520, homeMax: 1680, speed: 0.22, dir: 1, talk: ['喵。'] })
     ]
   },
 

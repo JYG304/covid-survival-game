@@ -34,6 +34,14 @@ export const DIALOGUES = {
       { t: '我忘带工卡了。', rel: -1, line: '前台登记。别堵闸机。' }
     ]
   },
+  hua_cat: {
+    open: '阿花在花坛边蹲着，尾巴扫过土。你一伸手它就往旁边让。',
+    options: [
+      { t: '轻轻rua一下。', rel: 8, flags: ['petHua'], line: '咕噜咕噜。爪子收着。' },
+      { t: '喂一点火腿。', rel: 12, line: '它叼走了，没看你。' },
+      { t: '拍照发群。', rel: 2, line: '它把脸埋进爪子里。' }
+    ]
+  },
   mall_clerk: {
     open: '导购把口罩往上提了提：这件有现货。更衣室要扫场所码。',
     options: [

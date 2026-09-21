@@ -209,6 +209,10 @@ function drawLandmarkProp(ctx, item, itemY) {
     ctx.fillRect(x + w - 18, FLOOR_Y - 48, 10, 16);
     return;
   }
+  if (id.includes('cat')) {
+    drawCat(ctx, x + w / 2, FLOOR_Y, { shirt: '#fb923c', hair: '#9a3412', bob: 0 });
+    return;
+  }
   if (id.includes('pole') || id.includes('stand')) {
     ctx.fillStyle = '#94a3b8';
     ctx.fillRect(x + w / 2 - 4, itemY, 8, h);
@@ -254,35 +258,49 @@ function npcKind(npc) {
 }
 
 function drawCat(ctx, x, y, opt) {
-  const bob = Math.sin((opt.bob || 0) + Date.now() / 200) * 2;
-  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  const bob = Math.sin(Date.now() / 260) * 1.5;
+  ctx.fillStyle = 'rgba(0,0,0,0.28)';
   ctx.beginPath();
-  ctx.ellipse(x, y + 2, 14, 4, 0, 0, Math.PI * 2);
+  ctx.ellipse(x, y + 2, 12, 3.5, 0, 0, Math.PI * 2);
   ctx.fill();
-  ctx.fillStyle = opt.shirt || '#fb923c';
+  ctx.fillStyle = '#f5d0a6';
   ctx.beginPath();
-  ctx.ellipse(x, y - 10 + bob, 16, 9, 0, 0, Math.PI * 2);
+  ctx.ellipse(x, y - 8 + bob, 15, 8, 0, 0, Math.PI * 2);
   ctx.fill();
-  ctx.fillStyle = opt.hair || '#9a3412';
+  ctx.fillStyle = '#fb923c';
   ctx.beginPath();
-  ctx.arc(x + 12, y - 16 + bob, 7, 0, Math.PI * 2);
+  ctx.ellipse(x - 6, y - 9 + bob, 6, 5, 0, 0, Math.PI * 2);
   ctx.fill();
+  ctx.fillStyle = '#44403c';
   ctx.beginPath();
-  ctx.moveTo(x + 8, y - 20 + bob);
-  ctx.lineTo(x + 6, y - 28 + bob);
-  ctx.lineTo(x + 12, y - 18 + bob);
-  ctx.moveTo(x + 16, y - 20 + bob);
-  ctx.lineTo(x + 20, y - 28 + bob);
-  ctx.lineTo(x + 14, y - 18 + bob);
+  ctx.ellipse(x + 7, y - 6 + bob, 5, 4, 0, 0, Math.PI * 2);
   ctx.fill();
-  ctx.strokeStyle = opt.hair || '#7c2d12';
+  ctx.fillStyle = '#fff7ed';
+  ctx.beginPath();
+  ctx.arc(x + 11, y - 18 + bob, 7, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#fb923c';
+  ctx.beginPath();
+  ctx.moveTo(x + 6, y - 22 + bob);
+  ctx.lineTo(x + 4, y - 31 + bob);
+  ctx.lineTo(x + 11, y - 22 + bob);
+  ctx.fill();
+  ctx.fillStyle = '#1c1917';
+  ctx.beginPath();
+  ctx.moveTo(x + 12, y - 22 + bob);
+  ctx.lineTo(x + 18, y - 31 + bob);
+  ctx.lineTo(x + 16, y - 20 + bob);
+  ctx.fill();
+  ctx.fillStyle = '#111827';
+  ctx.beginPath();
+  ctx.arc(x + 13, y - 19 + bob, 1.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#78716c';
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.moveTo(x - 14, y - 10 + bob);
-  ctx.quadraticCurveTo(x - 28, y - 22, x - 18, y - 4);
+  ctx.moveTo(x - 12, y - 8 + bob);
+  ctx.quadraticCurveTo(x - 28, y - 24, x - 10, y - 2);
   ctx.stroke();
-  ctx.fillStyle = '#111827';
-  ctx.fillRect(x + 14, y - 18 + bob, 2, 2);
 }
 
 function drawSimBody(ctx, x, y, opt) {
