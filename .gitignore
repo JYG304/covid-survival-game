@@ -1,0 +1,36 @@
+# 依赖
+node_modules/
+package-lock.json
+yarn.lock
+server.pid
+*.pid
+server.log
+server_*.log
+*.log
+
+# 构建输出
+dist/
+build/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 临时文件
+*.tmp
+*.temp
+.cache/
+
+# 环境变量
+.env
+.env.local
+.env.*.local

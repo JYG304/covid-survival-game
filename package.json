@@ -1,0 +1,19 @@
+{
+  "name": "covid-survival-game",
+  "version": "1.0.0",
+  "description": "打工人抗疫日记 - 深度横板生活模拟与生存抉择",
+  "main": "index.html",
+  "scripts": {
+    "dev": "python -m http.server 8000",
+    "serve": "npx http-server -p 8000"
+  },
+  "keywords": [
+    "game",
+    "canvas",
+    "survival",
+    "simulation"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {}
+}

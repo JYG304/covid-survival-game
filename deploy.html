@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>打工人抗疫日记 - 一键部署版</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Noto Sans SC', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+    .font-code { font-family: 'JetBrains Mono', monospace; }
+    .crt-vignette {
+      box-shadow: inset 0 0 90px rgba(0, 0, 0, 0.55);
+      pointer-events: none;
+    }
+    .fever-overlay {
+      background: radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, rgba(185, 28, 28, 0.35) 100%);
+      mix-blend-mode: color-burn;
+      pointer-events: none;
+      animation: fever-pulse 2s infinite ease-in-out;
+    }
+    @keyframes fever-pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.85; }
+    }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #18181b; }
+    ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #52525b; }
+  </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100 flex items-center justify-center min-h-screen p-6">
+  <div class="max-w-4xl w-full">
+    <div class="text-center mb-8">
+      <h1 class="text-5xl font-black mb-4 bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 bg-clip-text text-transparent">
+        🏢 打工人抗疫日记
+      </h1>
+      <p class="text-xl text-zinc-400 mb-2">深度横板生活模拟与生存抉择</p>
+      <p class="text-sm text-zinc-500">Web Game Prototype · 2026</p>
+    </div>
+
+    <div class="bg-gradient-to-b from-zinc-900 to-zinc-950 border-2 border-amber-500/50 rounded-2xl shadow-2xl p-8 mb-6">
+      <h2 class="text-2xl font-bold text-amber-400 mb-6 flex items-center gap-2">
+        <span>🚀</span>
+        <span>快速部署方案</span>
+      </h2>
+
+      <div class="space-y-6">
+        <!-- 方案1：GitHub Pages -->
+        <div class="bg-zinc-950 border border-emerald-500/30 rounded-xl p-6">
+          <div class="flex items-start gap-4 mb-4">
+            <span class="text-4xl">🌐</span>
+            <div class="flex-1">
+              <h3 class="text-xl font-bold text-emerald-400 mb-2">方案1: GitHub Pages（推荐）</h3>
+              <p class="text-sm text-zinc-400 mb-4">完全免费，全球CDN加速，支持自定义域名</p>
+            </div>
+          </div>
+
+          <div class="bg-zinc-900 rounded-lg p-4 mb-4">
+            <p class="text-xs text-zinc-500 mb-2">步骤：</p>
+            <ol class="text-sm text-zinc-300 space-y-2 list-decimal list-inside">
+              <li>在 GitHub 创建新仓库（public）</li>
+              <li>上传整个项目文件夹</li>
+              <li>仓库 Settings → Pages → 选择 main 分支</li>
+              <li>几分钟后访问 <code class="bg-zinc-800 px-2 py-0.5 rounded text-amber-300">https://你的用户名.github.io/仓库名</code></li>
+            </ol>
+          </div>
+
+          <a href="https://pages.github.com/" target="_blank" class="inline-block bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-4 rounded-lg transition">
+            查看详细教程 →
+          </a>
+        </div>
+
+        <!-- 方案2: Netlify -->
+        <div class="bg-zinc-950 border border-cyan-500/30 rounded-xl p-6">
+          <div class="flex items-start gap-4 mb-4">
+            <span class="text-4xl">⚡</span>
+            <div class="flex-1">
+              <h3 class="text-xl font-bold text-cyan-400 mb-2">方案2: Netlify Drop</h3>
+              <p class="text-sm text-zinc-400 mb-4">拖拽部署，30秒上线，自动HTTPS</p>
+            </div>
+          </div>
+
+          <div class="bg-zinc-900 rounded-lg p-4 mb-4">
+            <p class="text-xs text-zinc-500 mb-2">步骤：</p>
+            <ol class="text-sm text-zinc-300 space-y-2 list-decimal list-inside">
+              <li>访问 <code class="bg-zinc-800 px-2 py-0.5 rounded text-cyan-300">app.netlify.com/drop</code></li>
+              <li>注册/登录账号（支持GitHub登录）</li>
+              <li>直接拖拽整个项目文件夹到页面</li>
+              <li>自动生成链接 <code class="bg-zinc-800 px-2 py-0.5 rounded text-cyan-300">https://随机名.netlify.app</code></li>
+            </ol>
+          </div>
+
+          <a href="https://app.netlify.com/drop" target="_blank" class="inline-block bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-4 rounded-lg transition">
+            立即部署 →
+          </a>
+        </div>
+
+        <!-- 方案3: Vercel -->
+        <div class="bg-zinc-950 border border-purple-500/30 rounded-xl p-6">
+          <div class="flex items-start gap-4 mb-4">
+            <span class="text-4xl">▲</span>
+            <div class="flex-1">
+              <h3 class="text-xl font-bold text-purple-400 mb-2">方案3: Vercel</h3>
+              <p class="text-sm text-zinc-400 mb-4">极速部署，边缘网络，自动优化</p>
+            </div>
+          </div>
+
+          <div class="bg-zinc-900 rounded-lg p-4 mb-4">
+            <p class="text-xs text-zinc-500 mb-2">步骤：</p>
+            <ol class="text-sm text-zinc-300 space-y-2 list-decimal list-inside">
+              <li>访问 <code class="bg-zinc-800 px-2 py-0.5 rounded text-purple-300">vercel.com</code></li>
+              <li>使用GitHub登录</li>
+              <li>Import Project → 选择仓库</li>
+              <li>自动检测并部署，生成 <code class="bg-zinc-800 px-2 py-0.5 rounded text-purple-300">.vercel.app</code> 域名</li>
+            </ol>
+          </div>
+
+          <a href="https://vercel.com/new" target="_blank" class="inline-block bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-4 rounded-lg transition">
+            前往部署 →
+          </a>
+        </div>
+
+        <!-- 方案4: Cloudflare Pages -->
+        <div class="bg-zinc-950 border border-orange-500/30 rounded-xl p-6">
+          <div class="flex items-start gap-4 mb-4">
+            <span class="text-4xl">☁️</span>
+            <div class="flex-1">
+              <h3 class="text-xl font-bold text-orange-400 mb-2">方案4: Cloudflare Pages</h3>
+              <p class="text-sm text-zinc-400 mb-4">免费无限流量，全球300+节点</p>
+            </div>
+          </div>
+
+          <div class="bg-zinc-900 rounded-lg p-4 mb-4">
+            <p class="text-xs text-zinc-500 mb-2">步骤：</p>
+            <ol class="text-sm text-zinc-300 space-y-2 list-decimal list-inside">
+              <li>访问 <code class="bg-zinc-800 px-2 py-0.5 rounded text-orange-300">dash.cloudflare.com</code></li>
+              <li>Pages → Create a project</li>
+              <li>连接GitHub仓库或直接上传</li>
+              <li>部署完成，获得 <code class="bg-zinc-800 px-2 py-0.5 rounded text-orange-300">.pages.dev</code> 域名</li>
+            </ol>
+          </div>
+
+          <a href="https://pages.cloudflare.com/" target="_blank" class="inline-block bg-orange-600 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded-lg transition">
+            开始部署 →
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 本地运行说明 -->
+    <div class="bg-zinc-900 border border-zinc-700 rounded-xl p-6 mb-6">
+      <h2 class="text-xl font-bold text-zinc-300 mb-4 flex items-center gap-2">
+        <span>💻</span>
+        <span>本地运行（快速测试）</span>
+      </h2>
+
+      <div class="space-y-4">
+        <div class="bg-zinc-950 rounded-lg p-4">
+          <p class="text-sm text-zinc-400 mb-2">方法1: Python（推荐）</p>
+          <code class="block bg-zinc-900 px-3 py-2 rounded text-emerald-300 font-code text-sm">python -m http.server 8000</code>
+          <p class="text-xs text-zinc-500 mt-2">然后访问 http://localhost:8000</p>
+        </div>
+
+        <div class="bg-zinc-950 rounded-lg p-4">
+          <p class="text-sm text-zinc-400 mb-2">方法2: Node.js</p>
+          <code class="block bg-zinc-900 px-3 py-2 rounded text-cyan-300 font-code text-sm">npx http-server -p 8000</code>
+        </div>
+
+        <div class="bg-zinc-950 rounded-lg p-4">
+          <p class="text-sm text-zinc-400 mb-2">方法3: VS Code</p>
+          <p class="text-sm text-zinc-300">安装 Live Server 插件，右键 index.html → Open with Live Server</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 技术栈 -->
+    <div class="bg-zinc-900 border border-zinc-700 rounded-xl p-6">
+      <h2 class="text-xl font-bold text-zinc-300 mb-4">📦 技术栈</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-zinc-950 rounded-lg p-3 text-center">
+          <p class="text-2xl mb-1">🎨</p>
+          <p class="text-xs text-zinc-400">Vanilla JS</p>
+        </div>
+        <div class="bg-zinc-950 rounded-lg p-3 text-center">
+          <p class="text-2xl mb-1">🎮</p>
+          <p class="text-xs text-zinc-400">Canvas 2D</p>
+        </div>
+        <div class="bg-zinc-950 rounded-lg p-3 text-center">
+          <p class="text-2xl mb-1">🎯</p>
+          <p class="text-xs text-zinc-400">ES6 Modules</p>
+        </div>
+        <div class="bg-zinc-950 rounded-lg p-3 text-center">
+          <p class="text-2xl mb-1">💨</p>
+          <p class="text-xs text-zinc-400">Tailwind CSS</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-8 text-sm text-zinc-500">
+      <p>⚡ 零后端依赖 · 纯静态部署 · 任何平台即时上线</p>
+      <p class="mt-2">🎮 <a href="index.html" class="text-amber-400 hover:text-amber-300 underline">点击此处进入游戏</a></p>
+    </div>
+  </div>
+</body>
+</html>

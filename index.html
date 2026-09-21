@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>打工人抗疫日记 · 深度横板生活模拟与生存抉择</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+    body {
+      font-family: 'Noto Sans SC', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+    main {
+      flex: 1 1 auto;
+      min-height: 0;
+      position: relative;
+    }
+    #gameCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      background: #090a0f;
+    }
+    .font-code { font-family: 'JetBrains Mono', monospace; }
+    .crt-vignette {
+      box-shadow: inset 0 0 90px rgba(0, 0, 0, 0.55);
+      pointer-events: none;
+    }
+    .fever-overlay {
+      background: radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, rgba(185, 28, 28, 0.35) 100%);
+      mix-blend-mode: color-burn;
+      pointer-events: none;
+      animation: fever-pulse 2s infinite ease-in-out;
+    }
+    @keyframes fever-pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.85; }
+    }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #18181b; }
+    ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #52525b; }
+  </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100 flex flex-col h-screen overflow-hidden select-none">
+
+  <header class="w-full bg-zinc-900/95 border-b border-zinc-800 px-3 py-1.5 flex flex-wrap items-center justify-between gap-2 z-30 shrink-0 shadow-md">
+    <!-- 左侧：时钟与健康码 -->
+    <div class="flex items-center gap-2 sm:gap-3">
+      <div class="bg-zinc-950 px-2.5 py-1 rounded border border-zinc-700/80 flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" id="statusDot"></span>
+        <span class="font-bold text-xs sm:text-sm font-code text-amber-300" id="clockDisplay">第 1 天 · 07:30</span>
+      </div>
+
+      <!-- 时间流速控制 -->
+      <div class="flex items-center bg-zinc-800 rounded p-0.5 border border-zinc-700 text-xs">
+        <button id="btnPauseTime" class="px-1.5 py-0.5 hover:bg-zinc-700 rounded text-zinc-300 font-bold" title="暂停时间">⏸</button>
+        <button id="btnSpeed1" class="px-2 py-0.5 bg-amber-600 text-black font-bold rounded" title="正常流速 (1x)">1x</button>
+        <button id="btnSpeed2" class="px-2 py-0.5 hover:bg-zinc-700 rounded text-zinc-300 font-bold" title="快速流动 (3x)">3x</button>
+      </div>
+
+      <!-- 健康码 -->
+      <div id="badgeCovidStatus" class="px-2 py-0.5 rounded text-xs font-bold border border-emerald-500/40 bg-emerald-950/40 text-emerald-400 flex items-center gap-1 cursor-pointer">
+        <span>🟢</span>
+        <span id="txtCovid">48h绿码</span>
+      </div>
+
+      <!-- 口罩状态 -->
+      <button id="btnToggleMask" class="px-2 py-0.5 rounded text-xs font-bold border border-sky-500/40 bg-sky-950/40 text-sky-300 hover:bg-sky-900/60 flex items-center gap-1 transition">
+        <span>😷</span>
+        <span id="txtMaskState">已佩戴 N95</span>
+      </button>
+    </div>
+
+    <!-- 中间：资源显示 -->
+    <div class="flex items-center gap-2 sm:gap-3 text-xs font-code overflow-x-auto py-0.5">
+      <div class="flex items-center gap-1 bg-zinc-950 px-2 py-0.5 rounded border border-emerald-500/30 text-emerald-400">
+        <span>💳 ¥</span>
+        <span id="resMoney" class="font-bold">1,850</span>
+      </div>
+      <div class="flex items-center gap-1 bg-zinc-950 px-2 py-0.5 rounded border border-amber-500/30 text-amber-300">
+        <span>🥚</span>
+        <span id="resRawFood" class="font-bold">4</span>
+      </div>
+      <div class="flex items-center gap-1 bg-zinc-950 px-2 py-0.5 rounded border border-orange-500/30 text-orange-300">
+        <span>🍱</span>
+        <span id="resInstantFood" class="font-bold">2</span>
+      </div>
+      <div class="flex items-center gap-1 bg-zinc-950 px-2 py-0.5 rounded border border-rose-500/30 text-rose-300">
+        <span>💊</span>
+        <span id="resPills" class="font-bold">2</span>
+      </div>
+      <div class="flex items-center gap-1 bg-zinc-950 px-2 py-0.5 rounded border border-purple-500/30 text-purple-300">
+        <span>🧪</span>
+        <span id="resKits" class="font-bold">2</span>
+      </div>
+      <div class="flex items-center gap-1 bg-zinc-950 px-2 py-0.5 rounded border border-cyan-500/30 text-cyan-300">
+        <span>🤝</span>
+        <span id="resReputation" class="font-bold">10</span>
+      </div>
+    </div>
+
+    <!-- 右侧：生理指标和快捷按钮 -->
+    <div class="flex items-center gap-2">
+      <div class="hidden xl:flex items-center gap-3 bg-zinc-950/80 px-2.5 py-0.5 rounded border border-zinc-800 text-xs">
+        <span>🍔 <b id="barHunger" class="text-amber-400">85%</b></span>
+        <span>⚡ <b id="barEnergy" class="text-sky-400">95%</b></span>
+        <span>🧘 <b id="barSanity" class="text-violet-400">85%</b></span>
+        <span>🌡️ <b id="barTemp" class="text-emerald-400">36.6°C</b></span>
+      </div>
+
+      <button id="btnOpenGroceryRush" class="bg-gradient-to-r from-emerald-800/80 to-teal-800/80 hover:from-emerald-700 hover:to-teal-700 border border-emerald-500/50 text-emerald-100 px-2 py-1 rounded text-xs flex items-center gap-1 font-semibold">
+        <span>🥦</span>
+        <span>清晨抢菜</span>
+      </button>
+
+      <button id="btnOpenAntigen" class="bg-purple-900/60 hover:bg-purple-800 border border-purple-500/50 text-purple-200 px-2 py-1 rounded text-xs flex items-center gap-1 font-semibold">
+        <span>🧪</span>
+        <span>自测抗原</span>
+      </button>
+
+      <button id="btnOpenPhone" class="bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 px-2 py-1 rounded text-xs flex items-center gap-1 font-semibold">
+        <span>📱</span>
+        <span>社区互助网</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="relative flex-1 w-full bg-zinc-950 overflow-hidden flex items-center justify-center">
+    <canvas id="gameCanvas" class="w-full h-full block cursor-pointer"></canvas>
+
+    <!-- CRT 与发热效果 -->
+    <div class="absolute inset-0 crt-vignette"></div>
+    <div id="feverFX" class="absolute inset-0 fever-overlay hidden"></div>
+
+    <!-- 区域标签 -->
+    <div id="zoneTag" class="absolute top-3 left-3 pointer-events-none bg-zinc-900/90 backdrop-blur-md px-3 py-1 rounded border border-zinc-700/80 text-xs font-code text-zinc-200 z-10 flex items-center gap-2 shadow-lg">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span id="zoneTitle">🏠 出租单间 · 卧室书桌与小灶台</span>
+    </div>
+
+    <!-- 交互提示 -->
+    <div id="interactPrompt" class="absolute bottom-16 pointer-events-none hidden transition-all duration-150 flex flex-col items-center z-20">
+      <div class="bg-zinc-900/95 text-amber-300 font-code font-bold text-xs sm:text-sm px-4 py-1.5 rounded-full shadow-2xl border border-amber-500/60 flex items-center gap-2 animate-bounce">
+        <span class="bg-amber-500 text-black px-1.5 py-0.5 rounded text-[10px] font-black">[E] / 触击</span>
+        <span id="promptActionLabel">互动操作</span>
+      </div>
+    </div>
+
+    <!-- 动作进度条 -->
+    <div id="actionProgressOverlay" class="absolute top-1/3 pointer-events-none hidden flex flex-col items-center z-20">
+      <div class="bg-zinc-900/95 border border-amber-500/70 px-6 py-3.5 rounded-xl shadow-2xl flex flex-col items-center gap-2 min-w-[260px] backdrop-blur-md">
+        <div class="flex items-center gap-2">
+          <span class="text-amber-400 animate-spin">⏱️</span>
+          <span id="actionProgressTitle" class="text-xs sm:text-sm font-bold text-amber-200">正在进行操作...</span>
+        </div>
+        <div class="w-56 bg-zinc-950 h-2.5 rounded-full overflow-hidden border border-zinc-700 p-0.5">
+          <div id="actionFillBar" class="bg-gradient-to-r from-amber-500 to-emerald-400 h-full w-0 transition-all duration-75 rounded-full"></div>
+        </div>
+        <span id="actionTimeLabel" class="text-[11px] text-zinc-400 font-code">耗时 30 分钟</span>
+      </div>
+    </div>
+
+    <!-- Toast 通知容器 -->
+    <div id="toastContainer" class="absolute inset-0 pointer-events-none overflow-hidden z-20"></div>
+  </main>
+
+  <footer class="w-full bg-zinc-900/95 border-t border-zinc-800 px-3 py-1.5 flex items-center justify-between gap-2 shrink-0 z-30">
+    <div class="text-xs text-zinc-400 font-code flex items-center gap-2">
+      <span class="hidden md:inline">⌨️ <kbd class="px-1.5 py-0.5 bg-zinc-800 border border-zinc-700 rounded text-amber-300">A</kbd>/<kbd class="px-1.5 py-0.5 bg-zinc-800 border border-zinc-700 rounded text-amber-300">D</kbd> 行走，<kbd class="px-1.5 py-0.5 bg-zinc-800 border border-zinc-700 rounded text-amber-300">E</kbd> 或空格交互</span>
+      <span class="md:hidden">💡 触屏：点击地面行走，点击人物交互</span>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button id="btnMobileLeft" class="bg-zinc-800 active:bg-zinc-700 border border-zinc-700 text-zinc-200 w-10 h-9 rounded-lg flex items-center justify-center text-base font-bold shadow">◀</button>
+      <button id="btnMobileRight" class="bg-zinc-800 active:bg-zinc-700 border border-zinc-700 text-zinc-200 w-10 h-9 rounded-lg flex items-center justify-center text-base font-bold shadow">▶</button>
+      <button id="btnMobileAction" class="bg-amber-600 active:bg-amber-500 text-black font-bold px-3 h-9 rounded-lg flex items-center justify-center text-xs shadow">⚡ 交互</button>
+    </div>
+  </footer>
+
+  <!-- ============================================ -->
+  <!-- 深度玩法模态框 -->
+  <!-- ============================================ -->
+
+  <!-- 1. 抢菜秒杀界面 -->
+  <div id="modalGroceryRush" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-gradient-to-b from-zinc-900 to-zinc-950 border-2 border-emerald-500/50 rounded-2xl shadow-2xl max-w-md w-full p-6 relative animate-fade-in">
+      <button onclick="window.DeepGameplay?.closeGroceryRush()" class="absolute top-4 right-4 text-zinc-400 hover:text-white text-2xl">&times;</button>
+
+      <div class="text-center mb-6">
+        <div class="text-4xl mb-2">🥦</div>
+        <h2 class="text-2xl font-bold text-emerald-400 mb-1">叮咚买菜 · 清晨秒杀</h2>
+        <p class="text-xs text-zinc-400">限时开放 06:00-09:00 | 平价蔬菜包抢购中</p>
+      </div>
+
+      <!-- 排队进度 -->
+      <div class="bg-zinc-950 rounded-lg p-4 mb-4 border border-zinc-800">
+        <div class="flex items-center justify-center gap-2 mb-3">
+          <span class="animate-spin text-amber-400">⏳</span>
+          <p id="rushQueueText" class="text-sm text-zinc-300 font-bold">正在连接服务器...</p>
+        </div>
+
+        <div class="w-full bg-zinc-800 h-3 rounded-full overflow-hidden border border-zinc-700">
+          <div id="rushQueueBar" class="bg-gradient-to-r from-emerald-500 to-green-400 h-full w-0 transition-all duration-300 rounded-full"></div>
+        </div>
+      </div>
+
+      <!-- 倒计时 -->
+      <div class="text-center mb-4">
+        <p id="rushTimerCount" class="text-xl font-bold font-code text-amber-400">倒计时: 12 秒</p>
+      </div>
+
+      <!-- 点击按钮 -->
+      <button id="btnClickPayGrocery" disabled class="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 active:scale-95 text-white font-black text-lg py-4 rounded-xl shadow-lg border-2 border-emerald-400/50 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
+        💰 疯狂点击结算！
+      </button>
+
+      <div class="mt-4 text-center text-xs text-zinc-500">
+        <p>✨ 成功抢到：5 份生鲜 + 1 盒便当（仅需 ¥38）</p>
+        <p>⚠️ 手慢无：每日只有一次机会，定好闹钟准时蹲点！</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 办公室工作界面 -->
+  <div id="modalOfficeWork" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-gradient-to-b from-zinc-900 to-zinc-950 border-2 border-blue-500/50 rounded-2xl shadow-2xl max-w-2xl w-full p-6 relative">
+      <button onclick="document.getElementById('modalOfficeWork').classList.add('hidden')" class="absolute top-4 right-4 text-zinc-400 hover:text-white text-2xl">&times;</button>
+
+      <div class="mb-6">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-2xl font-bold text-blue-400 flex items-center gap-2">
+              <span>💼</span>
+              <span>工位打卡</span>
+            </h2>
+            <p class="text-xs text-zinc-400 mt-1">保持产出，也要照顾身体与心境</p>
+          </div>
+          <div class="text-right">
+            <p class="text-xs text-zinc-400">当前 KPI</p>
+            <p id="workShiftKpi" class="text-2xl font-bold text-amber-400 font-code">0%</p>
+          </div>
+        </div>
+
+        <!-- 事件横幅 -->
+        <div class="bg-zinc-950/60 border border-amber-500/30 rounded-lg p-3 mb-4 flex items-start gap-3">
+          <span id="officeEventIcon" class="text-2xl">💼</span>
+          <p id="officeEventDesc" class="text-sm text-zinc-300 flex-1">今天工作节奏正常，你可以努力拼KPI赚绩效，也可以适度摸鱼保持体力。</p>
+        </div>
+
+        <!-- 工作进度 -->
+        <div class="bg-zinc-950 rounded-lg p-4 mb-4 border border-zinc-800">
+          <div class="flex items-center justify-between mb-2">
+            <p id="workClockText" class="text-sm text-zinc-400 font-code">已工作: 0h 0m / 8h</p>
+            <p id="txtEstimatedSalary" class="text-sm text-emerald-400 font-bold">预估收入: ¥380</p>
+          </div>
+        </div>
+
+        <!-- 工作动作 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+          <button id="btnWorkHard" class="bg-gradient-to-br from-amber-700 to-orange-700 hover:from-amber-600 hover:to-orange-600 text-white font-bold py-4 px-4 rounded-xl border-2 border-amber-500/50 shadow-lg transition-all active:scale-95 flex flex-col items-center gap-1">
+            <span class="text-2xl">📈</span>
+            <span>埋头苦干</span>
+            <span class="text-xs opacity-80">KPI +35% | 精力 -20</span>
+          </button>
+
+          <button id="btnWorkSlack" class="bg-gradient-to-br from-sky-700 to-cyan-700 hover:from-sky-600 hover:to-cyan-600 text-white font-bold py-4 px-4 rounded-xl border-2 border-sky-500/50 shadow-lg transition-all active:scale-95 flex flex-col items-center gap-1">
+            <span class="text-2xl">☕</span>
+            <span>带薪摸鱼</span>
+            <span class="text-xs opacity-80">心境 +15 | 25% 被抓</span>
+          </button>
+
+          <button id="btnWorkMaskCheck" class="bg-gradient-to-br from-emerald-700 to-green-700 hover:from-emerald-600 hover:to-green-600 text-white font-bold py-4 px-4 rounded-xl border-2 border-emerald-500/50 shadow-lg transition-all active:scale-95 flex flex-col items-center gap-1">
+            <span class="text-2xl">🧴</span>
+            <span>消毒工位</span>
+            <span class="text-xs opacity-80">感染风险 -80%</span>
+          </button>
+        </div>
+
+        <button id="btnFinishWorkDay" class="w-full bg-gradient-to-r from-violet-700 to-purple-700 hover:from-violet-600 hover:to-purple-600 text-white font-black text-lg py-4 rounded-xl border-2 border-violet-500/50 shadow-lg transition-all active:scale-95">
+          ✅ 打卡下班结算
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 同事感染选择界面 -->
+  <div id="modalColleagueChoice" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 backdrop-blur-md">
+    <div class="bg-gradient-to-b from-red-950 to-zinc-950 border-2 border-rose-500/50 rounded-2xl shadow-2xl max-w-lg w-full p-6 relative animate-pulse-slow">
+      <div class="text-center mb-6">
+        <div class="text-5xl mb-3">😷</div>
+        <h2 class="text-2xl font-bold text-rose-400 mb-2">⚠️ 突发状况！</h2>
+        <p class="text-zinc-300 mb-4">隔壁工位小李突然剧烈咳嗽，面色潮红，看起来状态很差...</p>
+        <div class="bg-zinc-950 rounded-lg p-3 border border-rose-500/30">
+          <p class="text-sm text-zinc-400">你的选择将直接影响自身感染风险与公司封控状态！</p>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <button id="btnColleagueReport" class="w-full bg-gradient-to-r from-orange-700 to-red-700 hover:from-orange-600 hover:to-red-600 text-white font-bold py-4 px-4 rounded-xl border-2 border-orange-500/50 shadow-lg transition-all active:scale-95 text-left flex items-start gap-3">
+          <span class="text-2xl">🚨</span>
+          <div class="flex-1">
+            <p class="font-black mb-1">主动举报申请全组居家</p>
+            <p class="text-xs opacity-80">立即上报HR，触发全组核酸排查（你也可能被检出）</p>
+          </div>
+        </button>
+
+        <button id="btnColleagueHelp" class="w-full bg-gradient-to-r from-purple-700 to-pink-700 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 px-4 rounded-xl border-2 border-purple-500/50 shadow-lg transition-all active:scale-95 text-left flex items-start gap-3">
+          <span class="text-2xl">💊</span>
+          <div class="flex-1">
+            <p class="font-black mb-1">借他一颗布洛芬</p>
+            <p class="text-xs opacity-80">消耗 1 颗药，提升同事好感 +5 声望，但有接触感染风险</p>
+          </div>
+        </button>
+
+        <button id="btnColleagueIgnore" class="w-full bg-gradient-to-r from-zinc-700 to-zinc-800 hover:from-zinc-600 hover:to-zinc-700 text-white font-bold py-4 px-4 rounded-xl border-2 border-zinc-600/50 shadow-lg transition-all active:scale-95 text-left flex items-start gap-3">
+          <span class="text-2xl">👀</span>
+          <div class="flex-1">
+            <p class="font-black mb-1">装作没看见硬撑到下班</p>
+            <p class="text-xs opacity-80">继续工作到打卡，但感染风险极高（60%+）</p>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. 社区团购界面 -->
+  <div id="modalGroupBuy" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
+    <div class="bg-gradient-to-b from-zinc-900 to-zinc-950 border-2 border-cyan-500/50 rounded-2xl shadow-2xl max-w-3xl w-full p-6 relative my-8">
+      <button onclick="document.getElementById('modalGroupBuy').classList.add('hidden')" class="absolute top-4 right-4 text-zinc-400 hover:text-white text-2xl">&times;</button>
+
+      <div class="mb-6">
+        <h2 class="text-2xl font-bold text-cyan-400 flex items-center gap-2 mb-2">
+          <span>🤝</span>
+          <span>社区团购 & 邻居互助</span>
+        </h2>
+        <p class="text-sm text-zinc-400">发起团购需垫资，成团后全额返还 + 物资到手 + 声望暴涨</p>
+      </div>
+
+      <!-- 团购套餐 -->
+      <div class="mb-6">
+        <h3 class="text-lg font-bold text-zinc-300 mb-3">💰 发起团购（需垫资）</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-zinc-950 border border-emerald-500/30 rounded-xl p-4">
+            <div class="text-center mb-3">
+              <span class="text-3xl">🥬</span>
+              <h4 class="font-bold text-emerald-400 mt-2">蔬菜肉蛋包</h4>
+              <p class="text-xs text-zinc-500 mt-1">需 10 人成团</p>
+            </div>
+            <div class="text-xs text-zinc-400 space-y-1 mb-3">
+              <p>垫资: ¥200</p>
+              <p>奖励: 8 份生鲜 + 2 盒便当</p>
+              <p>声望: +20</p>
+            </div>
+            <button id="btnStartGroupBuyVeggies" class="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-bold py-2 rounded-lg transition">发起团购</button>
+          </div>
+
+          <div class="bg-zinc-950 border border-purple-500/30 rounded-xl p-4">
+            <div class="text-center mb-3">
+              <span class="text-3xl">😷</span>
+              <h4 class="font-bold text-purple-400 mt-2">防疫物资包</h4>
+              <p class="text-xs text-zinc-500 mt-1">需 8 人成团</p>
+            </div>
+            <div class="text-xs text-zinc-400 space-y-1 mb-3">
+              <p>垫资: ¥150</p>
+              <p>奖励: 3 盒抗原 + 1 盒退烧药</p>
+              <p>声望: +15</p>
+            </div>
+            <button id="btnStartGroupBuyMedical" class="w-full bg-purple-700 hover:bg-purple-600 text-white font-bold py-2 rounded-lg transition">发起团购</button>
+          </div>
+
+          <div class="bg-zinc-950 border border-amber-500/30 rounded-xl p-4">
+            <div class="text-center mb-3">
+              <span class="text-3xl">🍎</span>
+              <h4 class="font-bold text-amber-400 mt-2">高端礼盒</h4>
+              <p class="text-xs text-zinc-500 mt-1">需 12 人成团</p>
+            </div>
+            <div class="text-xs text-zinc-400 space-y-1 mb-3">
+              <p>垫资: ¥300</p>
+              <p>奖励: 精品食材 + 30 心境</p>
+              <p>声望: +25</p>
+            </div>
+            <button id="btnStartGroupBuyPremium" class="w-full bg-amber-700 hover:bg-amber-600 text-white font-bold py-2 rounded-lg transition">发起团购</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 以物易物 -->
+      <div class="mb-6">
+        <h3 class="text-lg font-bold text-zinc-300 mb-3">🔄 以物易物（邻里互助）</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <button id="btnTradePillsForFood" class="bg-zinc-950 hover:bg-zinc-900 border border-zinc-700 rounded-lg p-4 text-left transition flex items-center gap-3">
+            <span class="text-2xl">💊</span>
+            <div class="flex-1">
+              <p class="font-bold text-zinc-200">1 盒布洛芬 ⇄ 4 份生鲜</p>
+              <p class="text-xs text-zinc-500">602室王阿姨的孙子发烧 | 声望 +15</p>
+            </div>
+          </button>
+
+          <button id="btnTradeFoodForKit" class="bg-zinc-950 hover:bg-zinc-900 border border-zinc-700 rounded-lg p-4 text-left transition flex items-center gap-3">
+            <span class="text-2xl">🍱</span>
+            <div class="flex-1">
+              <p class="font-bold text-zinc-200">1 盒便当 ⇄ 1 盒抗原</p>
+              <p class="text-xs text-zinc-500">1204室小张多囤了抗原 | 声望 +5</p>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- 志愿者 -->
+      <button id="btnVolunteer" class="w-full bg-gradient-to-r from-rose-700 to-pink-700 hover:from-rose-600 hover:to-pink-600 text-white font-bold py-4 rounded-xl border-2 border-rose-500/50 shadow-lg transition-all active:scale-95">
+        ❤️ 志愿帮独居老人送物资（消耗 20 体力 | 获得 25 声望）
+      </button>
+
+      <div class="mt-4 text-center text-xs text-zinc-500">
+        <p>💡 声望越高，获得爱心菜包概率越大，还能解锁邻居紧急求助功能</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. 心理健康调节界面 -->
+  <div id="modalMentalHealth" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-gradient-to-b from-zinc-900 to-zinc-950 border-2 border-blue-500/50 rounded-2xl shadow-2xl max-w-2xl w-full p-6 relative animate-fade-in max-h-[90vh] overflow-y-auto">
+      <button id="btnCloseMentalHealth" class="absolute top-4 right-4 text-zinc-400 hover:text-white text-2xl">&times;</button>
+
+      <div class="text-center mb-6">
+        <div class="text-4xl mb-2">🧘</div>
+        <h2 class="text-2xl font-bold text-blue-400 mb-1">心理健康调节</h2>
+        <p class="text-xs text-zinc-400">保持理智，才能度过难关</p>
+      </div>
+
+      <!-- 当前心理状态 -->
+      <div id="mentalStageInfo" class="mb-6"></div>
+
+      <!-- 调节活动列表 -->
+      <div id="mentalActivities" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+    </div>
+  </div>
+
+  <!-- 10. 黑市交易界面 -->
+  <div id="modalBlackMarket" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-gradient-to-b from-zinc-950 via-zinc-900 to-black border-2 border-red-900/50 rounded-2xl shadow-2xl max-w-2xl w-full p-6 relative animate-fade-in max-h-[90vh] overflow-y-auto">
+      <button id="btnCloseBlackMarket" class="absolute top-4 right-4 text-zinc-400 hover:text-white text-2xl">&times;</button>
+
+      <div class="text-center mb-6">
+        <div class="text-4xl mb-2">🌙</div>
+        <h2 class="text-2xl font-bold text-red-400 mb-1">地下黑市</h2>
+        <p class="text-xs text-red-300">深夜交易 · 风险自负</p>
+        <p class="text-xs text-zinc-500 mt-1">开放时间：22:00 - 04:00</p>
+      </div>
+
+      <div class="bg-red-950/30 border border-red-900/50 rounded-lg p-3 mb-4 text-center">
+        <p class="text-xs text-red-300">⚠️ 黑市交易存在风险，可能买到假货、被举报或罚款</p>
+      </div>
+
+      <!-- 黑市商品列表 -->
+      <div id="blackMarketGoods" class="space-y-3"></div>
+    </div>
+  </div>
+
+  <!-- 11. 邻居互动面板 -->
+  <div id="modalNeighborPanel" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-gradient-to-b from-zinc-900 to-zinc-950 border-2 border-purple-500/50 rounded-2xl shadow-2xl max-w-2xl w-full p-6 relative animate-fade-in max-h-[90vh] overflow-y-auto">
+      <button id="btnCloseNeighborPanel" class="absolute top-4 right-4 text-zinc-400 hover:text-white text-2xl">&times;</button>
+
+      <div class="text-center mb-6">
+        <div class="text-4xl mb-2">👥</div>
+        <h2 class="text-2xl font-bold text-purple-400 mb-1">邻居关系</h2>
+        <p class="text-xs text-zinc-400">守望相助，共渡难关</p>
+      </div>
+
+      <!-- 邻居列表 -->
+      <div id="neighborList" class="space-y-3"></div>
+    </div>
+  </div>
+
+  <!-- 12. 邻居事件弹窗 -->
+  <div id="modalNeighborEvent" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-gradient-to-b from-zinc-900 to-zinc-950 border-2 border-yellow-500/50 rounded-2xl shadow-2xl max-w-md w-full p-6 relative animate-fade-in">
+      <div class="text-center mb-4">
+        <div id="neighborEventIcon" class="text-5xl mb-3">🚪</div>
+        <h3 id="neighborEventTitle" class="text-xl font-bold text-yellow-400 mb-2">邻居来访</h3>
+        <p id="neighborEventDesc" class="text-sm text-zinc-300"></p>
+      </div>
+
+      <div id="neighborEventChoices" class="space-y-2"></div>
+
+      <button id="btnCloseNeighborEvent" class="mt-4 w-full bg-zinc-700 hover:bg-zinc-600 text-white py-2 rounded-lg">关闭</button>
+    </div>
+  </div>
+
+  <!-- 13. 噩梦事件弹窗 -->
+  <div id="modalNightmare" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-gradient-to-b from-red-950 to-black border-2 border-red-700/50 rounded-2xl shadow-2xl max-w-md w-full p-6 relative animate-fade-in">
+      <div class="text-center mb-4">
+        <div class="text-5xl mb-3">😱</div>
+        <h3 class="text-2xl font-bold text-red-400 mb-2">噩梦惊醒</h3>
+        <p id="nightmareDesc" class="text-sm text-zinc-300"></p>
+      </div>
+
+      <div class="bg-red-950/50 border border-red-900 rounded-lg p-4 mb-4">
+        <p id="nightmareEffect" class="text-xs text-red-300 text-center"></p>
+      </div>
+
+      <button id="btnCloseNightmare" class="w-full bg-red-700 hover:bg-red-600 text-white font-bold py-3 rounded-lg">惊醒</button>
+    </div>
+  </div>
+
+  <!-- 引入模块化 JS（使用 ES6 模块） -->
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
