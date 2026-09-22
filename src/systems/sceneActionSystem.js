@@ -356,6 +356,7 @@ export const sceneActions = {
     applyStatEvent('eat');
     flagQuest('ateHot');
     fx(player, '盖浇饭', '#fb923c');
+    import('./dayLoopSystem.js').then((m) => m.markDuty('eat'));
     showToast('饭是热的，塑料盒是软的。中央空调把葱花味吹走。', 'success');
   },
   mallAtm() {

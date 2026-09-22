@@ -86,6 +86,7 @@ import { initQuests, onQuestNewDay } from './questSystem.js';
 import { bindDialogueModal } from './npcInteractSystem.js';
 import { initOutfit, renderOutfitShop, openGear } from './outfitSystem.js';
 import { initHome, tickHomeHour, tickHomeDay, bindHomeModals, takeFridgeKind } from './homeSystem.js';
+import { initDayLoop, tickDayLoopHour, tickDayLoopNewDay, tickGreet, canTravelTo, onLeftHome } from './dayLoopSystem.js';
 
 /**
  * 初始化所有深度玩法系统
@@ -102,6 +103,7 @@ export function initDeepGameplaySystems() {
   initMassageParlor();
   initOutfit();
   initHome();
+  initDayLoop();
 
   // 初始化游戏状态的扩展字段
   if (!gameState.deepGameplay) {
@@ -335,6 +337,7 @@ function cookMeal(kind) {
     gameState.hunger = Math.min(100, gameState.hunger + 35);
     gameState.sanity = Math.min(100, gameState.sanity + 10);
     applyLifeAction('cook', player);
+    import('./dayLoopSystem.js').then((m) => m.markDuty('eat'));
     showToast('热汤面下肚，出租屋里终于有了烟火气。', 'success');
   } else if (kind === 'tea') {
     if (!gameState.home?.water) { showToast('没水熬不了姜汤。', 'error'); return; }
@@ -345,6 +348,7 @@ function cookMeal(kind) {
     if (!takeFridgeKind('instant')) { showToast('便当吃完了。', 'error'); return; }
     gameState.hunger = Math.min(100, gameState.hunger + 55);
     applyLifeAction('eatInstant', player);
+    import('./dayLoopSystem.js').then((m) => m.markDuty('eat'));
     showToast('自热米饭滋滋响，也算一顿正经饭。', 'success');
   }
   document.getElementById('modalKitchen')?.classList.add('hidden');
@@ -371,6 +375,7 @@ export function recruitNearbyNpc(player) {
 
 export function updateDeepGameplay(delta) {
   updateStreetNpcs(delta);
+  tickGreet(delta);
   updateMassageParlor(delta);
   // 更新发热病程效果
   updateFeverEffects(delta);
@@ -408,6 +413,7 @@ export function onNewDay() {
   // 邻居事件触发检查
   dailyNeighborCheck();
   tickHomeDay();
+  tickDayLoopNewDay();
 
   // 生成今日新闻（会在玩家看电视时显示）
   // 新闻会在 watchMorningNews 中生成和应用
@@ -429,6 +435,7 @@ export function onHourTick() {
   checkMentalBreakdown();
   tickStatsHour();
   tickHomeHour();
+  tickDayLoopHour();
 }
 
 /**
@@ -506,6 +513,8 @@ export const DeepGameplay = {
   talkNearbyNpc,
   recruitNearbyNpc,
   travelTo,
+  canTravelTo,
+  onLeftHome,
 
   // 工具函数
   getAdjustedPrice

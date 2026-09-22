@@ -34,7 +34,7 @@ let lastTime = performance.now();
  * 初始化游戏
  */
 export function initGame() {
-  console.log('[game] build 20260922q loft-props');
+  console.log('[game] build 20260922s day-loop-fx');
   canvas = document.getElementById('gameCanvas');
   if (!canvas) {
     console.error('Canvas not found!');

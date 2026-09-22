@@ -50,12 +50,13 @@ export function spawnMapNpcs() {
 export function travelTo(mapId, spawnX, toast, spawnFloor) {
   const map = getMap(mapId);
   if (!map) return;
-  if (gameState.isPositiveKnown && (mapId === 'club' || mapId === 'office' || mapId === 'redlight' || mapId === 'cbd')) {
-    showToast('红码拦在门外。', 'error');
-    return;
-  }
-  if (gameState.lockdownLevel >= 3 && (mapId === 'club' || mapId === 'redlight')) {
+  const from = gameState.mapId;
+  if (window.DeepGameplay?.canTravelTo && !window.DeepGameplay.canTravelTo(mapId)) return;
+  if (gameState.lockdownLevel >= 3 && (mapId === 'club' || mapId === 'redlight') && !gameState.isPositiveKnown) {
     showToast('静默管理，红灯区卷帘落了一半。你仍可以从巷缝挤进去。', 'info');
+  }
+  if (from === 'home' && mapId !== 'home' && window.DeepGameplay?.onLeftHome) {
+    window.DeepGameplay.onLeftHome();
   }
   gameState.mapId = mapId;
   const p = window.player;

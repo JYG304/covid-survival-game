@@ -422,6 +422,7 @@ export function finishWorkDay() {
 
   gameState.workShift.active = false;
   gameState.hasWorkedToday = true;
+  import('./dayLoopSystem.js').then((m) => m.markDuty('work'));
 
   // 计算剩余时间并推进
   const remainingTime = OFFICE_CONFIG.workDayDuration - gameState.workShift.elapsedMinutes;

@@ -2,6 +2,7 @@ import { FLOOR_Y } from '../data/landmarks.js';
 import { yOfFloor, FLOOR_GAP } from '../data/maps.js';
 import { gameState } from '../data/gameState.js';
 import { getActiveMap } from '../systems/mapSystem.js';
+import { getHealthCode } from '../systems/dayLoopSystem.js';
 
 function rr(ctx, x, y, w, h, r) {
   const rad = Math.min(r, w / 2, h / 2);
@@ -202,6 +203,29 @@ export function paintDistrict(ctx, w, theme) {
     ctx.fillStyle = '#22c55e';
     ctx.fillRect(1120, FLOOR_Y - 40, 6, 22);
     ctx.fillRect(1180, FLOOR_Y - 52, 6, 34);
+    const code = getHealthCode();
+    if (code === 'red') {
+      ctx.fillStyle = '#b91c1c';
+      ctx.fillRect(80, FLOOR_Y - 250, 16, 240);
+      ctx.fillRect(70, FLOOR_Y - 70, 90, 22);
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 11px "Noto Sans SC"';
+      ctx.fillText('封控隔离', 78, FLOOR_Y - 55);
+    } else if (code === 'yellow') {
+      ctx.fillStyle = '#eab308';
+      ctx.fillRect(86, FLOOR_Y - 80, 70, 16);
+      ctx.fillStyle = '#422006';
+      ctx.font = 'bold 11px "Noto Sans SC"';
+      ctx.fillText('黄码', 100, FLOOR_Y - 68);
+    }
+    const left = gameState.dayLoop?.outingsLeft;
+    if (left != null && left <= 0) {
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(2320, FLOOR_Y - 150, 90, 110);
+      ctx.fillStyle = '#fde68a';
+      ctx.font = 'bold 11px "Noto Sans SC"';
+      ctx.fillText('网格员', 2340, FLOOR_Y - 90);
+    }
   }
 }
 

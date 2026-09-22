@@ -7,6 +7,7 @@ import { gameState } from '../data/gameState.js';
 import { NEED_KEYS, NEED_META, getNeed, getMoodScore } from '../systems/simsLifeSystem.js';
 import { getActiveQuests } from '../systems/questSystem.js';
 import { getStatsLines } from '../systems/statsSystem.js';
+import { getDuties, codeLabel, getHealthCode } from '../systems/dayLoopSystem.js';
 
 /**
  * 更新所有 HUD 元素
@@ -122,26 +123,19 @@ function updateHealthCode() {
   const dot = document.getElementById('statusDot');
   const feverFX = document.getElementById('feverFX');
 
-  if (gameState.isPositiveKnown) {
-    if (badge) {
-      badge.className = 'px-2 py-0.5 rounded text-xs font-bold border border-rose-500/60 bg-rose-950/60 text-rose-300 flex items-center gap-1 animate-pulse';
-    }
-    if (txt) {
-      txt.innerText = `🔴 红码隔离 (${gameState.quarantineDaysLeft}天)`;
-    }
-    if (dot) {
-      dot.className = 'w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping';
-    }
+  const code = getHealthCode();
+  const emoji = document.getElementById('txtCovidDot');
+  if (txt) txt.innerText = codeLabel();
+  if (emoji) emoji.innerText = code === 'red' ? '🔴' : code === 'yellow' ? '🟡' : '🟢';
+  if (code === 'red') {
+    if (badge) badge.className = 'px-2 py-0.5 rounded text-xs font-bold border border-rose-500/60 bg-rose-950/60 text-rose-300 flex items-center gap-1 animate-pulse';
+    if (dot) dot.className = 'w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping';
+  } else if (code === 'yellow') {
+    if (badge) badge.className = 'px-2 py-0.5 rounded text-xs font-bold border border-amber-500/60 bg-amber-950/50 text-amber-300 flex items-center gap-1';
+    if (dot) dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse';
   } else {
-    if (badge) {
-      badge.className = 'px-2 py-0.5 rounded text-xs font-bold border border-emerald-500/40 bg-emerald-950/40 text-emerald-400 flex items-center gap-1';
-    }
-    if (txt) {
-      txt.innerText = '🟢 48h绿码';
-    }
-    if (dot) {
-      dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse';
-    }
+    if (badge) badge.className = 'px-2 py-0.5 rounded text-xs font-bold border border-emerald-500/40 bg-emerald-950/40 text-emerald-400 flex items-center gap-1';
+    if (dot) dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse';
   }
 
   // 高烧视觉效果
@@ -228,8 +222,14 @@ function updateSimsPanel() {
   }
   const qEl = document.getElementById('questList');
   if (qEl) {
+    const duties = getDuties();
+    const left = gameState.dayLoop?.outingsLeft;
+    const cap = gameState.dayLoop?.outingsMax;
+    const head = `<li class="text-amber-300">出门 ${left ?? 0}/${cap ?? 0}</li>`;
+    const dutyLines = duties.map((d) => `<li>${d.done ? '✅' : d.failed ? '❌' : '☐'} ${d.title}</li>`).join('');
     const qs = getActiveQuests();
-    qEl.innerHTML = qs.length ? qs.map((q) => `<li>${q.done ? '✅' : '☐'} ${q.title}</li>`).join('') : '<li>暂无</li>';
+    const extra = qs.filter((q) => !q.done).slice(0, 2).map((q) => `<li class="text-zinc-500">${q.title}</li>`).join('');
+    qEl.innerHTML = head + dutyLines + extra;
   }
   const st = document.getElementById('statsMini');
   if (st) {

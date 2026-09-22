@@ -4,6 +4,7 @@ import { getActiveLandmarks, getWorldWidth, getActiveMap } from '../systems/mapS
 import { gameState } from '../data/gameState.js';
 import { livingNpcs } from '../systems/npcInteractSystem.js';
 import { getPlumbobColor, getThought, getTimeOfDayPalette } from '../systems/simsLifeSystem.js';
+import { getHealthCode } from '../systems/dayLoopSystem.js';
 import { outfitColor } from '../systems/outfitSystem.js';
 import { LANDMARK_SPRITE, LANDMARK_BUILDING, SPRITE_ICON } from '../art/atlas.js';
 import { drawFurniture } from '../art/furniture.js';
@@ -101,7 +102,59 @@ export function renderMidgroundWorld(ctx, canvas) {
   renderLandmarks(ctx);
   renderSplashes(ctx);
   renderPlayer(ctx);
+  paintWorldFx(ctx, w);
   ctx.restore();
+}
+
+function paintWorldFx(ctx, w) {
+  const code = getHealthCode();
+  const theme = getActiveMap()?.theme;
+  if (theme === 'home') {
+    const f0 = FLOOR_Y;
+    const greet = gameState.dayLoop?.greetT || 0;
+    if (greet > 0) {
+      ctx.globalAlpha = Math.min(1, greet / 1.2);
+      ctx.fillStyle = '#1c1917';
+      ctx.fillRect(18, f0 - 8, 22, 8);
+      ctx.fillRect(44, f0 - 8, 22, 8);
+      ctx.fillStyle = '#e5e7eb';
+      ctx.beginPath();
+      ctx.ellipse(92, f0 - 70, 16, 10, 0.4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#94a3b8';
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+    if (code === 'red') {
+      ctx.fillStyle = '#b91c1c';
+      ctx.fillRect(8, f0 - 210, 14, 200);
+      ctx.fillRect(28, f0 - 210, 160, 18);
+      ctx.fillStyle = '#fef2f2';
+      ctx.font = 'bold 12px "Noto Sans SC"';
+      ctx.fillText('居家隔离  禁止出门', 36, f0 - 197);
+    } else if (code === 'yellow') {
+      ctx.fillStyle = '#ca8a04';
+      ctx.fillRect(10, f0 - 188, 120, 16);
+      ctx.fillStyle = '#422006';
+      ctx.font = 'bold 11px "Noto Sans SC"';
+      ctx.fillText('黄码  先做核酸', 18, f0 - 176);
+    }
+    const left = gameState.dayLoop?.outingsLeft;
+    if (left != null) {
+      ctx.fillStyle = 'rgba(15,23,42,0.75)';
+      ctx.fillRect(16, f0 - 248, 148, 22);
+      ctx.fillStyle = left <= 0 ? '#fca5a5' : '#fde68a';
+      ctx.font = 'bold 12px "Noto Sans SC"';
+      ctx.fillText(`今日出门 ${left}/${gameState.dayLoop.outingsMax}`, 24, f0 - 233);
+    }
+  }
+  if (code === 'red') {
+    ctx.fillStyle = 'rgba(127,29,29,0.10)';
+    ctx.fillRect(0, 0, w, FLOOR_Y + 140);
+  } else if (code === 'yellow') {
+    ctx.fillStyle = 'rgba(161,98,7,0.07)';
+    ctx.fillRect(0, 0, w, FLOOR_Y + 140);
+  }
 }
 
 function roundRect(ctx, x, y, w, h, r) {
@@ -287,49 +340,72 @@ function npcKind(npc) {
 }
 
 function drawCat(ctx, x, y, opt) {
-  const bob = Math.sin(Date.now() / 260) * 1.5;
+  const mood = opt.mood || 'ok';
+  const greet = mood === 'greet';
+  const hungry = mood === 'hungry';
+  const dirty = mood === 'dirty';
+  const bob = greet ? Math.sin(Date.now() / 90) * 4 : Math.sin(Date.now() / 260) * 1.5;
+  const flatten = greet ? 4 : 0;
   ctx.fillStyle = 'rgba(0,0,0,0.28)';
   ctx.beginPath();
   ctx.ellipse(x, y + 2, 12, 3.5, 0, 0, Math.PI * 2);
   ctx.fill();
-  ctx.fillStyle = '#f5d0a6';
+  ctx.fillStyle = hungry ? '#e8b88a' : '#f5d0a6';
   ctx.beginPath();
-  ctx.ellipse(x, y - 8 + bob, 15, 8, 0, 0, Math.PI * 2);
+  ctx.ellipse(x, y - 8 + bob + flatten, hungry ? 12 : 15, hungry ? 6 : 8, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.fillStyle = '#fb923c';
   ctx.beginPath();
-  ctx.ellipse(x - 6, y - 9 + bob, 6, 5, 0, 0, Math.PI * 2);
+  ctx.ellipse(x - 6, y - 9 + bob + flatten, 6, 5, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.fillStyle = '#44403c';
   ctx.beginPath();
-  ctx.ellipse(x + 7, y - 6 + bob, 5, 4, 0, 0, Math.PI * 2);
+  ctx.ellipse(x + 7, y - 6 + bob + flatten, 5, 4, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.fillStyle = '#fff7ed';
   ctx.beginPath();
   ctx.arc(x + 11, y - 18 + bob, 7, 0, Math.PI * 2);
   ctx.fill();
   ctx.fillStyle = '#fb923c';
+  const earDrop = hungry ? 6 : 0;
   ctx.beginPath();
   ctx.moveTo(x + 6, y - 22 + bob);
-  ctx.lineTo(x + 4, y - 31 + bob);
+  ctx.lineTo(x + 4 + earDrop, y - 31 + bob + earDrop);
   ctx.lineTo(x + 11, y - 22 + bob);
   ctx.fill();
   ctx.fillStyle = '#1c1917';
   ctx.beginPath();
   ctx.moveTo(x + 12, y - 22 + bob);
-  ctx.lineTo(x + 18, y - 31 + bob);
+  ctx.lineTo(x + 18, y - 31 + bob + earDrop);
   ctx.lineTo(x + 16, y - 20 + bob);
   ctx.fill();
   ctx.fillStyle = '#111827';
   ctx.beginPath();
   ctx.arc(x + 13, y - 19 + bob, 1.2, 0, Math.PI * 2);
   ctx.fill();
-  ctx.strokeStyle = '#78716c';
+  ctx.strokeStyle = hungry ? '#a8a29e' : '#78716c';
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(x - 12, y - 8 + bob);
-  ctx.quadraticCurveTo(x - 28, y - 24, x - 10, y - 2);
+  ctx.quadraticCurveTo(x - 28, y - 24 - (greet ? 10 : 0), x - 10, y - 2);
   ctx.stroke();
+  if (dirty) {
+    ctx.strokeStyle = 'rgba(163,230,53,0.55)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      ctx.moveTo(x - 6 + i * 6, y - 28);
+      ctx.quadraticCurveTo(x - 4 + i * 6, y - 40, x - 8 + i * 6, y - 46);
+      ctx.stroke();
+    }
+  }
+  if (hungry) {
+    ctx.fillStyle = '#ef4444';
+    ctx.font = 'bold 14px "Noto Sans SC"';
+    ctx.textAlign = 'center';
+    ctx.fillText('!', x + 20, y - 36 + Math.sin(Date.now() / 140) * 3);
+    ctx.textAlign = 'left';
+  }
 }
 
 function drawSimBody(ctx, x, y, opt) {
@@ -435,6 +511,7 @@ function renderStreetNPCs(ctx) {
       bob,
       pose: npc.pose,
       kind: npcKind(npc),
+      mood: npc.mood,
       skin: npc.skin,
       hair: npc.hair,
       shirt: npc.shirt,
@@ -487,7 +564,7 @@ function renderPlayer(ctx) {
     pose: pose?.role === 'customer' ? 'lie' : (pose?.role === 'masseur' ? 'work' : 'walk'),
     skin: '#f2c29b',
     hair: outfitColor('hair'),
-    shirt: pose?.role === 'masseur' ? '#be123c' : (gameState.isPositiveKnown ? '#b91c1c' : outfitColor('shirt')),
+    shirt: pose?.role === 'masseur' ? '#be123c' : (getHealthCode() === 'red' ? '#b91c1c' : outfitColor('shirt')),
     pants: outfitColor('pants'),
     mask: gameState.hasMaskOn
   });

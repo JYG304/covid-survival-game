@@ -105,16 +105,18 @@ export function checkRack(player) {
  * 核酸检测
  */
 export function takePCR(player) {
-  if (gameState.viralLoad >= 50 || gameState.bodyTemp >= 38.0) {
+  const positive = gameState.viralLoad >= 50 || gameState.bodyTemp >= 38.0;
+  if (positive) {
     gameState.isPositiveKnown = true;
     gameState.quarantineDaysLeft = 4;
     audio.playWarning();
     showToast('🚨 警报！核酸初筛呈阳性！健康码变红，被网格员勒令即刻返回单间居家隔离4天！', 'error');
-    player.x = 220;
+    import('./mapSystem.js').then((m) => m.travelTo('home', 200, '网格员把你送回单元门。'));
   } else {
     audio.playTone(520, 0.25, 'triangle', 0.1);
     showToast('核酸采样完成！结果为【阴性】，48小时健康码通行时效已刷新！', 'success');
   }
+  import('./dayLoopSystem.js').then((m) => m.onPcrDone(positive));
 }
 
 /**

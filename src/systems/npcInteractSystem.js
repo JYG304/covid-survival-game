@@ -20,11 +20,67 @@ export function updateStreetNpcs(delta) {
     if (npc.bubbleT > 0) npc.bubbleT -= delta;
     else npc.bubble = '';
     npc.y = yOfFloor(npc.floor || 0);
+    if (npc.job === 'cat' && gameState.mapId === 'home') {
+      updateHomeCat(npc, delta);
+      continue;
+    }
     if (npc.pose === 'walk' && !npc.assignedRoom) {
       npc.x += npc.dir * npc.speed;
       if (npc.x > npc.homeMax) npc.dir = -1;
       if (npc.x < npc.homeMin) npc.dir = 1;
     }
+  }
+}
+
+function updateHomeCat(npc, delta) {
+  const h = gameState.home;
+  const p = window.player;
+  const hungry = (h?.catHunger || 0) > 65;
+  const dirty = (h?.litter || 0) > 70;
+  const greet = (gameState.dayLoop?.greetT || 0) > 0;
+  npc.mood = hungry ? 'hungry' : dirty ? 'dirty' : greet ? 'greet' : 'ok';
+  npc.floor = hungry || greet ? 0 : (npc.floor || 0);
+  npc.y = yOfFloor(npc.floor);
+  if (hungry && p && (p.floor || 0) === 0) {
+    npc.homeMin = 40;
+    npc.homeMax = 90;
+    npc.speed = 0.7;
+    if (Math.abs(npc.x - 80) > 8) {
+      npc.dir = npc.x < 80 ? 1 : -1;
+      npc.x += npc.dir * npc.speed;
+    }
+    if (npc.bubbleT <= 0) {
+      npc.bubble = '饿！';
+      npc.bubbleT = 2.2;
+    }
+  } else if (greet && p) {
+    npc.floor = p.floor || 0;
+    npc.y = yOfFloor(npc.floor);
+    npc.speed = 1.1;
+    npc.dir = npc.x < p.x ? 1 : -1;
+    npc.x += npc.dir * npc.speed;
+    if (Math.abs(npc.x - p.x) < 28 && npc.bubbleT <= 0) {
+      npc.bubble = dirty ? '砂盆……' : '喵';
+      npc.bubbleT = 1.6;
+    }
+  } else if (dirty) {
+    npc.homeMin = 150;
+    npc.homeMax = 230;
+    npc.speed = 0.15;
+    npc.x += npc.dir * npc.speed;
+    if (npc.x > npc.homeMax) npc.dir = -1;
+    if (npc.x < npc.homeMin) npc.dir = 1;
+  } else {
+    npc.homeMin = 160;
+    npc.homeMax = 720;
+    npc.speed = 0.28;
+    npc.x += npc.dir * npc.speed;
+    if (npc.x > npc.homeMax) npc.dir = -1;
+    if (npc.x < npc.homeMin) npc.dir = 1;
+  }
+  if (hungry && h && Math.random() < 0.004) {
+    h.trash = Math.min(100, (h.trash || 0) + 8);
+    h.dirt = Math.min(100, (h.dirt || 0) + 3);
   }
 }
 

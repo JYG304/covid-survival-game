@@ -191,7 +191,12 @@ export function onEnterHome() {
   }
   gameState.hasMaskOn = false;
   gameState.home.clothesDirty = true;
-  think('防盗门一关，口罩勒痕还在。');
+  if (gameState.dayLoop) gameState.dayLoop.greetT = 2.8;
+  const hungry = (gameState.home.catHunger || 0) > 70;
+  const dirty = (gameState.home.litter || 0) > 65;
+  if (hungry) think('阿花堵在门口。先喂。');
+  else if (dirty) think('一进门先闻到砂盆。');
+  else think('阿花从沙发上跳下来。口罩勒痕还在。');
 }
 
 export function onLeaveHome() {
@@ -237,6 +242,11 @@ export function openSleepMenu() {
 export function doHomeSleep(hours) {
   document.getElementById('modalSleep')?.classList.add('hidden');
   const q = sleepQuality();
+  if ((gameState.home.catHunger || 0) > 82 && hours > 2) {
+    showToast('阿花趴在枕头上叫。你睡不着。先喂。', 'error');
+    think('咕噜变成了嚎。');
+    return;
+  }
   const ok = hours <= 2 ? quickNap() : startSleep(hours);
   if (!ok) return;
   const p = window.player;
@@ -298,10 +308,12 @@ function useFridgeIndex(i) {
   } else if (f.kind === 'instant') {
     addNeed('hunger', 32);
     applyLifeAction('eatInstant', window.player);
+    import('./dayLoopSystem.js').then((m) => m.markDuty('eat'));
     showToast('冷的也吃了。塑料味。', 'info');
   } else {
     addNeed('hunger', 18);
     addNeed('fun', -2);
+    import('./dayLoopSystem.js').then((m) => m.markDuty('eat'));
     showToast(`生啃了${f.name}。还是该热一下。`, 'info');
   }
   syncCountsFromFridge();
@@ -624,6 +636,9 @@ export function scoopLitter(player) {
   addNeed('fun', -4);
   h.litter = 0;
   h.trash = Math.min(100, h.trash + 14);
+  import('./dayLoopSystem.js').then((m) => {
+    if ((gameState.home.catHunger || 0) < 45) m.markDuty('cat');
+  });
   import('./simsLifeSystem.js').then((m) => m.completeWant('litter', player?.x ?? 220, player?.y ?? 400));
   think('结块铲进袋子。阿花立刻踩回去。');
   fx(player, '铲砂', '#e7e5e4');
@@ -729,6 +744,9 @@ export function feedCat(player) {
   }
   h.catHunger = Math.max(0, h.catHunger - 55);
   applyLifeAction('petCat', player);
+  import('./dayLoopSystem.js').then((m) => {
+    if (h.litter < 40) m.markDuty('cat');
+  });
   fx(player, '喂猫', '#fb923c');
   updateHUD();
 }
