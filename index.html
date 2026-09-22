@@ -672,6 +672,17 @@
     </div>
   </div>
 
-  <script type="module" src="./src/main.js?v=20260922i"></script>
+  <div id="modalElevator" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-amber-500/40 rounded-2xl max-w-sm w-full p-4">
+      <div class="flex justify-between items-center mb-3">
+        <h3 class="font-bold text-amber-300">选楼层</h3>
+        <button id="btnCloseElevator" class="text-zinc-400 text-xl">×</button>
+      </div>
+      <p class="text-[11px] text-zinc-400 mb-2">电梯/楼梯在右侧。点一层就到。</p>
+      <div id="elevatorList" class="space-y-2 max-h-[50vh] overflow-y-auto"></div>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.js?v=20260922k"></script>
 </body>
 </html>

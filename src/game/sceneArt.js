@@ -1,6 +1,7 @@
 import { FLOOR_Y } from '../data/landmarks.js';
+import { yOfFloor, FLOOR_GAP } from '../data/maps.js';
 import { gameState } from '../data/gameState.js';
-import { BEDS } from '../systems/massageParlorSystem.js';
+import { getActiveMap } from '../systems/mapSystem.js';
 
 function rr(ctx, x, y, w, h, r) {
   const rad = Math.min(r, w / 2, h / 2);
@@ -419,11 +420,9 @@ function paintParlorAt(ctx, x) {
   ctx.fillText('林记推拿馆', x + 48, 136);
   ctx.fillStyle = '#7f1d1d';
   ctx.fillRect(x + 100, 168, 54, FLOOR_Y - 168);
-  for (const bed of BEDS) {
-    ctx.fillStyle = '#1c1917';
-    ctx.fillRect(bed.x - 28, FLOOR_Y - 28, 56, 12);
-    fillRR(ctx, bed.x - 24, FLOOR_Y - 44, 48, 16, 4, '#fda4af');
-  }
+  ctx.fillStyle = '#1c1917';
+  ctx.fillRect(x + 20, FLOOR_Y - 28, 56, 12);
+  fillRR(ctx, x + 24, FLOOR_Y - 44, 48, 16, 4, '#fda4af');
 }
 
 function paintClubFrontAt(ctx, x) {
@@ -553,133 +552,98 @@ export function paintBus(ctx, w) {
   ctx.fillText('司机窗', 242, 154);
 }
 
-export function paintClub(ctx, w) {
-  gradV(ctx, 0, 30, w, FLOOR_Y + 110, '#3b0764', '#0a0010');
-  const p = 0.4 + Math.sin(Date.now() / 160) * 0.25;
-  ctx.fillStyle = `rgba(244,114,182,${p})`;
-  ctx.fillRect(0, 40, w, 28);
-  ctx.fillStyle = '#f5d0fe';
-  ctx.font = 'bold 22px "Noto Sans SC"';
-  ctx.fillText('NEON  午夜俱乐部', 760, 62);
-  const g = ctx.createRadialGradient(910, 240, 20, 910, 260, 220);
-  g.addColorStop(0, `rgba(34,211,238,${0.25 + p * 0.2})`);
-  g.addColorStop(1, 'transparent');
-  ctx.fillStyle = g;
-  ctx.fillRect(700, 90, 430, FLOOR_Y - 90);
-  for (let i = 0; i < 10; i++) {
-    const hx = 740 + i * 38;
-    const hy = FLOOR_Y - 24 - Math.abs(Math.sin(Date.now() / 140 + i)) * 26;
-    ctx.fillStyle = i % 2 ? '#f472b6' : '#22d3ee';
-    ctx.globalAlpha = 0.7;
-    ctx.fillRect(hx, hy, 14, 16);
-    ctx.globalAlpha = 1;
+export function paintStackedFloors(ctx, w, opt = {}) {
+  const map = getActiveMap();
+  const count = Math.max(1, map.floors?.count || 1);
+  const names = map.floors?.names || [];
+  const stair0 = map.floors?.stair0 || 780;
+  const topY = yOfFloor(count - 1) - 170;
+  const bot = FLOOR_Y + 140;
+  gradV(ctx, 0, topY, w, bot - topY, opt.wall0 || '#292524', opt.wall1 || '#0f172a');
+  ctx.fillStyle = opt.banner || '#111827';
+  ctx.fillRect(0, topY, w, 36);
+  ctx.fillStyle = opt.bannerFg || '#fde68a';
+  ctx.font = 'bold 16px "Noto Sans SC"';
+  ctx.fillText(opt.title || map.tag || map.name, 24, topY + 24);
+  for (let i = 0; i < count; i++) {
+    const fy = yOfFloor(i);
+    ctx.fillStyle = opt.slab || '#44403c';
+    ctx.fillRect(0, fy, w, 16);
+    ctx.fillStyle = opt.slabHi || '#a8a29e';
+    ctx.fillRect(0, fy, w, 3);
+    if (i > 0) {
+      ctx.fillStyle = 'rgba(0,0,0,0.28)';
+      ctx.fillRect(0, fy - FLOOR_GAP + 16, w, 8);
+    }
+    ctx.fillStyle = opt.label || '#fed7aa';
+    ctx.font = 'bold 13px "Noto Sans SC"';
+    ctx.fillText(names[i] || `${i + 1}F`, 18, fy - 14);
+    if (count > 1 && i > 0) {
+      ctx.fillStyle = '#1c1917';
+      ctx.fillRect(stair0, fy + 16, 200, FLOOR_GAP - 16);
+      const steps = 11;
+      for (let s = 0; s < steps; s++) {
+        const t = s / (steps - 1);
+        ctx.fillStyle = s % 2 ? '#78716c' : '#57534e';
+        ctx.fillRect(stair0 + 10 + s * 10, fy + 8 + t * (FLOOR_GAP - 30), 42, 10);
+      }
+      ctx.fillStyle = '#e7e5e4';
+      ctx.fillRect(stair0 + 4, fy + 20, 4, FLOOR_GAP - 36);
+    }
   }
-  fillRR(ctx, 300, FLOOR_Y - 78, 220, 78, 8, '#1c1917');
-  ctx.fillStyle = '#6b21a8';
-  ctx.fillRect(310, FLOOR_Y - 70, 200, 22);
+}
+
+export function paintClub(ctx, w) {
+  paintStackedFloors(ctx, w, { wall0: '#3b0764', wall1: '#0a0010', banner: '#4a044e', bannerFg: '#f5d0fe', title: getActiveMap()?.tag || 'NEON', slab: '#1c1917', slabHi: '#f472b6' });
+  const p = 0.4 + Math.sin(Date.now() / 160) * 0.25;
+  const f0 = yOfFloor(0);
+  const f1 = yOfFloor(1);
+  ctx.fillStyle = `rgba(244,114,182,${p})`;
+  ctx.fillRect(0, f0 - 220, 700, 10);
+  fillRR(ctx, 150, f0 - 78, 220, 78, 8, '#1c1917');
   ctx.fillStyle = '#f5d0fe';
   ctx.font = 'bold 14px "Noto Sans SC"';
-  ctx.fillText('BAR', 392, FLOOR_Y - 54);
-  ctx.fillStyle = '#fde68a';
-  ctx.fillRect(330, FLOOR_Y - 42, 10, 18);
-  ctx.fillStyle = '#67e8f9';
-  ctx.fillRect(350, FLOOR_Y - 48, 10, 24);
-  ctx.fillStyle = '#fb7185';
-  ctx.fillRect(370, FLOOR_Y - 36, 10, 12);
-  ctx.fillStyle = '#0a0a0a';
-  ctx.fillRect(0, FLOOR_Y, w, 130);
-  for (let x = 0; x < w; x += 32) {
-    ctx.fillStyle = x % 64 === 0 ? '#1f2937' : '#111827';
-    ctx.fillRect(x, FLOOR_Y, 32, 8);
+  ctx.fillText('BAR', 230, f0 - 54);
+  for (let i = 0; i < 8; i++) {
+    const hx = 360 + i * 38;
+    const hy = f0 - 24 - Math.abs(Math.sin(Date.now() / 140 + i)) * 26;
+    ctx.fillStyle = i % 2 ? '#f472b6' : '#22d3ee';
+    ctx.fillRect(hx, hy, 14, 16);
+  }
+  if ((getActiveMap()?.floors?.count || 1) > 1) {
+    fillRR(ctx, 50, f1 - 70, 160, 54, 8, '#1c1917');
+    ctx.fillStyle = '#22d3ee';
+    ctx.font = 'bold 13px "Noto Sans SC"';
+    ctx.fillText('VIP', 100, f1 - 40);
   }
 }
 
 export function paintHospital(ctx, w) {
-  gradV(ctx, 0, 0, w, FLOOR_Y + 120, '#f8fafc', '#cbd5e1');
-  ctx.fillStyle = '#0369a1';
-  ctx.fillRect(0, 36, w, 44);
-  ctx.fillStyle = '#fff';
-  ctx.font = 'bold 18px "Noto Sans SC"';
-  ctx.fillText('市二院 · 发热门诊大厅', 80, 64);
+  paintStackedFloors(ctx, w, { wall0: '#f8fafc', wall1: '#cbd5e1', banner: '#0369a1', bannerFg: '#fff', title: getActiveMap()?.tag || '市二院', slab: '#e2e8f0', slabHi: '#facc15', label: '#0f172a' });
+  const f0 = yOfFloor(0);
   ctx.fillStyle = '#facc15';
-  ctx.fillRect(0, 80, w, 18);
-  ctx.fillStyle = '#7f1d1d';
-  ctx.font = 'bold 13px "Noto Sans SC"';
-  ctx.fillText('请佩戴口罩  ·  一米线排队  ·  预检分诊 → 候诊 → 核酸/输液/药房', 80, 94);
-  ctx.fillStyle = '#e2e8f0';
-  ctx.fillRect(0, 98, w, FLOOR_Y - 98);
-  ctx.fillStyle = '#f1f5f9';
-  ctx.fillRect(0, FLOOR_Y, w, 120);
-  ctx.fillStyle = '#facc15';
-  ctx.fillRect(0, FLOOR_Y - 8, w, 8);
-  for (let x = 30; x < w; x += 64) {
-    ctx.fillStyle = '#eab308';
-    ctx.fillRect(x, FLOOR_Y - 8, 28, 8);
-    ctx.fillStyle = '#fff';
-    ctx.font = '9px "Noto Sans SC"';
-    ctx.fillText('1m', x + 4, FLOOR_Y - 12);
-  }
+  ctx.fillRect(0, f0 - 8, Math.min(w, 760), 8);
   ctx.fillStyle = '#1e3a8a';
-  ctx.fillRect(280, 120, 200, 70);
+  ctx.fillRect(140, f0 - 160, 180, 50);
   ctx.fillStyle = '#93c5fd';
-  ctx.fillRect(292, 132, 176, 44);
-  ctx.fillStyle = '#0f172a';
-  ctx.font = 'bold 14px "Noto Sans SC"';
-  ctx.fillText('叫号屏  A12 → 分诊', 300, 160);
-  ctx.fillStyle = '#e2e8f0';
-  fillRR(ctx, 300, 200, 160, 90, 6, '#e2e8f0');
-  ctx.fillStyle = '#0369a1';
-  ctx.fillRect(300, 200, 160, 20);
-  ctx.fillStyle = '#fff';
-  ctx.font = 'bold 12px "Noto Sans SC"';
-  ctx.fillText('预检分诊（玻璃）', 318, 214);
-  for (let x = 700; x < 1100; x += 70) {
-    ctx.fillStyle = '#94a3b8';
-    ctx.fillRect(x, FLOOR_Y - 44, 50, 36);
-    ctx.fillStyle = '#cbd5e1';
-    ctx.fillRect(x + 6, FLOOR_Y - 38, 38, 8);
-  }
-  ctx.fillStyle = '#64748b';
-  ctx.fillRect(1180, FLOOR_Y - 70, 8, 70);
-  ctx.fillStyle = '#7dd3fc';
-  ctx.fillRect(1172, FLOOR_Y - 86, 24, 16);
-  ctx.fillStyle = '#e2e8f0';
-  ctx.fillRect(1600, 140, 120, 80);
-  ctx.strokeStyle = '#0369a1';
-  ctx.strokeRect(1600, 140, 120, 80);
+  ctx.fillRect(150, f0 - 150, 160, 32);
   ctx.fillStyle = '#0f172a';
   ctx.font = 'bold 12px "Noto Sans SC"';
-  ctx.fillText('咽拭子窗', 1618, 184);
-  ctx.fillStyle = '#16a34a';
-  ctx.fillRect(2060, 140, 140, 28);
-  ctx.fillStyle = '#fff';
-  ctx.fillText('门诊药房', 2088, 160);
+  ctx.fillText('叫号屏 A12', 170, f0 - 130);
 }
 
 export function paintOffice(ctx, w) {
-  gradV(ctx, 0, 0, w, FLOOR_Y + 120, '#1e293b', '#0f172a');
-  ctx.fillStyle = '#0f172a';
-  ctx.fillRect(0, 36, w, 40);
-  ctx.fillStyle = '#93c5fd';
-  ctx.font = 'bold 16px "Noto Sans SC"';
-  ctx.fillText('23F 市场部  ·  工位隔板  ·  请佩戴口罩打卡', 80, 62);
-  ctx.fillStyle = '#1e293b';
-  ctx.fillRect(0, FLOOR_Y, w, 120);
-  for (let x = 160; x < w - 140; x += 200) {
-    ctx.fillStyle = '#334155';
-    ctx.fillRect(x, 96, 8, FLOOR_Y - 96);
-    fillRR(ctx, x + 12, FLOOR_Y - 86, 170, 86, 6, '#1e293b');
+  paintStackedFloors(ctx, w, { wall0: '#1e293b', wall1: '#0f172a', banner: '#0f172a', bannerFg: '#93c5fd', title: getActiveMap()?.tag || '写字楼', slab: '#334155', slabHi: '#64748b' });
+  const f12 = yOfFloor(11);
+  for (let x = 80; x < 700; x += 180) {
+    fillRR(ctx, x, f12 - 86, 150, 70, 6, '#1e293b');
     ctx.fillStyle = '#0ea5e9';
-    ctx.fillRect(x + 22, FLOOR_Y - 74, 86, 52);
-    ctx.fillStyle = '#1d4ed8';
-    ctx.fillRect(x + 28, FLOOR_Y - 68, 74, 40);
-    ctx.fillStyle = '#64748b';
-    ctx.fillRect(x + 116, FLOOR_Y - 48, 50, 8);
-    ctx.fillStyle = '#94a3b8';
-    ctx.fillRect(x + 124, FLOOR_Y - 78, 26, 18);
-    ctx.fillStyle = '#f8fafc';
-    ctx.fillRect(x + 128, FLOOR_Y - 92, 18, 14);
+    ctx.fillRect(x + 10, f12 - 74, 70, 42);
   }
+}
+
+export function paintHotel(ctx, w) {
+  paintStackedFloors(ctx, w, { wall0: '#44403c', wall1: '#1c1917', banner: '#78350f', bannerFg: '#fed7aa', title: getActiveMap()?.tag || '钟点旅馆', slab: '#57534e', slabHi: '#a8a29e' });
 }
 
 export function paintRiver(ctx, w) {
@@ -710,135 +674,54 @@ export function paintRiver(ctx, w) {
 }
 
 export function paintMall(ctx, w) {
-  paintRoad(ctx, w, '#e2e8f0', '#cbd5e1');
-  districtBanner(ctx, '朝阳汇商场 3F  中央空调', '#0f172a', '#fde68a');
-  gradV(ctx, 0, 70, w, FLOOR_Y - 70, '#f8fafc', '#e2e8f0');
-  ctx.fillStyle = '#0f172a';
-  ctx.fillRect(0, 70, w, 36);
-  ctx.fillStyle = '#fde68a';
-  ctx.font = 'bold 14px "Noto Sans SC"';
-  ctx.fillText('3F  男装 / 食肆 / 试衣间    请佩戴口罩', 80, 94);
-  ctx.fillStyle = '#e2e8f0';
-  ctx.fillRect(0, FLOOR_Y - 6, w, 6);
-  ctx.fillStyle = '#f8fafc';
-  ctx.fillRect(320, 130, 140, FLOOR_Y - 150);
-  ctx.strokeStyle = '#a8a29e';
-  ctx.strokeRect(320, 130, 140, FLOOR_Y - 150);
-  ctx.fillStyle = '#0f172a';
-  ctx.font = 'bold 12px "Noto Sans SC"';
-  ctx.fillText('试衣间', 352, 150);
-  ctx.fillStyle = '#1e293b';
-  ctx.fillRect(640, 120, 180, FLOOR_Y - 140);
-  ctx.fillStyle = '#fff';
-  ctx.fillText('男装柜', 692, 142);
-  ctx.fillStyle = '#7c2d12';
-  ctx.fillRect(1040, 150, 170, FLOOR_Y - 170);
-  ctx.fillStyle = '#fdba74';
-  ctx.fillText('食肆档口', 1080, 172);
+  paintStackedFloors(ctx, w, { wall0: '#f8fafc', wall1: '#e2e8f0', banner: '#0f172a', bannerFg: '#fde68a', title: getActiveMap()?.tag || '朝阳汇', slab: '#cbd5e1', slabHi: '#fde68a', label: '#0f172a' });
 }
 
 export function paintHome(ctx, w) {
-  const loft = 168;
-  ctx.fillStyle = '#292524';
-  ctx.fillRect(0, 0, w, FLOOR_Y + 140);
-  ctx.fillStyle = '#a8a29e';
-  ctx.fillRect(16, 36, w - 32, FLOOR_Y - 20);
-  ctx.fillStyle = '#44403c';
-  ctx.fillRect(16, 36, w - 32, 14);
-  ctx.fillStyle = '#78716c';
-  ctx.fillRect(16, FLOOR_Y, w - 32, 12);
-  ctx.fillStyle = '#57534e';
-  ctx.fillRect(16, loft, 760, 14);
-  ctx.fillStyle = '#d6d3d1';
-  ctx.fillRect(16, loft + 14, 760, 6);
-  ctx.fillStyle = '#1c1917';
-  ctx.fillRect(16, 50, 10, loft - 50);
-  ctx.fillRect(766, 50, 10, loft - 50);
+  paintStackedFloors(ctx, w, { wall0: '#a8a29e', wall1: '#44403c', banner: '#292524', bannerFg: '#fed7aa', title: getActiveMap()?.tag || 'loft', slab: '#78716c', slabHi: '#d6d3d1' });
+  const f0 = yOfFloor(0);
+  const f1 = yOfFloor(1);
   ctx.fillStyle = '#38bdf8';
-  ctx.fillRect(430, 48, 120, 42);
+  ctx.fillRect(430, f1 - 110, 120, 42);
   ctx.fillStyle = 'rgba(255,255,255,0.28)';
-  ctx.fillRect(438, 54, 40, 18);
-  ctx.fillStyle = '#fed7aa';
-  ctx.font = 'bold 13px "Noto Sans SC"';
-  ctx.fillText('阁楼卧室', 40, loft - 10);
-  ctx.fillText('天窗', 455, 42);
-  ctx.fillStyle = '#7c2d12';
-  ctx.fillRect(300, loft + 20, 8, FLOOR_Y - loft - 20);
-  ctx.fillStyle = '#a8a29e';
-  ctx.font = 'bold 12px "Noto Sans SC"';
-  ctx.fillText('厨房', 130, loft + 36);
-  ctx.fillText('卫生间', 318, loft + 36);
-  ctx.fillText('起居', 480, loft + 36);
+  ctx.fillRect(438, f1 - 104, 40, 18);
   ctx.fillStyle = '#155e75';
-  ctx.fillRect(308, 220, 86, FLOOR_Y - 220);
+  ctx.fillRect(308, f0 - 195, 86, 195);
   ctx.fillStyle = 'rgba(103,232,249,0.22)';
-  ctx.fillRect(318, 240, 28, 70);
+  ctx.fillRect(318, f0 - 175, 28, 70);
   ctx.fillStyle = '#44403c';
-  ctx.fillRect(118, FLOOR_Y - 64, 200, 58);
-  const steps = 12;
-  for (let i = 0; i < steps; i++) {
-    const t = i / (steps - 1);
-    ctx.fillStyle = i % 2 ? '#78716c' : '#57534e';
-    ctx.fillRect(780 + i * 12, FLOOR_Y - 10 - t * (FLOOR_Y - loft - 8), 36, 10);
-  }
-  ctx.strokeStyle = '#e7e5e4';
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(770, loft);
-  ctx.lineTo(770, loft - 70);
-  ctx.stroke();
-  for (let y = loft - 66; y < loft; y += 12) {
-    ctx.fillStyle = '#d6d3d1';
-    ctx.fillRect(762, y, 16, 3);
-  }
-  ctx.fillStyle = '#44403c';
-  ctx.beginPath();
-  ctx.moveTo(16, 36);
-  ctx.lineTo(w - 16, 70);
-  ctx.lineTo(w - 16, loft);
-  ctx.lineTo(16, loft);
-  ctx.closePath();
-  ctx.globalAlpha = 0.35;
-  ctx.fill();
-  ctx.globalAlpha = 1;
+  ctx.fillRect(118, f0 - 64, 200, 58);
 }
 
 export function paintParlorRoom(ctx, w) {
-  paintRoad(ctx, w, '#9f1239', '#1c1917');
-  districtBanner(ctx, '林记推拿馆 · 三张床', '#881337', '#fecdd3');
-  gradV(ctx, 0, 80, w, FLOOR_Y - 80, '#7f1d1d', '#1c1917');
-  ctx.fillStyle = '#9f1239';
-  ctx.fillRect(0, 80, w, 24);
-  ctx.fillStyle = '#fecdd3';
-  ctx.font = 'bold 13px "Noto Sans SC"';
-  ctx.fillText('红花油  ·  请先洗手  ·  前台结账', 40, 96);
+  paintStackedFloors(ctx, w, { wall0: '#7f1d1d', wall1: '#1c1917', banner: '#881337', bannerFg: '#fecdd3', title: getActiveMap()?.tag || '林记推拿', slab: '#9f1239', slabHi: '#fda4af' });
+  const f0 = yOfFloor(0);
   for (const x of [620, 920, 1220]) {
     ctx.fillStyle = '#1c1917';
-    ctx.fillRect(x - 54, FLOOR_Y - 28, 108, 12);
-    fillRR(ctx, x - 48, FLOOR_Y - 46, 96, 20, 6, '#fda4af');
+    ctx.fillRect(x - 10, f0 - 28, 108, 12);
+    fillRR(ctx, x - 4, f0 - 46, 96, 20, 6, '#fda4af');
   }
 }
 
 export function paintShop(ctx, w) {
-  const pharm = gameState.mapId === 'pharmacyIn' || gameState.mapId === 'committee';
-  paintRoad(ctx, w, pharm ? '#d1fae5' : '#fef3c7', '#292524');
-  districtBanner(ctx, pharm ? '药房店内 · 绿码通道' : '便利店店内 · 关东煮', pharm ? '#14532d' : '#0c4a6e', '#fff');
-  gradV(ctx, 0, 90, w, FLOOR_Y - 90, pharm ? '#ecfdf5' : '#fff7ed', '#d6d3d1');
-  ctx.fillStyle = pharm ? '#16a34a' : '#0284c7';
-  ctx.fillRect(0, 90, w, 28);
-  ctx.fillStyle = '#fff';
-  ctx.font = 'bold 14px "Noto Sans SC"';
-  ctx.fillText(pharm ? '退热药限购  请排队  一米线' : '便当5:30折扣  微波自行加热', 40, 110);
-  for (let x = 260; x < w - 80; x += 150) {
-    ctx.fillStyle = '#a8a29e';
-    ctx.fillRect(x, FLOOR_Y - 96, 120, 96);
-    ctx.fillStyle = '#fef3c7';
-    ctx.fillRect(x + 8, FLOOR_Y - 88, 104, 18);
-    ctx.fillStyle = '#22c55e';
-    ctx.fillRect(x + 12, FLOOR_Y - 62, 30, 20);
-    ctx.fillStyle = '#f97316';
-    ctx.fillRect(x + 48, FLOOR_Y - 62, 30, 20);
-    ctx.fillStyle = '#38bdf8';
-    ctx.fillRect(x + 84, FLOOR_Y - 62, 22, 20);
+  const id = gameState.mapId;
+  const pharm = id === 'pharmacyIn' || id === 'committee';
+  const soy = id === 'soyIn';
+  paintStackedFloors(ctx, w, {
+    wall0: pharm ? '#ecfdf5' : (soy ? '#fff7ed' : '#fff7ed'),
+    wall1: '#d6d3d1',
+    banner: pharm ? '#14532d' : (soy ? '#9a3412' : '#0c4a6e'),
+    bannerFg: '#fff',
+    title: getActiveMap()?.tag || (pharm ? '药房' : '便利店'),
+    slab: pharm ? '#bbf7d0' : '#fed7aa',
+    slabHi: '#fff',
+    label: '#111827'
+  });
+  if ((getActiveMap()?.floors?.count || 1) < 2) {
+    const fy = FLOOR_Y;
+    for (let x = 180; x < 720; x += 150) {
+      ctx.fillStyle = '#a8a29e';
+      ctx.fillRect(x, fy - 96, 120, 96);
+    }
   }
 }

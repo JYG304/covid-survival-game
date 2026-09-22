@@ -1,5 +1,5 @@
 import { gameState } from '../data/gameState.js';
-import { MAPS, getMap, FLOOR_Y } from '../data/maps.js';
+import { MAPS, getMap, FLOOR_Y, yOfFloor } from '../data/maps.js';
 import { livingNpcs } from './npcInteractSystem.js';
 import { showToast } from '../ui/toast.js';
 import { updateHUD } from '../ui/hud.js';
@@ -47,7 +47,7 @@ export function spawnMapNpcs() {
   }
 }
 
-export function travelTo(mapId, spawnX, toast) {
+export function travelTo(mapId, spawnX, toast, spawnFloor) {
   const map = getMap(mapId);
   if (!map) return;
   if (gameState.isPositiveKnown && (mapId === 'club' || mapId === 'office' || mapId === 'redlight' || mapId === 'cbd')) {
@@ -64,6 +64,8 @@ export function travelTo(mapId, spawnX, toast) {
     p.targetX = null;
     p.vx = 0;
     p.loft = false;
+    p.floor = spawnFloor ?? 0;
+    p.y = (map.floors?.count > 1) ? yOfFloor(p.floor) : FLOOR_Y;
   }
   spawnMapNpcs();
   audio.playTone(mapId === 'club' ? 220 : 360, 0.18, 'triangle', 0.08);
@@ -83,18 +85,18 @@ export const TRAVEL = {
   enterBus: () => travelTo('bus', 160, '126路门一开，热气和消毒水涌出来。'),
   enterClub: () => travelTo('club', 180, gameState.hour >= 21 || gameState.hour < 4 ? '低音从消防通道漏出来。' : '白天的夜店像没醒。'),
   enterHospital: () => travelTo('hospital', 160, '走廊里全是鞋套声。'),
-  enterOffice: () => travelTo('office', 160, '23楼电梯门开。'),
+  enterOffice: () => travelTo('office', 160, '23号楼大堂。电梯在右侧，工位在12F。'),
   enterRiver: () => travelTo('riverside', 200, '江风灌进领口。'),
   exitToStreet: () => travelTo('living', 900, '你又站回生活区人行道。'),
-  enterMall: () => travelTo('mall', 180, '中央空调一灌，口罩内侧全是水汽。安检让你亮码。'),
+  enterMall: () => travelTo('mall', 180, '中央空调一灌，口罩内侧全是水汽。安检让你亮码。', 1),
   enterPharmacy: () => travelTo('pharmacyIn', 160, '绿码通道。柜台玻璃上贴着“退热药限购”。'),
   enterStore: () => travelTo('storeIn', 160, '门铃叮一声。关东煮在咕嘟。'),
-  enterSoy: () => travelTo('storeIn', 160, '豆浆铺太小，先在全家热一下。'),
-  enterMarket: () => travelTo('mall', 1120, '生鲜区连着商场负一层。'),
+  enterSoy: () => travelTo('soyIn', 160, '豆浆窗口热气扑脸。油条还在出锅。'),
+  enterMarket: () => travelTo('mall', 180, '扶梯下去是生鲜。托盘还是湿的。', 0),
   enterHome: () => travelTo('home', 200, '防盗门一关，消毒水味淡了，潮味上来了。'),
   enterParlor: () => travelTo('parlorIn', 200, '艾草和红花油。林姐没抬头。'),
   enterHotel: () => travelTo('hotel', 180, '前台只要现金。床单有折痕。'),
   enterKtv: () => travelTo('ktv', 180, '麦套没换。包厢灯是紫的。'),
   enterCommittee: () => travelTo('committee', 180, '帐篷里的电风扇对着表格吹。'),
-  enterLobby: () => travelTo('lobby', 180, '测温柱滴了一声。闸机等你刷卡。')
+  enterLobby: () => travelTo('office', 180, '测温柱滴了一声。电梯在右侧。')
 };

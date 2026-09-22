@@ -3,10 +3,11 @@ import { showToast, spawnFloatingText } from '../ui/toast.js';
 import { addNeed, addMoodlet, think, applyLifeAction } from './simsLifeSystem.js';
 import { audio } from '../utils/audio.js';
 import { updateHUD } from '../ui/hud.js';
-import { TRAVEL, travelTo } from './mapSystem.js';
+import { TRAVEL, travelTo, getActiveMap } from './mapSystem.js';
 import { startOfficeWork } from './officeWorkSystem.js';
 import { flagQuest } from './questSystem.js';
 import { applyStatEvent } from './statsSystem.js';
+import { yOfFloor } from '../data/maps.js';
 
 function fx(player, text, color) {
   spawnFloatingText(text, player?.x ?? 200, (player?.y ?? 400) - 70, color);
@@ -279,7 +280,10 @@ export const sceneActions = {
   },
 
   loftHint() {
-    showToast('往右走上楼梯，镜头会抬高。到顶后往左进阁楼卧室。', 'info');
+    sceneActions.openElevator();
+  },
+  openElevator() {
+    openElevatorUi();
   },
   openWardrobe() {
     import('./outfitSystem.js').then((m) => m.openGear());
@@ -332,8 +336,56 @@ export const sceneActions = {
   }
 };
 
+export function openElevatorUi() {
+  const map = getActiveMap();
+  const floors = map?.floors;
+  const p = window.player;
+  if (!floors?.count || floors.count < 2) {
+    showToast('这层没有楼梯。', 'info');
+    return;
+  }
+  const box = document.getElementById('modalElevator');
+  const list = document.getElementById('elevatorList');
+  if (!box || !list) {
+    const next = ((p?.floor || 0) + 1) % floors.count;
+    goFloor(next);
+    return;
+  }
+  const cur = p?.floor || 0;
+  const grid = floors.count > 8;
+  list.className = grid ? 'grid grid-cols-3 gap-2' : 'space-y-2';
+  list.innerHTML = floors.names.map((n, i) =>
+    `<button data-f="${i}" class="text-left px-3 py-2 rounded-lg bg-zinc-950 border ${i === cur ? 'border-amber-400' : 'border-zinc-700 hover:border-amber-400'}">
+      <b class="text-amber-200 text-sm">${n}</b>${i === cur ? '<span class="text-[11px] text-zinc-400 ml-1">当前</span>' : ''}</button>`
+  ).join('');
+  list.querySelectorAll('button').forEach((b) => {
+    b.onclick = () => {
+      box.classList.add('hidden');
+      goFloor(Number(b.dataset.f));
+    };
+  });
+  box.classList.remove('hidden');
+}
+
+function goFloor(i) {
+  const map = getActiveMap();
+  const floors = map?.floors;
+  const p = window.player;
+  if (!p || !floors) return;
+  const f = Math.max(0, Math.min(floors.count - 1, i));
+  p.floor = f;
+  p.y = yOfFloor(f);
+  p.x = Math.min(p.x, (floors.stair0 || 780) - 8);
+  p.targetX = null;
+  think(`到了 ${floors.names[f] || (f + 1) + 'F'}`);
+  showToast(floors.names[f] || `${f + 1}F`, 'info');
+}
+
 export function bindMapPickModal() {
   document.getElementById('btnCloseMapPick')?.addEventListener('click', () => {
     document.getElementById('modalMapPick')?.classList.add('hidden');
+  });
+  document.getElementById('btnCloseElevator')?.addEventListener('click', () => {
+    document.getElementById('modalElevator')?.classList.add('hidden');
   });
 }

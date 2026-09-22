@@ -34,7 +34,7 @@ let lastTime = performance.now();
  * 初始化游戏
  */
 export function initGame() {
-  console.log('[game] build 20260922i vertical-loft-camera');
+  console.log('[game] build 20260922k realistic-floors');
   canvas = document.getElementById('gameCanvas');
   if (!canvas) {
     console.error('Canvas not found!');

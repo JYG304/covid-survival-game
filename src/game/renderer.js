@@ -1,6 +1,5 @@
 ﻿import { player } from '../game/player.js';
 import { FLOOR_Y } from '../data/landmarks.js';
-import { LOFT_Y } from '../data/maps.js';
 import { getActiveLandmarks, getWorldWidth, getActiveMap } from '../systems/mapSystem.js';
 import { gameState } from '../data/gameState.js';
 import { livingNpcs } from '../systems/npcInteractSystem.js';
@@ -23,7 +22,8 @@ import {
   paintMall,
   paintShop,
   paintHome,
-  paintParlorRoom
+  paintParlorRoom,
+  paintHotel
 } from './sceneArt.js';
 
 export let cameraX = 0;
@@ -94,6 +94,7 @@ export function renderMidgroundWorld(ctx, canvas) {
   else if (theme === 'shop') paintShop(ctx, w);
   else if (theme === 'home') paintHome(ctx, w);
   else if (theme === 'parlor') paintParlorRoom(ctx, w);
+  else if (theme === 'hotel') paintHotel(ctx, w);
   else paintDistrict(ctx, w, theme);
 
   renderStreetNPCs(ctx);
@@ -423,7 +424,8 @@ function renderStreetNPCs(ctx) {
   });
   livingNpcs.forEach((npc) => {
     const bob = npc.pose === 'walk' ? Math.sin(npc.anim) * 3 : 0;
-    drawSimBody(ctx, npc.x, FLOOR_Y, {
+    const ny = npc.y || FLOOR_Y;
+    drawSimBody(ctx, npc.x, ny, {
       facing: npc.dir,
       bob,
       pose: npc.pose,
@@ -438,21 +440,21 @@ function renderStreetNPCs(ctx) {
     ctx.font = 'bold 12px "Noto Sans SC"';
     ctx.fillStyle = 'rgba(15,23,42,0.85)';
     const tw = 90;
-    roundRect(ctx, npc.x - tw / 2, FLOOR_Y - 128, tw, 28, 6);
+    roundRect(ctx, npc.x - tw / 2, ny - 128, tw, 28, 6);
     ctx.fill();
     ctx.fillStyle = '#fde68a';
-    ctx.fillText(npc.name, npc.x, FLOOR_Y - 114);
+    ctx.fillText(npc.name, npc.x, ny - 114);
     ctx.fillStyle = '#cbd5e1';
     ctx.font = '10px "Noto Sans SC"';
-    ctx.fillText(npc.role, npc.x, FLOOR_Y - 102);
+    ctx.fillText(npc.role, npc.x, ny - 102);
     if (npc.bubble && npc.bubbleT > 0) {
       const bw = Math.min(200, 24 + npc.bubble.length * 12);
       ctx.fillStyle = '#fff7ed';
-      roundRect(ctx, npc.x - bw / 2, FLOOR_Y - 164, bw, 30, 8);
+      roundRect(ctx, npc.x - bw / 2, ny - 164, bw, 30, 8);
       ctx.fill();
       ctx.fillStyle = '#7c2d12';
       ctx.font = '11px "Noto Sans SC"';
-      ctx.fillText(npc.bubble.slice(0, 16), npc.x, FLOOR_Y - 144);
+      ctx.fillText(npc.bubble.slice(0, 16), npc.x, ny - 144);
     }
     ctx.textAlign = 'left';
   });
@@ -520,10 +522,13 @@ export function updateCamera(canvas) {
   cameraX += (targetCam - cameraX) * 0.08;
   const maxX = Math.max(0, getWorldWidth() - canvas.width);
   cameraX = Math.max(0, Math.min(maxX, cameraX));
-  if (getActiveMap().theme === 'home') {
+  const floors = getActiveMap()?.floors?.count || 1;
+  if (floors > 1) {
     const targetY = player.y - canvas.height * 0.62;
     cameraY += (targetY - cameraY) * 0.12;
-    cameraY = Math.max(-60, Math.min(FLOOR_Y - canvas.height + 200, cameraY));
+    const minY = player.y - canvas.height + 120;
+    const maxY = player.y - 80;
+    cameraY = Math.max(minY, Math.min(maxY, cameraY));
   } else {
     cameraY += (0 - cameraY) * 0.15;
   }

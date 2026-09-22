@@ -5,8 +5,8 @@
 
 import { gameState } from '../data/gameState.js';
 import { FLOOR_Y } from '../data/landmarks.js';
-import { LOFT_Y, HOME_STAIR0, HOME_STAIR1 } from '../data/maps.js';
-import { getActiveLandmarks, getWorldWidth } from '../systems/mapSystem.js';
+import { yOfFloor } from '../data/maps.js';
+import { getActiveLandmarks, getWorldWidth, getActiveMap } from '../systems/mapSystem.js';
 import { actionHandlers } from '../systems/actionSystem.js';
 import { advanceTime } from '../systems/timeSystem.js';
 import { updateHUD } from '../ui/hud.js';
@@ -87,7 +87,8 @@ export function initControls() {
 function handleWorldClick(worldX, worldY) {
   if (gameState.activeAction) return;
   const npc = nearestNpc(worldX, 48);
-  if (npc && Math.abs(npc.x - worldX) < 48 && Math.abs(worldY - FLOOR_Y) < 120 && !player.loft) {
+  const npcY = npc?.y || FLOOR_Y;
+  if (npc && Math.abs(npc.x - worldX) < 48 && Math.abs(worldY - npcY) < 120) {
     if (Math.abs(player.x - npc.x) < 40) {
       window.DeepGameplay?.talkNearbyNpc(player);
       return;
@@ -101,7 +102,9 @@ function handleWorldClick(worldX, worldY) {
     const right = item.x + item.width + 8;
     const base = item.baseY || FLOOR_Y;
     const top = base - item.height - 24;
-    if (worldX >= left && worldX <= right && worldY >= top && worldY <= base + 24) {
+    const elev = item.action === 'openElevator';
+    const hitY = elev ? Math.abs(worldY - (player.y || FLOOR_Y)) < 140 : (worldY >= top && worldY <= base + 24);
+    if (worldX >= left && worldX <= right && hitY) {
       const cx = item.x + item.width / 2;
       if (Math.abs(player.x - cx) < 50) {
         startActivity(item);
@@ -135,6 +138,10 @@ export function tryInteract() {
  */
 export function startActivity(landmark) {
   if (!landmark) return;
+  if (landmark.action === 'openElevator') {
+    completeActivity({ landmark });
+    return;
+  }
   const modal = document.getElementById('modalInteract');
   const title = document.getElementById('actTitle');
   const desc = document.getElementById('actDesc');
@@ -255,33 +262,16 @@ export function updatePlayer(delta) {
 
   player.x += player.vx;
   player.x = Math.max(40, Math.min(getWorldWidth() - 40, player.x));
-  if ((gameState.mapId || '') === 'home') {
-    const span = HOME_STAIR1 - HOME_STAIR0;
-    if (!player.loft) {
-      if (player.x > HOME_STAIR0) {
-        const t = Math.min(1, (player.x - HOME_STAIR0) / span);
-        player.y += (FLOOR_Y + (LOFT_Y - FLOOR_Y) * t - player.y) * 0.35;
-        if (t >= 0.97 && player.vx >= 0) {
-          player.loft = true;
-          player.x = HOME_STAIR0 - 8;
-        }
-      } else {
-        player.y += (FLOOR_Y - player.y) * 0.3;
-      }
-    } else {
-      if (player.x > HOME_STAIR0) {
-        const t = Math.min(1, (player.x - HOME_STAIR0) / span);
-        player.y += (LOFT_Y + (FLOOR_Y - LOFT_Y) * t - player.y) * 0.35;
-        if (t >= 0.97 && player.vx >= 0) {
-          player.loft = false;
-          player.x = HOME_STAIR0 - 8;
-        }
-      } else {
-        player.y += (LOFT_Y - player.y) * 0.3;
-      }
-    }
+  const fc = getActiveMap()?.floors;
+  if (fc?.count > 1) {
+    if (player.floor == null) player.floor = 0;
+    player.floor = Math.max(0, Math.min(fc.count - 1, player.floor));
+    const s1 = fc.stair1 || 960;
+    if (player.x > s1 - 24) player.x = s1 - 24;
+    const target = yOfFloor(player.floor);
+    player.y += (target - player.y) * 0.22;
   } else {
-    player.loft = false;
+    player.floor = 0;
     player.y += (FLOOR_Y - player.y) * 0.25;
   }
   player.isMoving = moving;
@@ -303,7 +293,8 @@ function updateNearbyLandmark() {
   for (const item of getActiveLandmarks()) {
     const cx = item.x + item.width / 2;
     const base = item.baseY || FLOOR_Y;
-    if (Math.abs((player.y || FLOOR_Y) - base) > 40) continue;
+    const elev = item.action === 'openElevator';
+    if (!elev && Math.abs((player.y || FLOOR_Y) - base) > 50) continue;
     const dist = Math.abs(player.x - cx);
     if (dist < minDistance) {
       nearest = item;

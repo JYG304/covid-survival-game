@@ -6,6 +6,7 @@ import { audio } from '../utils/audio.js';
 import { DIALOGUES } from '../data/dialogues.js';
 import { flagQuest } from './questSystem.js';
 import { applyStatEvent, addSkillXp } from './statsSystem.js';
+import { yOfFloor } from '../data/maps.js';
 
 export const livingNpcs = [];
 
@@ -18,6 +19,7 @@ export function updateStreetNpcs(delta) {
     npc.anim += delta * 8;
     if (npc.bubbleT > 0) npc.bubbleT -= delta;
     else npc.bubble = '';
+    npc.y = yOfFloor(npc.floor || 0);
     if (npc.pose === 'walk' && !npc.assignedRoom) {
       npc.x += npc.dir * npc.speed;
       if (npc.x > npc.homeMax) npc.dir = -1;
@@ -29,8 +31,10 @@ export function updateStreetNpcs(delta) {
 export function nearestNpc(playerX, range = 70) {
   let best = null;
   let bestD = range;
+  const pf = window.player?.floor || 0;
   for (const npc of livingNpcs) {
     if (npc.pose === 'lie' || npc.pose === 'work') continue;
+    if ((npc.floor || 0) !== pf) continue;
     const d = Math.abs(npc.x - playerX);
     if (d < bestD) {
       best = npc;

@@ -1,8 +1,13 @@
 export const FLOOR_Y = 415;
 
 export const LOFT_Y = 168;
+export const FLOOR_GAP = 247;
 export const HOME_STAIR0 = 780;
 export const HOME_STAIR1 = 960;
+
+export function yOfFloor(i) {
+  return FLOOR_Y - (i || 0) * FLOOR_GAP;
+}
 
 function L(id, name, zone, x, w, h, prompt, mins, dur, action, extra) {
   return { id, name, zone, x, width: w, height: h, prompt, timeCostMinutes: mins, actionDuration: dur, action, ...extra };
@@ -203,195 +208,246 @@ export const MAPS = {
   },
 
   club: {
-    id: 'club', name: '午夜俱乐部室内', tag: '🎵 夜店内部', width: 3200, theme: 'club', district: 'redlight',
+    id: 'club', name: '午夜俱乐部', tag: '1F舞池 · 2F卡座', width: 1000, theme: 'club', district: 'redlight',
+    floors: { count: 2, names: ['1F 舞池吧台', '2F 卡座DJ'], stair0: 780, stair1: 960 },
     landmarks: [
-      L('club_exit', '消防通道', '夜店', 60, 80, 140, '回到红灯区巷子', 8, 0.5, 'enterRedlight'),
-      L('club_bar', '吧台', '夜店', 380, 160, 90, '买酒', 15, 1.2, 'clubDrink'),
-      L('club_dance', '舞池', '夜店', 820, 220, 80, '跳舞', 25, 2.0, 'clubDance'),
-      L('club_dj', 'DJ台', '夜店', 1280, 120, 110, '打碟赚钱', 40, 2.2, 'clubDj'),
-      L('club_vip', '卡座', '夜店', 1720, 180, 70, '社交', 20, 1.5, 'clubVip'),
-      L('club_bath', '洗手间', '夜店', 2160, 90, 120, '洗脸', 10, 1.0, 'clubWash'),
-      L('club_back', '后门', '夜店', 2580, 110, 90, '吸烟区', 12, 1.1, 'clubSmoke'),
-      L('club_to_metro', '末班地铁', '夜店', 2980, 100, 120, '赶地铁', 8, 0.6, 'enterMetro')
+      L('club_exit', '消防通道', '1F', 30, 70, 145, '回夜巷', 4, 0.4, 'enterRedlight', { floor: 0 }),
+      L('club_bar', '吧台', '1F', 150, 150, 90, '买酒', 15, 1.2, 'clubDrink', { floor: 0 }),
+      L('club_dance', '舞池', '1F', 360, 200, 75, '跳舞', 25, 2.0, 'clubDance', { floor: 0 }),
+      L('club_elev', '楼梯', '右侧', 780, 90, 160, '上2F / 下1F', 1, 0.2, 'openElevator', { floor: 0 }),
+      L('club_vip', '卡座', '2F', 50, 160, 65, '社交', 20, 1.5, 'clubVip', { floor: 1 }),
+      L('club_dj', 'DJ台', '2F', 280, 120, 100, '打碟赚钱', 40, 2.2, 'clubDj', { floor: 1 }),
+      L('club_bath', '洗手间', '2F', 480, 80, 110, '洗脸', 10, 1.0, 'clubWash', { floor: 1 })
     ],
     npcs: [
-      N({ id: 'dj_neo', name: 'Neo', role: 'DJ', job: 'dj', skin: '#c4a484', hair: '#111827', shirt: '#a21caf', pants: '#09090b', x: 1280, homeMin: 1200, homeMax: 1450, speed: 0.2, dir: 1, talk: ['低音往死里砸。'] }),
-      N({ id: 'bar_mia', name: 'Mia', role: '调酒', job: 'bartender', skin: '#e8b4b8', hair: '#3b0764', shirt: '#4c1d95', pants: '#0f172a', x: 400, homeMin: 320, homeMax: 560, speed: 0.35, dir: -1, talk: ['气泡水还是假酒？'] })
+      N({ id: 'dj_neo', name: 'Neo', role: 'DJ', job: 'dj', skin: '#c4a484', hair: '#111827', shirt: '#a21caf', pants: '#09090b', x: 320, homeMin: 220, homeMax: 520, speed: 0.2, dir: 1, talk: ['低音往死里砸。'], floor: 1 }),
+      N({ id: 'bar_mia', name: 'Mia', role: '调酒', job: 'bartender', skin: '#e8b4b8', hair: '#3b0764', shirt: '#4c1d95', pants: '#0f172a', x: 220, homeMin: 140, homeMax: 500, speed: 0.35, dir: -1, talk: ['气泡水还是假酒？'], floor: 0 })
     ]
   },
 
   hospital: {
-    id: 'hospital', name: '发热门诊大厅', tag: '🏥 预检、黄线、叫号', width: 3200, theme: 'hospital', district: 'civic',
+    id: 'hospital', name: '市二院', tag: '12层住院楼 · 电梯', width: 1000, theme: 'hospital', district: 'civic',
+    floors: { count: 12, names: ['1F 门诊大厅', '2F 检验/核酸', '3F 内科门诊', '4F 输液区', '5F 影像科', '6F 住院部', '7F 住院部', '8F 住院部', '9F 手术室', '10F ICU', '11F 隔离病房', '12F 设备层'], stair0: 780, stair1: 960 },
     landmarks: [
-      L('hosp_exit', '门诊大门', '医院', 70, 90, 140, '回到医疗区广场', 8, 0.5, 'enterCivic'),
-      L('hosp_triage', '分诊台', '医院', 360, 130, 90, '填流调', 18, 1.4, 'hospTriage'),
-      L('hosp_queue', '黄线', '医院', 760, 160, 60, '排队', 25, 1.8, 'hospQueue'),
-      L('hosp_iv', '输液椅', '医院', 1200, 140, 70, '挂水 ¥120', 50, 2.2, 'hospIV'),
-      L('hosp_pcr', '咽拭子窗', '医院', 1680, 110, 100, '院内核酸', 20, 1.6, 'takePCR'),
-      L('hosp_pharmacy', '门诊药房', '医院', 2140, 130, 100, '取药', 15, 1.2, 'hospMeds'),
-      L('hosp_to_metro', '地下通道', '医院', 2680, 100, 120, '坐地铁', 7, 0.6, 'enterMetro')
+      L('hosp_exit', '门诊大门', '1F', 30, 70, 145, '回到医疗区广场', 4, 0.4, 'enterCivic', { floor: 0 }),
+      L('hosp_triage', '分诊台', '1F', 140, 130, 90, '填流调', 18, 1.4, 'hospTriage', { floor: 0 }),
+      L('hosp_queue', '黄线候诊', '1F', 340, 150, 55, '排队', 25, 1.8, 'hospQueue', { floor: 0 }),
+      L('hosp_pharmacy', '门诊药房', '1F', 540, 130, 100, '取药', 15, 1.2, 'hospMeds', { floor: 0 }),
+      L('hosp_elev', '电梯', '右侧', 780, 90, 160, '选楼层 1-12F', 1, 0.2, 'openElevator', { floor: 0 }),
+      L('hosp_pcr', '咽拭子窗', '2F', 160, 120, 95, '院内核酸', 20, 1.6, 'takePCR', { floor: 1 }),
+      L('hosp_lab', '抽血窗口', '2F', 400, 120, 90, '空腹抽血', 15, 1.2, 'hospTriage', { floor: 1 }),
+      L('hosp_clinic', '内科诊室', '3F', 160, 140, 100, '看病', 25, 1.6, 'hospQueue', { floor: 2 }),
+      L('hosp_iv', '输液椅', '4F', 140, 150, 70, '挂水 ¥120', 50, 2.2, 'hospIV', { floor: 3 }),
+      L('hosp_ct', 'CT 门口', '5F', 180, 110, 110, '预约排到下周', 8, 0.8, 'metroNews', { floor: 4 }),
+      L('hosp_ward6', '6F 护士站', '6F', 160, 130, 90, '探视要登记', 6, 0.7, 'metroScan', { floor: 5 }),
+      L('hosp_or', '手术室门', '9F', 180, 100, 120, '红灯别进', 3, 0.4, 'ktvNext', { floor: 8 }),
+      L('hosp_iso', '隔离病房', '11F', 180, 100, 120, '红灯别进', 3, 0.4, 'ktvNext', { floor: 10 })
     ],
     npcs: [
-      N({ id: 'nurse_ye', name: '叶护士', role: '预检', job: 'nurse', skin: '#f0c7a8', hair: '#1f2937', shirt: '#e0f2fe', pants: '#0369a1', x: 380, homeMin: 300, homeMax: 560, speed: 0.2, dir: 1, talk: ['口罩拉高。'] }),
-      N({ id: 'patient_old', name: '候诊大爷', role: '病人', job: 'patient', skin: '#d6b48a', hair: '#a8a29e', shirt: '#fef3c7', pants: '#57534e', x: 800, homeMin: 700, homeMax: 1100, speed: 0.1, dir: 1, talk: ['号又往后顺。'] })
+      N({ id: 'nurse_ye', name: '叶护士', role: '预检', job: 'nurse', skin: '#f0c7a8', hair: '#1f2937', shirt: '#e0f2fe', pants: '#0369a1', x: 280, homeMin: 140, homeMax: 520, speed: 0.2, dir: 1, talk: ['口罩拉高。'], floor: 0 }),
+      N({ id: 'patient_old', name: '候诊大爷', role: '病人', job: 'patient', skin: '#d6b48a', hair: '#a8a29e', shirt: '#fef3c7', pants: '#57534e', x: 420, homeMin: 320, homeMax: 620, speed: 0.1, dir: 1, talk: ['号又往后顺。'], floor: 0 })
     ]
   },
 
   office: {
-    id: 'office', name: '写字楼 23F', tag: '💼 室内工位', width: 2800, theme: 'office', district: 'cbd',
+    id: 'office', name: '朝阳国际 23号楼', tag: '24层写字楼 · 电梯', width: 1000, theme: 'office', district: 'cbd',
+    floors: {
+      count: 23,
+      names: ['1F 大堂', '2F 物业/会议', '3F 空置', '4F 空置', '5F 空置', '6F 空置', '7F 空置', '8F 空置', '9F 空置', '10F 空置', '11F 空置', '12F 市场部工位', '14F 人事', '15F 空置', '16F 空置', '17F 空置', '18F 空置', '19F 空置', '20F 空置', '21F 空置', '22F 空置', '23F 空置', '24F 天台'],
+      stair0: 780, stair1: 960
+    },
     landmarks: [
-      L('off_lift', '电梯厅', '写字楼', 70, 90, 140, '下楼回商务区', 8, 0.5, 'enterCbd'),
-      L('off_desk', '你的工位', '写字楼', 420, 140, 80, '上班', 5, 0.7, 'openOfficeWork'),
-      L('off_water', '茶水间', '写字楼', 860, 100, 90, '接热水', 10, 1.0, 'officeWater'),
-      L('off_print', '打印机', '写字楼', 1220, 80, 90, '修卡纸', 12, 1.3, 'officePrint'),
-      L('off_boss', '会议室', '写字楼', 1680, 160, 110, '开会', 35, 1.8, 'officeMeeting'),
-      L('off_stair', '消防楼梯', '写字楼', 2200, 80, 140, '走去商务区', 15, 0.8, 'enterCbd'),
-      L('off_roof', '天台', '写字楼', 2520, 90, 120, '去滨江风口', 8, 0.6, 'enterRiverside')
+      L('off_lift', '旋转门', '1F', 30, 70, 145, '回商务区街道', 4, 0.4, 'enterCbd', { floor: 0 }),
+      L('lobby_temp', '测温柱', '1F', 140, 56, 110, '过测温', 4, 0.6, 'hospTriage', { floor: 0 }),
+      L('lobby_cafe', '大堂咖啡', '1F', 240, 110, 80, '美式 ¥18', 8, 0.8, 'officeWater', { floor: 0 }),
+      L('lobby_sec', '前台', '1F', 400, 130, 90, '访客登记', 8, 0.9, 'metroScan', { floor: 0 }),
+      L('off_elev', '电梯', '右侧', 780, 90, 160, '选楼层（无13F）', 1, 0.2, 'openElevator', { floor: 0 }),
+      L('off_boss', '会议室', '2F', 120, 160, 110, '开会', 35, 1.8, 'officeMeeting', { floor: 1 }),
+      L('off_print', '打印机', '2F', 360, 80, 90, '修卡纸', 12, 1.3, 'officePrint', { floor: 1 }),
+      L('off_desk', '你的工位', '12F', 80, 150, 80, '上班打卡', 5, 0.7, 'openOfficeWork', { floor: 11 }),
+      L('off_water', '茶水间', '12F', 320, 90, 85, '接热水', 10, 1.0, 'officeWater', { floor: 11 }),
+      L('off_hr', '人事办公室', '14F', 140, 140, 100, '找王HR', 8, 0.8, 'metroScan', { floor: 12 }),
+      L('off_roof', '天台门', '24F', 160, 90, 120, '去滨江风口', 8, 0.6, 'enterRiverside', { floor: 22 })
     ],
-    npcs: []
+    npcs: [
+      N({ id: 'lobby_sec', name: '保安老周', role: '保安', job: 'official', skin: '#c4a574', hair: '#1c1917', shirt: '#1e3a8a', pants: '#111827', x: 480, homeMin: 360, homeMax: 700, speed: 0.15, dir: 1, talk: ['健康码。'], floor: 0 }),
+      N({ id: 'colleague_min', name: '小敏', role: '同事', job: 'office', skin: '#f3c6a8', hair: '#78350f', shirt: '#f9a8d4', pants: '#1f2937', x: 200, homeMin: 80, homeMax: 500, speed: 0.2, dir: 1, talk: ['日报别忘了。'], floor: 11 })
+    ]
   },
 
   mall: {
-    id: 'mall', name: '朝阳汇商场 3F', tag: '🏬 试衣间与中央空调', width: 2800, theme: 'mall', district: 'commerce',
+    id: 'mall', name: '朝阳汇商场', tag: 'B1生鲜 · 1F食肆 · 5F连廊', width: 1000, theme: 'mall', district: 'commerce',
+    floors: { count: 6, names: ['B1 生鲜超市', '1F 食肆大厅', '2F 男装', '3F 女装家居', '4F 影院电玩', '5F 屋顶连廊'], stair0: 780, stair1: 960 },
     landmarks: [
-      L('mall_exit', '扶梯出门', '商场', 70, 90, 140, '回到北大街', 5, 0.5, 'enterCommerce'),
-      L('mall_fit', '试衣间', '商场', 380, 120, 120, '换装', 8, 0.8, 'openWardrobe'),
-      L('mall_shop', '男装柜', '商场', 720, 160, 110, '买衣服', 6, 0.6, 'openWardrobe'),
-      L('mall_food', '食肆档口', '商场', 1120, 150, 100, '买一份盖浇饭 ¥28', 12, 1.1, 'mallEat'),
-      L('mall_atm', 'ATM', '商场', 1520, 80, 90, '查余额（没钱可取）', 4, 0.6, 'mallAtm'),
-      L('mall_wc', '卫生间', '商场', 1880, 90, 120, '洗手', 8, 0.9, 'clubWash'),
-      L('mall_guard', '保安台', '商场', 2280, 110, 100, '量体温才能继续逛', 6, 0.8, 'hospTriage'),
-      L('mall_to_metro', '地下连廊', '商场', 2580, 100, 120, '去地铁', 7, 0.6, 'enterMetro')
+      L('mall_fresh', '生鲜区', 'B1', 80, 160, 90, '买菜 ¥22', 12, 1.1, 'buyFood', { floor: 0 }),
+      L('mall_cold', '冷冻柜', 'B1', 300, 120, 90, '冰柜空了一半', 6, 0.7, 'metroNews', { floor: 0 }),
+      L('mall_exit', '商场门', '1F', 30, 70, 145, '回到北大街', 4, 0.4, 'enterCommerce', { floor: 1 }),
+      L('mall_guard', '保安台', '1F', 140, 110, 100, '量体温', 6, 0.8, 'hospTriage', { floor: 1 }),
+      L('mall_food', '食肆档口', '1F', 300, 150, 95, '盖浇饭 ¥28', 12, 1.1, 'mallEat', { floor: 1 }),
+      L('mall_atm', 'ATM', '1F', 520, 80, 90, '查余额', 4, 0.6, 'mallAtm', { floor: 1 }),
+      L('mall_elev', '扶梯/电梯', '右侧', 780, 90, 160, '选楼层 B1-5F', 1, 0.2, 'openElevator', { floor: 1 }),
+      L('mall_fit', '试衣间', '2F', 80, 110, 115, '换装', 8, 0.8, 'openWardrobe', { floor: 2 }),
+      L('mall_shop', '男装柜', '2F', 260, 150, 100, '买衣服', 6, 0.6, 'openWardrobe', { floor: 2 }),
+      L('mall_wc', '卫生间', '2F', 480, 80, 110, '洗手', 8, 0.9, 'clubWash', { floor: 2 }),
+      L('mall_home', '家居区', '3F', 160, 140, 90, '被子涨价了', 6, 0.7, 'metroNews', { floor: 3 }),
+      L('mall_game', '电玩城', '4F', 160, 140, 90, '厅关着', 4, 0.5, 'clubVip', { floor: 4 }),
+      L('mall_to_metro', '连廊', '5F', 200, 110, 110, '去地铁', 7, 0.6, 'enterMetro', { floor: 5 })
     ],
     npcs: [
-      N({ id: 'mall_clerk', name: '导购小张', role: '导购', job: 'clerk', skin: '#f2c9b0', hair: '#1f2937', shirt: '#f8fafc', pants: '#111827', x: 740, homeMin: 680, homeMax: 900, speed: 0.3, dir: 1, talk: ['这件有现货。口罩别摘。'] })
+      N({ id: 'mall_clerk', name: '导购小张', role: '导购', job: 'clerk', skin: '#f2c9b0', hair: '#1f2937', shirt: '#f8fafc', pants: '#111827', x: 300, homeMin: 180, homeMax: 560, speed: 0.3, dir: 1, talk: ['这件有现货。口罩别摘。'], floor: 2 })
     ]
   },
   pharmacyIn: {
-    id: 'pharmacyIn', name: '老百姓大药房店内', tag: '💊 柜台与绿码通道', width: 1800, theme: 'shop', district: 'commerce',
+    id: 'pharmacyIn', name: '老百姓大药房', tag: '街边单层店', width: 1800, theme: 'shop', district: 'commerce',
     landmarks: [
       L('pharm_exit', '店门', '药房', 60, 80, 140, '回到大街', 3, 0.4, 'enterCommerce'),
-      L('pharm_counter', '柜台', '药房', 420, 140, 90, '买布洛芬 ¥60', 20, 1.4, 'buyMedicine'),
-      L('pharm_shelf', '货架', '药房', 820, 120, 100, '翻维生素，没货', 8, 0.9, 'metroNews'),
-      L('pharm_queue', '一米线', '药房', 1200, 100, 50, '排队', 12, 1.1, 'hospQueue'),
-      L('pharm_cam', '监控', '药房', 1540, 70, 80, '摄像头一直亮', 2, 0.4, 'metroScan')
-    ],
-    npcs: []
-  },
-  storeIn: {
-    id: 'storeIn', name: '全家店内', tag: '🏪 关东煮与冰柜', width: 1800, theme: 'shop', district: 'commerce',
-    landmarks: [
-      L('store_exit', '自动门', '便利店', 60, 80, 140, '回到大街', 3, 0.4, 'enterCommerce'),
-      L('store_fridge', '便当柜', '便利店', 380, 100, 90, '买便当鸡蛋 ¥35', 12, 1.1, 'buyFood'),
-      L('store_oden', '关东煮', '便利店', 720, 90, 80, '买一串 ¥8', 8, 0.8, 'storeOden'),
-      L('store_atm', 'ATM', '便利店', 1060, 70, 80, '查卡', 4, 0.5, 'mallAtm'),
-      L('store_mic', '微波台', '便利店', 1400, 80, 70, '加热（店员盯着你）', 6, 0.7, 'eatInstant')
+      L('pharm_counter', '柜台', '药房', 360, 140, 90, '买布洛芬 ¥60', 20, 1.4, 'buyMedicine'),
+      L('pharm_queue', '一米线', '药房', 620, 120, 50, '排队', 12, 1.1, 'hospQueue'),
+      L('pharm_shelf', '货架', '药房', 900, 140, 100, '翻维生素，没货', 8, 0.9, 'metroNews'),
+      L('pharm_cam', '监控', '药房', 1220, 70, 80, '摄像头一直亮', 2, 0.4, 'metroScan'),
+      L('pharm_box', '纸箱堆', '药房', 1480, 100, 70, '口罩箱是空的', 4, 0.5, 'checkRack')
     ],
     npcs: [
-      N({ id: 'store_clerk', name: '便利店店员', role: '店员', job: 'clerk', skin: '#e8c4a0', hair: '#1f2937', shirt: '#0284c7', pants: '#111827', x: 500, homeMin: 360, homeMax: 900, speed: 0.25, dir: 1, talk: ['便当五点半折扣。'] })
+      N({ id: 'pharm_clerk', name: '药剂师', role: '店员', job: 'clerk', skin: '#e8c4a0', hair: '#1f2937', shirt: '#16a34a', pants: '#14532d', x: 400, homeMin: 280, homeMax: 700, speed: 0.15, dir: 1, talk: ['退热药限购。'] })
+    ]
+  },
+  storeIn: {
+    id: 'storeIn', name: '全家 24H', tag: '街边单层店', width: 1800, theme: 'shop', district: 'commerce',
+    landmarks: [
+      L('store_exit', '自动门', '便利店', 60, 80, 140, '回到大街', 3, 0.4, 'enterCommerce'),
+      L('store_fridge', '便当柜', '便利店', 320, 110, 90, '买便当鸡蛋 ¥35', 12, 1.1, 'buyFood'),
+      L('store_oden', '关东煮', '便利店', 560, 100, 80, '买一串 ¥8', 8, 0.8, 'storeOden'),
+      L('store_atm', 'ATM', '便利店', 820, 70, 80, '查卡', 4, 0.5, 'mallAtm'),
+      L('store_mic', '微波台', '便利店', 1080, 90, 70, '加热（店员盯着你）', 6, 0.7, 'eatInstant'),
+      L('store_stock', '后仓纸箱', '便利店', 1400, 140, 90, '临期货堆着', 6, 0.7, 'metroNews')
+    ],
+    npcs: [
+      N({ id: 'store_clerk', name: '便利店店员', role: '店员', job: 'clerk', skin: '#e8c4a0', hair: '#1f2937', shirt: '#0284c7', pants: '#111827', x: 500, homeMin: 280, homeMax: 900, speed: 0.25, dir: 1, talk: ['便当五点半折扣。'] })
+    ]
+  },
+  soyIn: {
+    id: 'soyIn', name: '胡记豆浆', tag: '骑楼单层铺', width: 1400, theme: 'shop', district: 'commerce',
+    landmarks: [
+      L('soy_exit', '铺门', '早点铺', 50, 80, 140, '回到大街', 3, 0.4, 'enterCommerce'),
+      L('soy_counter', '窗口', '早点铺', 280, 140, 90, '豆浆油条 ¥12', 8, 0.8, 'storeOden'),
+      L('soy_seat', '塑料凳', '早点铺', 520, 140, 50, '蹲着喝', 10, 1.0, 'clubVip'),
+      L('soy_steam', '蒸笼', '早点铺', 820, 140, 90, '热气糊眼镜', 6, 0.7, 'mallEat'),
+      L('soy_pot', '大锅', '早点铺', 1100, 120, 80, '豆浆在滚', 5, 0.6, 'eatInstant')
+    ],
+    npcs: [
+      N({ id: 'soy_boss', name: '胡师傅', role: '老板', job: 'vendor', skin: '#d4a574', hair: '#44403c', shirt: '#ea580c', pants: '#1c1917', x: 360, homeMin: 220, homeMax: 800, speed: 0.2, dir: 1, talk: ['豆浆要现磨。'] })
     ]
   },
 
   home: {
-    id: 'home', name: 'loft 出租屋', tag: '楼下起居厨卫 · 上楼睡觉', width: 1020, theme: 'home', district: 'living',
+    id: 'home', name: 'loft 出租屋', tag: '1F起居厨卫 · 2F阁楼', width: 1020, theme: 'home', district: 'living',
+    floors: { count: 2, names: ['1F 起居厨卫', '2F 阁楼卧室'], stair0: 780, stair1: 960 },
     landmarks: [
-      L('home_exit', '防盗门', '门厅', 30, 64, 150, '下楼到小区', 3, 0.4, 'enterLiving'),
-      L('home_stove', '开放厨房', '楼下', 120, 100, 90, '做饭', 5, 0.6, 'openKitchen'),
-      L('home_fridge', '小冰箱', '楼下厨房', 230, 56, 105, '看剩菜', 3, 0.4, 'mallAtm'),
-      L('home_shower', '卫生间', '楼下湿区', 310, 80, 125, '洗澡', 25, 1.5, 'takeShower'),
-      L('home_sofa', '布沙发', '楼下起居', 430, 140, 65, '坐下歇一会', 10, 1.0, 'clubVip'),
-      L('home_tv', '电视柜', '楼下起居', 590, 80, 70, '看新闻', 15, 1.2, 'watchNews'),
-      L('home_stairs', '楼梯', '右侧', 780, 160, 250, '走上阁楼卧室', 1, 0.2, 'loftHint'),
-      L('home_bed', '阁楼床', '楼上', 50, 150, 65, '睡觉', 120, 2.0, 'sleep', { baseY: 168 }),
-      L('home_closet', '衣柜', '楼上', 220, 70, 110, '换衣服', 5, 0.6, 'openWardrobe', { baseY: 168 }),
-      L('home_desk', '书桌', '楼上窗边', 320, 100, 80, '业主群/私活', 5, 0.6, 'openPhone', { baseY: 168 }),
-      L('home_window', '天窗', '楼上', 460, 90, 70, '看楼下', 8, 0.9, 'riverPeek', { baseY: 168 })
+      L('home_exit', '防盗门', '1F', 30, 64, 150, '下楼到小区', 3, 0.4, 'enterLiving', { floor: 0 }),
+      L('home_stove', '开放厨房', '1F', 120, 100, 90, '做饭', 5, 0.6, 'openKitchen', { floor: 0 }),
+      L('home_fridge', '小冰箱', '1F', 230, 56, 105, '看剩菜', 3, 0.4, 'mallAtm', { floor: 0 }),
+      L('home_shower', '卫生间', '1F', 310, 80, 125, '洗澡', 25, 1.5, 'takeShower', { floor: 0 }),
+      L('home_sofa', '布沙发', '1F', 430, 140, 65, '坐下歇一会', 10, 1.0, 'clubVip', { floor: 0 }),
+      L('home_tv', '电视柜', '1F', 590, 80, 70, '看新闻', 15, 1.2, 'watchNews', { floor: 0 }),
+      L('home_stairs', '楼梯', '右侧', 780, 160, 250, '走上阁楼', 1, 0.2, 'openElevator', { floor: 0 }),
+      L('home_bed', '阁楼床', '2F', 50, 150, 65, '睡觉', 120, 2.0, 'sleep', { floor: 1 }),
+      L('home_closet', '衣柜', '2F', 220, 70, 110, '换衣服', 5, 0.6, 'openWardrobe', { floor: 1 }),
+      L('home_desk', '书桌', '2F', 320, 100, 80, '业主群/私活', 5, 0.6, 'openPhone', { floor: 1 }),
+      L('home_window', '天窗', '2F', 460, 90, 70, '看楼下', 8, 0.9, 'riverPeek', { floor: 1 })
     ],
     npcs: [
-      N({ id: 'home_cat', name: '阿花', role: '猫', job: 'cat', skin: '#fb923c', hair: '#9a3412', shirt: '#fdba74', pants: '#7c2d12', x: 480, homeMin: 160, homeMax: 720, speed: 0.28, dir: 1, talk: ['咕噜。'] })
+      N({ id: 'home_cat', name: '阿花', role: '猫', job: 'cat', skin: '#fb923c', hair: '#9a3412', shirt: '#fdba74', pants: '#7c2d12', x: 480, homeMin: 160, homeMax: 720, speed: 0.28, dir: 1, talk: ['咕噜。'], floor: 0 })
     ]
   },
 
   parlorIn: {
-    id: 'parlorIn', name: '林记推拿馆内', tag: '💆 三张床', width: 2200, theme: 'parlor', district: 'redlight',
+    id: 'parlorIn', name: '林记推拿馆', tag: '巷内单层三张床', width: 2200, theme: 'parlor', district: 'redlight',
     landmarks: [
       L('parlor_exit', '店门', '推拿馆', 60, 80, 140, '回到夜巷', 3, 0.4, 'enterRedlight'),
-      L('parlor_desk', '前台', '推拿馆', 320, 110, 90, '排班/结账', 4, 0.5, 'openParlor'),
+      L('parlor_desk', '前台', '推拿馆', 280, 110, 90, '排班/结账', 4, 0.5, 'openParlor'),
       L('parlor_bed1', '1号床', '推拿馆', 620, 140, 50, '这张床', 2, 0.4, 'openParlor'),
       L('parlor_bed2', '2号床', '推拿馆', 920, 140, 50, '这张床', 2, 0.4, 'openParlor'),
       L('parlor_bed3', '3号床', '推拿馆', 1220, 140, 50, '这张床', 2, 0.4, 'openParlor'),
-      L('parlor_tea', '茶水桌', '推拿馆', 1580, 90, 70, '喝一口烫的', 6, 0.7, 'storeOden'),
-      L('parlor_wash', '洗手池', '推拿馆', 1900, 80, 90, '洗手', 5, 0.6, 'clubWash')
+      L('parlor_tea', '茶水桌', '推拿馆', 1540, 90, 70, '喝一口烫的', 6, 0.7, 'storeOden'),
+      L('parlor_wash', '洗手池', '推拿馆', 1780, 80, 90, '洗手', 5, 0.6, 'clubWash'),
+      L('parlor_locker', '更衣柜', '推拿馆', 1980, 90, 110, '换工服', 5, 0.6, 'openWardrobe')
     ],
     npcs: [
-      N({ id: 'lin_jie', name: '林姐', role: '店长', job: 'masseur', skin: '#e8b895', hair: '#1f2937', shirt: '#be123c', pants: '#111827', x: 340, homeMin: 280, homeMax: 520, speed: 0.2, dir: 1, talk: ['手艺是吃饭的本事。'] }),
-      N({ id: 'ahua_staff', name: '小周', role: '技师', job: 'masseur', skin: '#f0c7a8', hair: '#78350f', shirt: '#9f1239', pants: '#1f2937', x: 940, homeMin: 800, homeMax: 1300, speed: 0.2, dir: -1, talk: ['手法偏重。'] }),
+      N({ id: 'lin_jie', name: '林姐', role: '店长', job: 'masseur', skin: '#e8b895', hair: '#1f2937', shirt: '#be123c', pants: '#111827', x: 320, homeMin: 240, homeMax: 520, speed: 0.2, dir: 1, talk: ['手艺是吃饭的本事。'] }),
+      N({ id: 'ahua_staff', name: '小周', role: '技师', job: 'masseur', skin: '#f0c7a8', hair: '#78350f', shirt: '#9f1239', pants: '#1f2937', x: 940, homeMin: 700, homeMax: 1300, speed: 0.2, dir: -1, talk: ['手法偏重。'] }),
       N({ id: 'uncle_zhao', name: '赵叔', role: '客人', job: 'customer', skin: '#d4a574', hair: '#44403c', shirt: '#1e3a5f', pants: '#292524', x: 1220, homeMin: 1100, homeMax: 1400, speed: 0.05, dir: 1, talk: ['腰椎不行了。'] })
     ]
   },
 
   hotel: {
-    id: 'hotel', name: '钟点房室内', tag: '🏨 窗帘拉不严', width: 1800, theme: 'home', district: 'redlight',
+    id: 'hotel', name: '钟点旅馆', tag: '6层小旅馆 · 楼梯', width: 1000, theme: 'hotel', district: 'redlight',
+    floors: { count: 6, names: ['1F 前台', '2F 客房', '3F 客房', '4F 客房', '5F 客房', '6F 天台'], stair0: 780, stair1: 960 },
     landmarks: [
-      L('hotel_exit', '房门', '旅馆', 60, 80, 140, '回夜巷', 4, 0.4, 'enterRedlight'),
-      L('hotel_bed', '硬板床', '旅馆', 420, 140, 60, '睡一觉 ¥80', 90, 1.8, 'hotelSleep'),
-      L('hotel_bath', '发黄浴缸', '旅馆', 820, 100, 90, '冲一下', 15, 1.2, 'takeShower'),
-      L('hotel_tv', '收费电视', '旅馆', 1180, 80, 70, '无聊台', 20, 1.0, 'watchNews'),
-      L('hotel_window', '窗帘', '旅馆', 1500, 80, 90, '对面也在拉帘', 5, 0.7, 'riverPeek')
+      L('hotel_exit', '旅馆门', '1F', 30, 70, 145, '回夜巷', 4, 0.4, 'enterRedlight', { floor: 0 }),
+      L('hotel_desk', '前台', '1F', 180, 120, 90, '开房 ¥80', 4, 0.5, 'hotelSleep', { floor: 0 }),
+      L('hotel_elev', '楼梯', '右侧', 780, 90, 160, '选楼层 1-6F', 1, 0.2, 'openElevator', { floor: 0 }),
+      L('hotel_bed', '硬板床', '2F', 80, 150, 65, '睡觉', 90, 1.8, 'sleep', { floor: 1 }),
+      L('hotel_bath', '浴缸', '2F', 280, 90, 100, '冲一下', 15, 1.2, 'takeShower', { floor: 1 }),
+      L('hotel_tv', '电视', '2F', 430, 80, 70, '无聊台', 20, 1.0, 'watchNews', { floor: 1 }),
+      L('hotel_bed3', '3F空房', '3F', 80, 150, 65, '这间没人', 4, 0.5, 'sleep', { floor: 2 }),
+      L('hotel_bed4', '4F空房', '4F', 80, 150, 65, '窗帘拉着', 4, 0.5, 'sleep', { floor: 3 }),
+      L('hotel_bed5', '5F空房', '5F', 80, 150, 65, '水龙头滴水', 4, 0.5, 'sleep', { floor: 4 }),
+      L('hotel_window', '天台栏杆', '6F', 200, 100, 80, '对面也在拉帘', 5, 0.7, 'riverPeek', { floor: 5 })
     ],
     npcs: [
-      N({ id: 'hotel_boss', name: '前台大姐', role: '老板', job: 'clerk', skin: '#e8b895', hair: '#44403c', shirt: '#f59e0b', pants: '#1c1917', x: 200, homeMin: 140, homeMax: 360, speed: 0.15, dir: 1, talk: ['现金。不开发票。'] })
+      N({ id: 'hotel_boss', name: '前台大姐', role: '老板', job: 'clerk', skin: '#e8b895', hair: '#44403c', shirt: '#f59e0b', pants: '#1c1917', x: 200, homeMin: 140, homeMax: 360, speed: 0.15, dir: 1, talk: ['现金。不开发票。'], floor: 0 })
     ]
   },
 
   ktv: {
-    id: 'ktv', name: 'KTV 包厢', tag: '🎤 麦套没换', width: 2000, theme: 'club', district: 'redlight',
+    id: 'ktv', name: 'KTV', tag: '4层量贩 · 楼梯', width: 1000, theme: 'club', district: 'redlight',
+    floors: { count: 4, names: ['1F 前台大厅', '2F 小包', '3F 中包', '4F 大包'], stair0: 780, stair1: 960 },
     landmarks: [
-      L('ktv_exit', '包厢门', 'KTV', 60, 80, 140, '回夜巷', 4, 0.4, 'enterRedlight'),
-      L('ktv_mic', '点歌台', 'KTV', 400, 120, 90, '唱两首（娱乐+出汗）', 25, 1.6, 'clubDance'),
-      L('ktv_sofa', '皮沙发', 'KTV', 780, 160, 60, '坐下喝酒', 15, 1.2, 'clubVip'),
-      L('ktv_bath', '包厢卫生间', 'KTV', 1200, 80, 110, '洗手', 8, 0.8, 'clubWash'),
-      L('ktv_door2', '隔壁包厢', 'KTV', 1600, 90, 120, '有人咳，别进', 3, 0.5, 'ktvNext')
+      L('ktv_exit', '大门', '1F', 30, 70, 145, '回夜巷', 4, 0.4, 'enterRedlight', { floor: 0 }),
+      L('ktv_desk', '前台', '1F', 160, 120, 90, '开房唱 ¥60', 8, 0.8, 'mallAtm', { floor: 0 }),
+      L('ktv_waitseat', '等候沙发', '1F', 360, 140, 60, '等包厢', 8, 0.8, 'clubVip', { floor: 0 }),
+      L('ktv_elev', '楼梯', '右侧', 780, 90, 160, '选楼层 1-4F', 1, 0.2, 'openElevator', { floor: 0 }),
+      L('ktv_mic', '点歌台', '2F', 80, 120, 90, '唱两首（娱乐+出汗）', 25, 1.6, 'clubDance', { floor: 1 }),
+      L('ktv_sofa', '皮沙发', '2F', 260, 150, 60, '坐下喝酒', 15, 1.2, 'clubVip', { floor: 1 }),
+      L('ktv_bath', '包厢卫生间', '2F', 470, 80, 110, '洗手', 8, 0.8, 'clubWash', { floor: 1 }),
+      L('ktv_mid', '中包沙发', '3F', 120, 160, 60, '最低消费更高', 15, 1.2, 'clubVip', { floor: 2 }),
+      L('ktv_door2', '隔壁包厢', '4F', 160, 90, 120, '有人咳，别进', 3, 0.5, 'ktvNext', { floor: 3 })
     ],
     npcs: [
-      N({ id: 'dancer_kai', name: 'Kai', role: '麦霸', job: 'dancer', skin: '#d1a78a', hair: '#facc15', shirt: '#22d3ee', pants: '#18181b', x: 820, homeMin: 700, homeMax: 1100, speed: 0.4, dir: 1, talk: ['来不来中间？'] }),
-      N({ id: 'ktv_wait', name: '服务员小刘', role: '服务员', job: 'clerk', skin: '#f0c7a8', hair: '#1f2937', shirt: '#f8fafc', pants: '#111827', x: 400, homeMin: 300, homeMax: 600, speed: 0.3, dir: -1, talk: ['果盘最低消费。'] })
+      N({ id: 'dancer_kai', name: 'Kai', role: '麦霸', job: 'dancer', skin: '#d1a78a', hair: '#facc15', shirt: '#22d3ee', pants: '#18181b', x: 320, homeMin: 220, homeMax: 560, speed: 0.4, dir: 1, talk: ['来不来中间？'], floor: 1 }),
+      N({ id: 'ktv_wait', name: '服务员小刘', role: '服务员', job: 'clerk', skin: '#f0c7a8', hair: '#1f2937', shirt: '#f8fafc', pants: '#111827', x: 240, homeMin: 140, homeMax: 500, speed: 0.3, dir: -1, talk: ['果盘最低消费。'], floor: 0 })
     ]
   },
 
   committee: {
-    id: 'committee', name: '居委会帐篷内', tag: '⛺ 表格与大白', width: 1600, theme: 'shop', district: 'living',
+    id: 'committee', name: '居委会帐篷', tag: '⛺ 一层帆布', width: 1000, theme: 'shop', district: 'living',
     landmarks: [
-      L('comt_exit', '帐篷门', '居委会', 50, 80, 130, '回小区', 3, 0.4, 'enterLiving'),
-      L('comt_desk', '办公桌', '居委会', 380, 140, 80, '听通告 / 领表格', 12, 1.1, 'metroNews'),
-      L('comt_box', '物资箱', '居委会', 760, 110, 70, '看还有没有菜', 10, 1.0, 'checkRack'),
-      L('comt_board', '名单', '居委会', 1120, 90, 90, '密接名单被贴住一角', 8, 0.8, 'metroScan')
+      L('comt_exit', '帐篷门', '居委会', 30, 70, 145, '回小区', 3, 0.4, 'enterLiving'),
+      L('comt_desk', '办公桌', '居委会', 180, 140, 80, '听通告 / 领表格', 12, 1.1, 'metroNews'),
+      L('comt_box', '物资箱', '居委会', 400, 110, 70, '看还有没有菜', 10, 1.0, 'checkRack'),
+      L('comt_board', '名单', '居委会', 580, 90, 90, '密接名单被贴住一角', 8, 0.8, 'metroScan')
     ],
     npcs: [
-      N({ id: 'grid_chen', name: '陈网格员', role: '网格员', job: 'official', skin: '#e2b48a', hair: '#292524', shirt: '#0369a1', pants: '#1e293b', x: 400, homeMin: 300, homeMax: 700, speed: 0.2, dir: 1, talk: ['绿码通行。'] }),
-      N({ id: 'comt_aunt', name: '张阿姨', role: '志愿者', job: 'neighbor', skin: '#e2b48a', hair: '#78716c', shirt: '#dc2626', pants: '#1c1917', x: 800, homeMin: 700, homeMax: 1100, speed: 0.2, dir: -1, talk: ['菜下午才到。'] })
-    ]
-  },
-
-  lobby: {
-    id: 'lobby', name: '写字楼大堂', tag: '🏢 测温柱与闸机', width: 2000, theme: 'cbd', district: 'cbd',
-    landmarks: [
-      L('lobby_exit', '旋转门', '大堂', 60, 90, 140, '回商务区街道', 4, 0.4, 'enterCbd'),
-      L('lobby_temp', '测温柱', '大堂', 380, 70, 110, '过测温', 4, 0.6, 'hospTriage'),
-      L('lobby_gate', '闸机', '大堂', 720, 80, 120, '刷工卡上楼', 5, 0.6, 'enterOffice'),
-      L('lobby_cafe', '大堂咖啡', '大堂', 1100, 120, 80, '美式 ¥18', 8, 0.8, 'officeWater'),
-      L('lobby_sec', '前台', '大堂', 1500, 130, 90, '访客登记', 8, 0.9, 'metroScan')
-    ],
-    npcs: [
-      N({ id: 'hr_wang', name: '王HR', role: '人事', job: 'office', skin: '#e8c4a0', hair: '#111827', shirt: '#1d4ed8', pants: '#172554', x: 760, homeMin: 600, homeMax: 1000, speed: 0.25, dir: 1, talk: ['口罩戴好。'] }),
-      N({ id: 'lobby_sec', name: '保安老周', role: '保安', job: 'official', skin: '#c4a574', hair: '#1c1917', shirt: '#1e3a8a', pants: '#111827', x: 1520, homeMin: 1400, homeMax: 1700, speed: 0.15, dir: 1, talk: ['健康码。'] })
+      N({ id: 'grid_chen', name: '陈网格员', role: '网格员', job: 'official', skin: '#e2b48a', hair: '#292524', shirt: '#0369a1', pants: '#1e293b', x: 260, homeMin: 160, homeMax: 520, speed: 0.2, dir: 1, talk: ['绿码通行。'] }),
+      N({ id: 'comt_aunt', name: '张阿姨', role: '志愿者', job: 'neighbor', skin: '#e2b48a', hair: '#78716c', shirt: '#dc2626', pants: '#1c1917', x: 460, homeMin: 360, homeMax: 700, speed: 0.2, dir: -1, talk: ['菜下午才到。'] })
     ]
   }
 };
 
 MAPS.street = MAPS.living;
+MAPS.lobby = MAPS.office;
+
+(function applyFloorY() {
+  for (const m of Object.values(MAPS)) {
+    if (!m?.landmarks) continue;
+    for (const lm of m.landmarks) {
+      if (lm.floor != null) lm.baseY = yOfFloor(lm.floor);
+    }
+  }
+})();
 
 export function getMap(id) {
   if (id === 'street') return MAPS.living;
+  if (id === 'lobby') return MAPS.office;
   return MAPS[id] || MAPS.living;
 }

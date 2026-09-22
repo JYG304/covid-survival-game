@@ -6,8 +6,8 @@ import { updateHUD } from '../ui/hud.js';
 import { audio } from '../utils/audio.js';
 import { advanceTime } from './timeSystem.js';
 
-export const PARLOR_X = 300;
-export const PARLOR_W = 1700;
+export const PARLOR_X = 60;
+export const PARLOR_W = 2000;
 export const BEDS = [
   { id: 'bed1', x: 620, yOff: 58 },
   { id: 'bed2', x: 920, yOff: 58 },

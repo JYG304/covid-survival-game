@@ -182,7 +182,8 @@ function updateZoneTag() {
     hotel: '🏨 钟点房',
     ktv: '🎤 KTV包厢',
     committee: '⛺ 居委会帐篷',
-    lobby: '🏢 写字楼大堂'
+    lobby: '🏢 写字楼',
+    soyIn: '🥣 胡记豆浆'
   };
   zTitle.innerText = names[id] || names.street;
   const nearby = gameState.nearbyItem;
