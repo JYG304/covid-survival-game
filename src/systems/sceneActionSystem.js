@@ -279,7 +279,7 @@ export const sceneActions = {
   },
 
   loftHint() {
-    showToast('楼梯很陡。往右走就是阁楼卧室。', 'info');
+    showToast('往右走上楼梯，镜头会抬高。到顶后往左进阁楼卧室。', 'info');
   },
   openWardrobe() {
     import('./outfitSystem.js').then((m) => m.openGear());

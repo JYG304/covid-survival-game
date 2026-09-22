@@ -1,5 +1,6 @@
 ﻿import { player } from '../game/player.js';
 import { FLOOR_Y } from '../data/landmarks.js';
+import { LOFT_Y } from '../data/maps.js';
 import { getActiveLandmarks, getWorldWidth, getActiveMap } from '../systems/mapSystem.js';
 import { gameState } from '../data/gameState.js';
 import { livingNpcs } from '../systems/npcInteractSystem.js';
@@ -26,6 +27,7 @@ import {
 } from './sceneArt.js';
 
 export let cameraX = 0;
+export let cameraY = 0;
 export const splashes = [];
 export const rainDrops = [];
 export const dynamicNPCs = [];
@@ -80,7 +82,7 @@ export function renderFarSky(ctx, canvas) {
 
 export function renderMidgroundWorld(ctx, canvas) {
   ctx.save();
-  ctx.translate(-cameraX, 0);
+  ctx.translate(-cameraX, -cameraY);
   const w = getWorldWidth();
   const theme = getActiveMap().theme;
   if (theme === 'metro') paintMetro(ctx, w);
@@ -516,8 +518,17 @@ function renderPlayer(ctx) {
 export function updateCamera(canvas) {
   const targetCam = player.x - canvas.width / 2;
   cameraX += (targetCam - cameraX) * 0.08;
-  cameraX = Math.max(0, Math.min(getWorldWidth() - canvas.width, cameraX));
+  const maxX = Math.max(0, getWorldWidth() - canvas.width);
+  cameraX = Math.max(0, Math.min(maxX, cameraX));
+  if (getActiveMap().theme === 'home') {
+    const targetY = player.y - canvas.height * 0.62;
+    cameraY += (targetY - cameraY) * 0.12;
+    cameraY = Math.max(-60, Math.min(FLOOR_Y - canvas.height + 200, cameraY));
+  } else {
+    cameraY += (0 - cameraY) * 0.15;
+  }
   window.cameraX = cameraX;
+  window.cameraY = cameraY;
 }
 
 export function renderRainForeground(ctx, canvas) {

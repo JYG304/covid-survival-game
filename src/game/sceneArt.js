@@ -738,79 +738,69 @@ export function paintMall(ctx, w) {
 }
 
 export function paintHome(ctx, w) {
-  const loft = 248;
-  ctx.fillStyle = '#1c1917';
-  ctx.fillRect(0, 40, w, FLOOR_Y + 100);
-  ctx.fillStyle = '#78716c';
-  ctx.fillRect(0, 48, 980, 16);
-  ctx.fillStyle = '#a8a29e';
-  ctx.fillRect(0, 64, 980, FLOOR_Y - 64);
-  ctx.fillStyle = '#57534e';
-  ctx.fillRect(0, FLOOR_Y, w, 90);
-  ctx.fillStyle = '#44403c';
-  ctx.fillRect(0, FLOOR_Y - 6, 980, 6);
-  ctx.fillStyle = '#7c2d12';
-  ctx.fillRect(180, 80, 8, FLOOR_Y - 80);
-  ctx.fillRect(430, 80, 8, FLOOR_Y - 80);
-  ctx.fillStyle = '#fed7aa';
-  ctx.font = 'bold 12px "Noto Sans SC"';
-  ctx.fillText('门厅', 50, 92);
-  ctx.fillText('开放厨房', 210, 92);
-  ctx.fillText('卫生间', 455, 92);
-  ctx.fillText('起居', 640, 92);
-  ctx.fillStyle = '#44403c';
-  ctx.fillRect(190, FLOOR_Y - 70, 220, 70);
-  ctx.fillStyle = '#a8a29e';
-  ctx.fillRect(198, FLOOR_Y - 18, 80, 10);
-  ctx.fillStyle = '#155e75';
-  ctx.fillRect(438, 120, 100, FLOOR_Y - 120);
-  ctx.fillStyle = 'rgba(103,232,249,0.2)';
-  ctx.fillRect(450, 140, 30, 70);
-  ctx.fillStyle = '#0f172a';
-  ctx.fillRect(760, 150, 90, 60);
-  ctx.strokeStyle = '#a8a29e';
-  ctx.strokeRect(760, 150, 90, 60);
+  const loft = 168;
   ctx.fillStyle = '#292524';
-  ctx.fillRect(980, loft, w - 980, FLOOR_Y - loft);
+  ctx.fillRect(0, 0, w, FLOOR_Y + 140);
   ctx.fillStyle = '#a8a29e';
-  ctx.fillRect(980, loft, w - 980, 10);
+  ctx.fillRect(16, 36, w - 32, FLOOR_Y - 20);
+  ctx.fillStyle = '#44403c';
+  ctx.fillRect(16, 36, w - 32, 14);
+  ctx.fillStyle = '#78716c';
+  ctx.fillRect(16, FLOOR_Y, w - 32, 12);
   ctx.fillStyle = '#57534e';
-  ctx.fillRect(980, loft - 8, w - 980, 8);
+  ctx.fillRect(16, loft, 760, 14);
+  ctx.fillStyle = '#d6d3d1';
+  ctx.fillRect(16, loft + 14, 760, 6);
   ctx.fillStyle = '#1c1917';
-  for (let i = 0; i < 9; i++) {
-    const sx = 900 + i * 12;
-    const sy = FLOOR_Y - 8 - i * 18;
-    ctx.fillStyle = '#78716c';
-    ctx.fillRect(sx, sy, 28, 8);
+  ctx.fillRect(16, 50, 10, loft - 50);
+  ctx.fillRect(766, 50, 10, loft - 50);
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillRect(430, 48, 120, 42);
+  ctx.fillStyle = 'rgba(255,255,255,0.28)';
+  ctx.fillRect(438, 54, 40, 18);
+  ctx.fillStyle = '#fed7aa';
+  ctx.font = 'bold 13px "Noto Sans SC"';
+  ctx.fillText('阁楼卧室', 40, loft - 10);
+  ctx.fillText('天窗', 455, 42);
+  ctx.fillStyle = '#7c2d12';
+  ctx.fillRect(300, loft + 20, 8, FLOOR_Y - loft - 20);
+  ctx.fillStyle = '#a8a29e';
+  ctx.font = 'bold 12px "Noto Sans SC"';
+  ctx.fillText('厨房', 130, loft + 36);
+  ctx.fillText('卫生间', 318, loft + 36);
+  ctx.fillText('起居', 480, loft + 36);
+  ctx.fillStyle = '#155e75';
+  ctx.fillRect(308, 220, 86, FLOOR_Y - 220);
+  ctx.fillStyle = 'rgba(103,232,249,0.22)';
+  ctx.fillRect(318, 240, 28, 70);
+  ctx.fillStyle = '#44403c';
+  ctx.fillRect(118, FLOOR_Y - 64, 200, 58);
+  const steps = 12;
+  for (let i = 0; i < steps; i++) {
+    const t = i / (steps - 1);
+    ctx.fillStyle = i % 2 ? '#78716c' : '#57534e';
+    ctx.fillRect(780 + i * 12, FLOOR_Y - 10 - t * (FLOOR_Y - loft - 8), 36, 10);
   }
-  ctx.strokeStyle = '#d6d3d1';
+  ctx.strokeStyle = '#e7e5e4';
   ctx.lineWidth = 3;
   ctx.beginPath();
-  ctx.moveTo(980, loft);
-  ctx.lineTo(980, loft - 90);
+  ctx.moveTo(770, loft);
+  ctx.lineTo(770, loft - 70);
   ctx.stroke();
-  for (let y = loft - 84; y < loft; y += 14) {
-    ctx.fillStyle = '#e7e5e4';
-    ctx.fillRect(972, y, 16, 4);
+  for (let y = loft - 66; y < loft; y += 12) {
+    ctx.fillStyle = '#d6d3d1';
+    ctx.fillRect(762, y, 16, 3);
   }
-  ctx.fillStyle = '#38bdf8';
-  ctx.fillRect(1600, 70, 110, 50);
-  ctx.fillStyle = 'rgba(255,255,255,0.25)';
-  ctx.fillRect(1608, 78, 40, 20);
-  ctx.fillStyle = '#fed7aa';
-  ctx.font = 'bold 12px "Noto Sans SC"';
-  ctx.fillText('阁楼卧室', 1120, loft - 16);
-  ctx.fillText('天窗', 1620, 64);
   ctx.fillStyle = '#44403c';
   ctx.beginPath();
-  ctx.moveTo(980, 48);
-  ctx.lineTo(w, 90);
-  ctx.lineTo(w, loft);
-  ctx.lineTo(980, loft);
+  ctx.moveTo(16, 36);
+  ctx.lineTo(w - 16, 70);
+  ctx.lineTo(w - 16, loft);
+  ctx.lineTo(16, loft);
   ctx.closePath();
+  ctx.globalAlpha = 0.35;
   ctx.fill();
-  ctx.fillStyle = '#292524';
-  ctx.fillRect(980, loft, w - 980, 8);
+  ctx.globalAlpha = 1;
 }
 
 export function paintParlorRoom(ctx, w) {

@@ -63,6 +63,7 @@ export function travelTo(mapId, spawnX, toast) {
     p.x = spawnX ?? 180;
     p.targetX = null;
     p.vx = 0;
+    p.loft = false;
   }
   spawnMapNpcs();
   audio.playTone(mapId === 'club' ? 220 : 360, 0.18, 'triangle', 0.08);

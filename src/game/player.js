@@ -5,7 +5,7 @@
 
 import { gameState } from '../data/gameState.js';
 import { FLOOR_Y } from '../data/landmarks.js';
-import { LOFT_Y } from '../data/maps.js';
+import { LOFT_Y, HOME_STAIR0, HOME_STAIR1 } from '../data/maps.js';
 import { getActiveLandmarks, getWorldWidth } from '../systems/mapSystem.js';
 import { actionHandlers } from '../systems/actionSystem.js';
 import { advanceTime } from '../systems/timeSystem.js';
@@ -76,8 +76,9 @@ export function initControls() {
       const scaleX = canvas.width / rect.width;
       const scaleY = canvas.height / rect.height;
       const cam = window.cameraX || 0;
+      const camY = window.cameraY || 0;
       const worldX = (e.clientX - rect.left) * scaleX + cam;
-      const worldY = (e.clientY - rect.top) * scaleY;
+      const worldY = (e.clientY - rect.top) * scaleY + camY;
       handleWorldClick(worldX, worldY);
     });
   }
@@ -86,7 +87,7 @@ export function initControls() {
 function handleWorldClick(worldX, worldY) {
   if (gameState.activeAction) return;
   const npc = nearestNpc(worldX, 48);
-  if (npc && Math.abs(npc.x - worldX) < 48 && worldY > FLOOR_Y - 110) {
+  if (npc && Math.abs(npc.x - worldX) < 48 && Math.abs(worldY - FLOOR_Y) < 120 && !player.loft) {
     if (Math.abs(player.x - npc.x) < 40) {
       window.DeepGameplay?.talkNearbyNpc(player);
       return;
@@ -253,16 +254,34 @@ export function updatePlayer(delta) {
   }
 
   player.x += player.vx;
-  player.x = Math.max(50, Math.min(getWorldWidth() - 50, player.x));
+  player.x = Math.max(40, Math.min(getWorldWidth() - 40, player.x));
   if ((gameState.mapId || '') === 'home') {
-    const a = 880;
-    const b = 1080;
-    let t = 0;
-    if (player.x >= b) t = 1;
-    else if (player.x > a) t = (player.x - a) / (b - a);
-    const targetY = FLOOR_Y + (LOFT_Y - FLOOR_Y) * t;
-    player.y += (targetY - player.y) * 0.22;
+    const span = HOME_STAIR1 - HOME_STAIR0;
+    if (!player.loft) {
+      if (player.x > HOME_STAIR0) {
+        const t = Math.min(1, (player.x - HOME_STAIR0) / span);
+        player.y += (FLOOR_Y + (LOFT_Y - FLOOR_Y) * t - player.y) * 0.35;
+        if (t >= 0.97 && player.vx >= 0) {
+          player.loft = true;
+          player.x = HOME_STAIR0 - 8;
+        }
+      } else {
+        player.y += (FLOOR_Y - player.y) * 0.3;
+      }
+    } else {
+      if (player.x > HOME_STAIR0) {
+        const t = Math.min(1, (player.x - HOME_STAIR0) / span);
+        player.y += (LOFT_Y + (FLOOR_Y - LOFT_Y) * t - player.y) * 0.35;
+        if (t >= 0.97 && player.vx >= 0) {
+          player.loft = false;
+          player.x = HOME_STAIR0 - 8;
+        }
+      } else {
+        player.y += (LOFT_Y - player.y) * 0.3;
+      }
+    }
   } else {
+    player.loft = false;
     player.y += (FLOOR_Y - player.y) * 0.25;
   }
   player.isMoving = moving;
