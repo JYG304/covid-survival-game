@@ -19,11 +19,11 @@ export function updateStreetNpcs(delta) {
     npc.anim += delta * 8;
     if (npc.bubbleT > 0) npc.bubbleT -= delta;
     else npc.bubble = '';
-    npc.y = yOfFloor(npc.floor || 0);
     if (npc.job === 'cat' && gameState.mapId === 'home') {
       updateHomeCat(npc, delta);
       continue;
     }
+    npc.y = yOfFloor(npc.floor || 0);
     if (npc.pose === 'walk' && !npc.assignedRoom) {
       npc.x += npc.dir * npc.speed;
       if (npc.x > npc.homeMax) npc.dir = -1;
@@ -39,8 +39,8 @@ function updateHomeCat(npc, delta) {
   const dirty = (h?.litter || 0) > 70;
   const greet = (gameState.dayLoop?.greetT || 0) > 0;
   npc.mood = hungry ? 'hungry' : dirty ? 'dirty' : greet ? 'greet' : 'ok';
-  npc.floor = hungry || greet ? 0 : (npc.floor || 0);
-  npc.y = yOfFloor(npc.floor);
+  if (hungry || greet) npc.floor = 0;
+  npc.y = yOfFloor(npc.floor || 0);
   if (hungry && p && (p.floor || 0) === 0) {
     npc.homeMin = 40;
     npc.homeMax = 90;

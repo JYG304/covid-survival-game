@@ -22,7 +22,11 @@ export function initDayLoop() {
   if (!d.duties) d.duties = [];
   if (d.outingsLeft == null) d.outingsLeft = 3;
   if (d.lastPcr == null) d.lastPcr = stamp();
-  if (!d.duties.length) rollDuties();
+}
+
+export function bootDayLoop() {
+  initDayLoop();
+  if (!gameState.dayLoop.duties.length) rollDuties();
 }
 
 export function outingCap() {
@@ -49,7 +53,16 @@ export function codeLabel() {
 }
 
 export function rollDuties() {
-  initDayLoop();
+  if (!gameState.dayLoop) {
+    gameState.dayLoop = {
+      lastPcr: stamp(),
+      outingsLeft: 3,
+      outingsMax: 3,
+      duties: [],
+      failed: [],
+      greetT: 0
+    };
+  }
   const list = [
     { id: 'pcr', title: '做核酸', hint: '小区亭或医院', failHour: 21 },
     { id: 'eat', title: '吃一顿热的', hint: '家里煮或外面买', failHour: 22 }
@@ -69,7 +82,7 @@ export function rollDuties() {
 }
 
 export function markDuty(id) {
-  initDayLoop();
+  if (!gameState.dayLoop?.duties?.length) bootDayLoop();
   const d = gameState.dayLoop.duties.find((x) => x.id === id);
   if (!d || d.done) return;
   d.done = true;
@@ -77,12 +90,12 @@ export function markDuty(id) {
 }
 
 export function getDuties() {
-  initDayLoop();
+  if (!gameState.dayLoop?.duties?.length) bootDayLoop();
   return gameState.dayLoop.duties || [];
 }
 
 export function canTravelTo(mapId) {
-  initDayLoop();
+  if (!gameState.dayLoop) bootDayLoop();
   const from = gameState.mapId || 'living';
   const code = getHealthCode();
   if (from === mapId) return true;
@@ -111,11 +124,12 @@ export function canTravelTo(mapId) {
       return false;
     }
   }
+  if (from === 'living' && mapId === 'home') return true;
   return true;
 }
 
 export function onLeftHome() {
-  initDayLoop();
+  if (!gameState.dayLoop) bootDayLoop();
   if (gameState.dayLoop.outingsLeft > 0) gameState.dayLoop.outingsLeft -= 1;
   const isolate = gameState.dayLoop.duties.find((x) => x.id === 'isolate');
   if (isolate && !isolate.done) {
@@ -126,7 +140,7 @@ export function onLeftHome() {
 }
 
 export function onPcrDone(positive) {
-  initDayLoop();
+  if (!gameState.dayLoop) bootDayLoop();
   gameState.dayLoop.lastPcr = stamp();
   markDuty('pcr');
   flagQuest('metroScanned');
@@ -134,7 +148,7 @@ export function onPcrDone(positive) {
 }
 
 export function tickDayLoopHour() {
-  initDayLoop();
+  if (!gameState.dayLoop?.duties?.length) bootDayLoop();
   const hour = gameState.hour;
   for (const d of gameState.dayLoop.duties) {
     if (d.done || d.failed) continue;
@@ -149,7 +163,7 @@ export function tickDayLoopHour() {
 }
 
 export function tickDayLoopNewDay() {
-  initDayLoop();
+  if (!gameState.dayLoop) bootDayLoop();
   const missed = (gameState.dayLoop.duties || []).filter((d) => !d.done);
   for (const d of missed) {
     if (d.id === 'isolate' && !d.failed) {

@@ -86,7 +86,7 @@ import { initQuests, onQuestNewDay } from './questSystem.js';
 import { bindDialogueModal } from './npcInteractSystem.js';
 import { initOutfit, renderOutfitShop, openGear } from './outfitSystem.js';
 import { initHome, tickHomeHour, tickHomeDay, bindHomeModals, takeFridgeKind } from './homeSystem.js';
-import { initDayLoop, tickDayLoopHour, tickDayLoopNewDay, tickGreet, canTravelTo, onLeftHome } from './dayLoopSystem.js';
+import { bootDayLoop, tickDayLoopHour, tickDayLoopNewDay, tickGreet, canTravelTo, onLeftHome } from './dayLoopSystem.js';
 
 /**
  * 初始化所有深度玩法系统
@@ -103,7 +103,7 @@ export function initDeepGameplaySystems() {
   initMassageParlor();
   initOutfit();
   initHome();
-  initDayLoop();
+  bootDayLoop();
 
   // 初始化游戏状态的扩展字段
   if (!gameState.deepGameplay) {

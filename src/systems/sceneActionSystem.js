@@ -289,8 +289,9 @@ export const sceneActions = {
     import('./outfitSystem.js').then((m) => m.openGear());
   },
   leaveHome() {
-    import('./homeSystem.js').then((m) => {
-      m.onLeaveHome();
+    import('./dayLoopSystem.js').then((d) => {
+      if (!d.canTravelTo('living')) return;
+      import('./homeSystem.js').then((m) => m.onLeaveHome());
       TRAVEL.enterLiving();
     });
   },
