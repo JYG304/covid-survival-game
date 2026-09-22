@@ -1,7 +1,9 @@
 export const FLOOR_Y = 415;
 
-function L(id, name, zone, x, w, h, prompt, mins, dur, action) {
-  return { id, name, zone, x, width: w, height: h, prompt, timeCostMinutes: mins, actionDuration: dur, action };
+export const LOFT_Y = 248;
+
+function L(id, name, zone, x, w, h, prompt, mins, dur, action, extra) {
+  return { id, name, zone, x, width: w, height: h, prompt, timeCostMinutes: mins, actionDuration: dur, action, ...extra };
 }
 function N(o) { return o; }
 
@@ -289,19 +291,22 @@ export const MAPS = {
   },
 
   home: {
-    id: 'home', name: '出租屋室内', tag: '🛏️ 床、灶、衣柜', width: 2200, theme: 'home', district: 'living',
+    id: 'home', name: 'loft 出租屋', tag: '楼下起居厨卫 · 上楼睡觉', width: 2100, theme: 'home', district: 'living',
     landmarks: [
-      L('home_exit', '防盗门', '出租屋', 60, 70, 140, '下楼到小区', 3, 0.4, 'enterLiving'),
-      L('home_bed', '行军床', '卧室', 280, 120, 70, '睡觉', 120, 2.0, 'sleep'),
-      L('home_closet', '衣柜', '卧室', 480, 80, 120, '换衣服', 5, 0.6, 'openWardrobe'),
-      L('home_tv', '二手彩电', '起居', 680, 70, 70, '看新闻', 15, 1.2, 'watchNews'),
-      L('home_desk', '书桌电脑', '工作台', 900, 100, 80, '业主群/私活', 5, 0.6, 'openPhone'),
-      L('home_shower', '花洒', '卫生间', 1180, 70, 110, '洗澡', 25, 1.5, 'takeShower'),
-      L('home_stove', '灶台', '厨房', 1450, 90, 100, '做饭', 5, 0.6, 'openKitchen'),
-      L('home_window', '封窗', '窗边', 1750, 80, 90, '看楼下网格员', 8, 0.9, 'riverPeek')
+      L('home_exit', '防盗门', '门厅', 40, 70, 150, '下楼到小区', 3, 0.4, 'enterLiving'),
+      L('home_stove', '开放厨房', '楼下厨房', 200, 110, 95, '做饭', 5, 0.6, 'openKitchen'),
+      L('home_fridge', '小冰箱', '厨房', 330, 70, 110, '看剩菜', 3, 0.4, 'mallAtm'),
+      L('home_shower', '卫生间', '湿区', 450, 90, 130, '洗澡', 25, 1.5, 'takeShower'),
+      L('home_sofa', '布沙发', '起居', 600, 150, 70, '坐下歇一会', 10, 1.0, 'clubVip'),
+      L('home_tv', '电视柜', '起居', 780, 90, 75, '看新闻', 15, 1.2, 'watchNews'),
+      L('home_stairs', '楼梯', 'loft', 900, 100, 160, '走上阁楼', 1, 0.2, 'loftHint'),
+      L('home_bed', '阁楼床', 'loft 卧室', 1120, 150, 70, '睡觉', 120, 2.0, 'sleep', { baseY: 248 }),
+      L('home_closet', '衣柜', 'loft 卧室', 1300, 80, 115, '换衣服', 5, 0.6, 'openWardrobe', { baseY: 248 }),
+      L('home_desk', '窗边书桌', 'loft 工作角', 1440, 110, 85, '业主群/私活', 5, 0.6, 'openPhone', { baseY: 248 }),
+      L('home_window', '天窗', 'loft', 1620, 90, 80, '看楼下网格员', 8, 0.9, 'riverPeek', { baseY: 248 })
     ],
     npcs: [
-      N({ id: 'home_cat', name: '阿花钻进来了', role: '猫', job: 'cat', skin: '#fb923c', hair: '#9a3412', shirt: '#fdba74', pants: '#7c2d12', x: 320, homeMin: 250, homeMax: 700, speed: 0.35, dir: 1, talk: ['咕噜。'] })
+      N({ id: 'home_cat', name: '阿花', role: '猫', job: 'cat', skin: '#fb923c', hair: '#9a3412', shirt: '#fdba74', pants: '#7c2d12', x: 640, homeMin: 200, homeMax: 860, speed: 0.28, dir: 1, talk: ['咕噜。'] })
     ]
   },
 

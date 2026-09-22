@@ -5,6 +5,7 @@
 
 import { gameState } from '../data/gameState.js';
 import { FLOOR_Y } from '../data/landmarks.js';
+import { LOFT_Y } from '../data/maps.js';
 import { getActiveLandmarks, getWorldWidth } from '../systems/mapSystem.js';
 import { actionHandlers } from '../systems/actionSystem.js';
 import { advanceTime } from '../systems/timeSystem.js';
@@ -97,8 +98,9 @@ function handleWorldClick(worldX, worldY) {
   for (const item of getActiveLandmarks()) {
     const left = item.x - 8;
     const right = item.x + item.width + 8;
-    const top = FLOOR_Y - item.height - 24;
-    if (worldX >= left && worldX <= right && worldY >= top && worldY <= FLOOR_Y + 24) {
+    const base = item.baseY || FLOOR_Y;
+    const top = base - item.height - 24;
+    if (worldX >= left && worldX <= right && worldY >= top && worldY <= base + 24) {
       const cx = item.x + item.width / 2;
       if (Math.abs(player.x - cx) < 50) {
         startActivity(item);
@@ -252,6 +254,17 @@ export function updatePlayer(delta) {
 
   player.x += player.vx;
   player.x = Math.max(50, Math.min(getWorldWidth() - 50, player.x));
+  if ((gameState.mapId || '') === 'home') {
+    const a = 880;
+    const b = 1080;
+    let t = 0;
+    if (player.x >= b) t = 1;
+    else if (player.x > a) t = (player.x - a) / (b - a);
+    const targetY = FLOOR_Y + (LOFT_Y - FLOOR_Y) * t;
+    player.y += (targetY - player.y) * 0.22;
+  } else {
+    player.y += (FLOOR_Y - player.y) * 0.25;
+  }
   player.isMoving = moving;
 
   if (moving) {
@@ -270,6 +283,8 @@ function updateNearbyLandmark() {
 
   for (const item of getActiveLandmarks()) {
     const cx = item.x + item.width / 2;
+    const base = item.baseY || FLOOR_Y;
+    if (Math.abs((player.y || FLOOR_Y) - base) > 40) continue;
     const dist = Math.abs(player.x - cx);
     if (dist < minDistance) {
       nearest = item;

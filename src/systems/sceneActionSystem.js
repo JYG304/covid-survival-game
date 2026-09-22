@@ -278,6 +278,9 @@ export const sceneActions = {
     showToast('前面焊死了。江风更大。你只能往回走。', 'info');
   },
 
+  loftHint() {
+    showToast('楼梯很陡。往右走就是阁楼卧室。', 'info');
+  },
   openWardrobe() {
     import('./outfitSystem.js').then((m) => m.openGear());
   },

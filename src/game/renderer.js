@@ -144,14 +144,15 @@ function drawLandmarkProp(ctx, item, itemY) {
   const x = item.x;
   const w = item.width;
   const h = item.height;
+  const base = item.baseY || FLOOR_Y;
   const bKey = LANDMARK_BUILDING[id];
   if (bKey) {
-    drawBuilding(ctx, bKey, x, FLOOR_Y, w, h, item.name);
+    drawBuilding(ctx, bKey, x, base, w, h, item.name);
     return;
   }
   const fKey = LANDMARK_SPRITE[id];
   if (fKey) {
-    drawFurniture(ctx, fKey, x, FLOOR_Y, w, h);
+    drawFurniture(ctx, fKey, x, base, w, h);
     return;
   }
   if (id.includes('cat')) {
@@ -243,10 +244,11 @@ function drawLandmarkProp(ctx, item, itemY) {
 
 function renderLandmarks(ctx) {
   getActiveLandmarks().forEach((item) => {
-    const itemY = FLOOR_Y - item.height;
+    const base = item.baseY || FLOOR_Y;
+    const itemY = base - item.height;
     ctx.fillStyle = 'rgba(0,0,0,0.35)';
     ctx.beginPath();
-    ctx.ellipse(item.x + item.width / 2, FLOOR_Y + 2, item.width * 0.42, 5, 0, 0, Math.PI * 2);
+    ctx.ellipse(item.x + item.width / 2, base + 2, item.width * 0.42, 5, 0, 0, Math.PI * 2);
     ctx.fill();
     drawLandmarkProp(ctx, item, itemY);
     const cx = item.x + item.width / 2;
