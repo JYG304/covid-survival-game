@@ -657,12 +657,12 @@ export function paintHospital(ctx, w) {
 }
 
 export function paintOffice(ctx, w) {
-  gradV(ctx, 0, 40, w, FLOOR_Y + 100, '#1e293b', '#0f172a');
-  ctx.fillStyle = '#334155';
-  ctx.fillRect(0, 40, w, 36);
-  ctx.fillStyle = '#e2e8f0';
+  gradV(ctx, 0, 0, w, FLOOR_Y + 120, '#1e293b', '#0f172a');
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(0, 36, w, 40);
+  ctx.fillStyle = '#93c5fd';
   ctx.font = 'bold 16px "Noto Sans SC"';
-  ctx.fillText('写字楼 23F  市场部  ·  全勤打卡', 140, 64);
+  ctx.fillText('23F 市场部  ·  工位隔板  ·  请佩戴口罩打卡', 80, 62);
   ctx.fillStyle = '#1e293b';
   ctx.fillRect(0, FLOOR_Y, w, 120);
   for (let x = 160; x < w - 140; x += 200) {
@@ -711,17 +711,30 @@ export function paintRiver(ctx, w) {
 
 export function paintMall(ctx, w) {
   paintRoad(ctx, w, '#e2e8f0', '#cbd5e1');
-  districtBanner(ctx, '朝阳汇商场 3F', '#0f172a', '#fde68a');
-  gradV(ctx, 0, 90, w, FLOOR_Y - 90, '#f8fafc', '#e2e8f0');
-  shopFace(ctx, 340, 140, 160, FLOOR_Y - 140, '#1e293b', '#fde68a', '#111827', '#fff', '试衣间');
-  shopFace(ctx, 680, 130, 200, FLOOR_Y - 130, '#0f172a', '#e2e8f0', '#334155', '#fff', '男装');
-  shopFace(ctx, 1080, 150, 180, FLOOR_Y - 150, '#7c2d12', '#fdba74', '#b45309', '#fff7ed', '食肆');
-  fillRR(ctx, 1480, FLOOR_Y - 80, 90, 80, 8, '#111827');
-  ctx.fillStyle = '#4ade80';
+  districtBanner(ctx, '朝阳汇商场 3F  中央空调', '#0f172a', '#fde68a');
+  gradV(ctx, 0, 70, w, FLOOR_Y - 70, '#f8fafc', '#e2e8f0');
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(0, 70, w, 36);
+  ctx.fillStyle = '#fde68a';
+  ctx.font = 'bold 14px "Noto Sans SC"';
+  ctx.fillText('3F  男装 / 食肆 / 试衣间    请佩戴口罩', 80, 94);
+  ctx.fillStyle = '#e2e8f0';
+  ctx.fillRect(0, FLOOR_Y - 6, w, 6);
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(320, 130, 140, FLOOR_Y - 150);
+  ctx.strokeStyle = '#a8a29e';
+  ctx.strokeRect(320, 130, 140, FLOOR_Y - 150);
+  ctx.fillStyle = '#0f172a';
   ctx.font = 'bold 12px "Noto Sans SC"';
-  ctx.fillText('ATM', 1504, FLOOR_Y - 40);
-  shopFace(ctx, 1840, 160, 140, FLOOR_Y - 160, '#155e75', '#67e8f9', '#0e7490', '#fff', '卫生间');
-  shopFace(ctx, 2240, 150, 150, FLOOR_Y - 150, '#1e3a8a', '#93c5fd', '#1d4ed8', '#fff', '保安台');
+  ctx.fillText('试衣间', 352, 150);
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(640, 120, 180, FLOOR_Y - 140);
+  ctx.fillStyle = '#fff';
+  ctx.fillText('男装柜', 692, 142);
+  ctx.fillStyle = '#7c2d12';
+  ctx.fillRect(1040, 150, 170, FLOOR_Y - 170);
+  ctx.fillStyle = '#fdba74';
+  ctx.fillText('食肆档口', 1080, 172);
 }
 
 export function paintHome(ctx, w) {
@@ -777,8 +790,13 @@ export function paintHome(ctx, w) {
 
 export function paintParlorRoom(ctx, w) {
   paintRoad(ctx, w, '#9f1239', '#1c1917');
-  districtBanner(ctx, '林记推拿馆内', '#881337', '#fecdd3');
-  gradV(ctx, 0, 90, w, FLOOR_Y - 90, '#4c0519', '#1c1917');
+  districtBanner(ctx, '林记推拿馆 · 三张床', '#881337', '#fecdd3');
+  gradV(ctx, 0, 80, w, FLOOR_Y - 80, '#7f1d1d', '#1c1917');
+  ctx.fillStyle = '#9f1239';
+  ctx.fillRect(0, 80, w, 24);
+  ctx.fillStyle = '#fecdd3';
+  ctx.font = 'bold 13px "Noto Sans SC"';
+  ctx.fillText('红花油  ·  请先洗手  ·  前台结账', 40, 96);
   for (const x of [620, 920, 1220]) {
     ctx.fillStyle = '#1c1917';
     ctx.fillRect(x - 54, FLOOR_Y - 28, 108, 12);
@@ -787,17 +805,25 @@ export function paintParlorRoom(ctx, w) {
 }
 
 export function paintShop(ctx, w) {
-  paintRoad(ctx, w, '#fef3c7', '#292524');
-  districtBanner(ctx, gameState.mapId === 'pharmacyIn' ? '药房店内' : '便利店店内', '#14532d', '#fff');
-  gradV(ctx, 0, 100, w, FLOOR_Y - 100, '#fff7ed', '#e7e5e4');
-  for (let x = 300; x < w - 80; x += 160) {
+  const pharm = gameState.mapId === 'pharmacyIn' || gameState.mapId === 'committee';
+  paintRoad(ctx, w, pharm ? '#d1fae5' : '#fef3c7', '#292524');
+  districtBanner(ctx, pharm ? '药房店内 · 绿码通道' : '便利店店内 · 关东煮', pharm ? '#14532d' : '#0c4a6e', '#fff');
+  gradV(ctx, 0, 90, w, FLOOR_Y - 90, pharm ? '#ecfdf5' : '#fff7ed', '#d6d3d1');
+  ctx.fillStyle = pharm ? '#16a34a' : '#0284c7';
+  ctx.fillRect(0, 90, w, 28);
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 14px "Noto Sans SC"';
+  ctx.fillText(pharm ? '退热药限购  请排队  一米线' : '便当5:30折扣  微波自行加热', 40, 110);
+  for (let x = 260; x < w - 80; x += 150) {
     ctx.fillStyle = '#a8a29e';
-    ctx.fillRect(x, FLOOR_Y - 90, 120, 90);
+    ctx.fillRect(x, FLOOR_Y - 96, 120, 96);
     ctx.fillStyle = '#fef3c7';
-    ctx.fillRect(x + 8, FLOOR_Y - 82, 104, 20);
+    ctx.fillRect(x + 8, FLOOR_Y - 88, 104, 18);
     ctx.fillStyle = '#22c55e';
-    ctx.fillRect(x + 12, FLOOR_Y - 56, 28, 18);
+    ctx.fillRect(x + 12, FLOOR_Y - 62, 30, 20);
     ctx.fillStyle = '#f97316';
-    ctx.fillRect(x + 48, FLOOR_Y - 56, 28, 18);
+    ctx.fillRect(x + 48, FLOOR_Y - 62, 30, 20);
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillRect(x + 84, FLOOR_Y - 62, 22, 20);
   }
 }

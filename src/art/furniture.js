@@ -25,22 +25,20 @@ export function drawFurniture(ctx, id, x, y, w, h) {
 }
 
 const DRAWS = {
-  bed(ctx, x, floor, w, h) {
-    ctx.fillStyle = '#44403c';
-    ctx.fillRect(x + 4, floor - 14, w - 8, 8);
+  bed(ctx, x, floor, w) {
+    ctx.fillStyle = '#292524';
+    ctx.fillRect(x + 2, floor - 12, w - 4, 8);
     ctx.fillStyle = '#1e3a8a';
-    rr(ctx, x + 10, floor - 38, w - 20, 26, 5);
-    fill(ctx, '#2563eb');
+    rr(ctx, x + 8, floor - 36, w - 16, 24, 4);
+    fill(ctx, '#1d4ed8');
+    ctx.fillStyle = '#93c5fd';
+    ctx.fillRect(x + 12, floor - 32, w - 24, 8);
     ctx.fillStyle = '#e2e8f0';
-    ctx.fillRect(x + 14, floor - 48, 34, 14);
-    ctx.fillStyle = '#f8fafc';
-    ctx.fillRect(x + 16, floor - 44, 28, 6);
-    ctx.fillStyle = '#78716c';
-    ctx.fillRect(x + 6, floor - 8, 10, 8);
-    ctx.fillRect(x + w - 16, floor - 8, 10, 8);
-    ctx.fillStyle = '#fde68a';
-    ctx.font = 'bold 11px "Noto Sans SC"';
-    ctx.fillText('床', x + w / 2 - 8, floor - 52);
+    rr(ctx, x + 10, floor - 50, 36, 16, 4);
+    fill(ctx, '#e2e8f0');
+    ctx.fillStyle = '#57534e';
+    ctx.fillRect(x + 6, floor - 8, 8, 8);
+    ctx.fillRect(x + w - 14, floor - 8, 8, 8);
   },
   tv(ctx, x, floor, w, h, top) {
     ctx.fillStyle = '#18181b';

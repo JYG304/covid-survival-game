@@ -30,8 +30,8 @@ export const MAPS = {
       L('living_committee', '居委会帐篷', '小区广场', 1880, 140, 110, '进帐篷问物资', 4, 0.5, 'enterCommittee'),
       L('living_to_commerce', '东门 → 商业区', '朝阳里东门', 2300, 130, 130, '去北大街商业区', 8, 0.6, 'enterCommerce'),
       L('living_to_civic', '班车站 → 医疗区', '小区西侧', 2680, 130, 110, '坐班车去医院/政务', 10, 0.7, 'enterCivic'),
-      L('living_metro', '地铁口', '生活区站', 3100, 140, 120, '进地铁车厢', 8, 0.7, 'enterMetro'),
-      L('living_bus', '126路站', '生活区站', 3380, 120, 90, '上公交', 6, 0.6, 'enterBus')
+      L('living_metro', '地铁口', '生活区站', 3040, 200, 180, '进地铁车厢', 8, 0.7, 'enterMetro'),
+      L('living_bus', '126路站', '生活区站', 3340, 160, 140, '上公交', 6, 0.6, 'enterBus')
     ],
     npcs: [
       N({ id: 'neighbor_li', name: '李姐', role: '对门', job: 'neighbor', skin: '#eab308', hair: '#7c2d12', shirt: '#7c3aed', pants: '#27272a', x: 820, homeMin: 760, homeMax: 1100, speed: 0.4, dir: 1, talk: ['鸡蛋还够吗？'] }),
@@ -50,12 +50,12 @@ export const MAPS = {
     district: 'commerce',
     landmarks: [
       L('com_from_living', '西口 → 生活区', '北大街西', 80, 120, 120, '回朝阳里', 8, 0.6, 'enterLiving'),
-      L('street_pharmacy', '老百姓大药房', '药店', 420, 180, 140, '进店', 4, 0.45, 'enterPharmacy'),
-      L('street_convenience_store', '全家 24H', '便利店', 820, 180, 140, '进店', 4, 0.45, 'enterStore'),
-      L('com_breakfast', '胡记豆浆', '早点铺', 1220, 150, 120, '进铺', 4, 0.45, 'enterSoy'),
-      L('com_market', '生鲜超市', '超市', 1620, 200, 140, '进超市', 4, 0.45, 'enterMarket'),
-      L('com_mall', '朝阳汇商场', '商场', 2080, 200, 150, '进商场换装', 5, 0.5, 'enterMall'),
-      L('com_clothes', '优衣库', '服装', 2480, 160, 130, '进店试衣', 5, 0.5, 'enterMall'),
+      L('street_pharmacy', '老百姓大药房', '药店', 400, 220, 220, '进店', 4, 0.45, 'enterPharmacy'),
+      L('street_convenience_store', '全家 24H', '便利店', 780, 220, 220, '进店', 4, 0.45, 'enterStore'),
+      L('com_breakfast', '胡记豆浆', '早点铺', 1160, 180, 160, '进铺', 4, 0.45, 'enterSoy'),
+      L('com_market', '生鲜超市', '超市', 1520, 240, 220, '进超市', 4, 0.45, 'enterMarket'),
+      L('com_mall', '朝阳汇商场', '商场', 1960, 280, 250, '进商场换装', 5, 0.5, 'enterMall'),
+      L('com_clothes', '优衣库', '服装', 2440, 200, 200, '进店试衣', 5, 0.5, 'enterMall'),
       L('com_to_cbd', '北口 → 办公区', '北大街', 2880, 130, 120, '去写字楼商务区', 10, 0.7, 'enterCbd'),
       L('com_to_red', '巷口 → 红灯区', '南巷', 3220, 130, 120, '钻进夜巷', 8, 0.7, 'enterRedlight'),
       L('com_metro', '商业区地铁', '北大街站', 3520, 140, 120, '进地铁', 8, 0.6, 'enterMetro'),
@@ -76,10 +76,10 @@ export const MAPS = {
     district: 'redlight',
     landmarks: [
       L('red_from_com', '巷口 → 商业区', '夜巷北口', 70, 120, 120, '回北大街', 8, 0.6, 'enterCommerce'),
-      L('massage_parlor', '林记推拿馆', '夜巷', 420, 220, 140, '进馆', 3, 0.45, 'enterParlor'),
-      L('red_hotel', '钟点房', '小旅馆', 860, 160, 130, '进旅馆开房', 4, 0.5, 'enterHotel'),
-      L('club_gate', 'NEON 俱乐部', '夜店门', 1280, 180, 150, '进夜店室内', 4, 0.5, 'enterClub'),
-      L('red_ktv', 'KTV', '夜巷', 1720, 160, 130, '进包厢', 4, 0.5, 'enterKtv'),
+      L('massage_parlor', '林记推拿馆', '夜巷', 400, 240, 200, '进馆', 3, 0.45, 'enterParlor'),
+      L('red_hotel', '钟点房', '小旅馆', 820, 200, 190, '进旅馆开房', 4, 0.5, 'enterHotel'),
+      L('club_gate', 'NEON 俱乐部', '夜店门', 1220, 240, 210, '进夜店室内', 4, 0.5, 'enterClub'),
+      L('red_ktv', 'KTV', '夜巷', 1680, 220, 190, '进包厢', 4, 0.5, 'enterKtv'),
       L('red_smoke', '巷尾吸烟区', '夜巷', 2140, 110, 90, '透气、听八卦', 12, 1.1, 'clubSmoke'),
       L('red_to_river', '围挡 → 滨江', '巷尾', 2560, 130, 120, '去江边工业区', 10, 0.7, 'enterRiverside'),
       L('red_to_living', '抄近道 → 生活区', '夜巷南', 3000, 130, 120, '抄小区后门回家', 12, 0.7, 'enterLiving'),
@@ -126,7 +126,7 @@ export const MAPS = {
     district: 'cbd',
     landmarks: [
       L('cbd_from_com', '南口 → 商业区', '商务区', 70, 120, 120, '回北大街', 10, 0.6, 'enterCommerce'),
-      L('cbd_tower', '写字楼大堂', '23号楼', 420, 180, 150, '进大堂再上楼', 4, 0.45, 'enterLobby'),
+      L('cbd_tower', '写字楼', '23号楼', 380, 280, 280, '进大堂再上楼', 4, 0.45, 'enterLobby'),
       L('cbd_coffee', '瑞幸外卖柜', '大堂外', 820, 120, 90, '冰美式续命 ¥15', 8, 0.9, 'officeWater'),
       L('cbd_smoke', '楼后吸烟点', '写字楼侧', 1180, 100, 80, '透气被HR看见风险', 10, 1.0, 'clubSmoke'),
       L('cbd_from_civic', '西口 → 医疗区', '商务区', 1580, 120, 120, '去医院', 10, 0.6, 'enterCivic'),

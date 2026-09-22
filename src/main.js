@@ -34,7 +34,7 @@ let lastTime = performance.now();
  * 初始化游戏
  */
 export function initGame() {
-  console.log('[game] build 20260922f hospital-hall / living-block');
+  console.log('[game] build 20260922g all-buildings-silhouette');
   canvas = document.getElementById('gameCanvas');
   if (!canvas) {
     console.error('Canvas not found!');
