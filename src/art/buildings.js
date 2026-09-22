@@ -65,9 +65,43 @@ export function drawBuilding(ctx, id, x, floorY, w, h, title) {
 
 const DRAWS = {
   apartment(ctx, x, top, w, h, floorY, title, icon) {
-    facade(ctx, x, top, w, h, '#57534e', '#7c2d12', title || '出租屋', icon);
-    ctx.fillStyle = '#38bdf8';
-    ctx.fillRect(x + 20, top + 56, 36, 28);
+    const g = ctx.createLinearGradient(x, top, x, floorY);
+    g.addColorStop(0, '#d6d3d1');
+    g.addColorStop(0.15, '#a8a29e');
+    g.addColorStop(1, '#57534e');
+    ctx.fillStyle = g;
+    ctx.fillRect(x, top, w, h);
+    ctx.fillStyle = '#44403c';
+    ctx.fillRect(x - 6, top, w + 12, 14);
+    ctx.fillStyle = '#7c2d12';
+    ctx.fillRect(x + 16, top + 18, Math.min(w - 32, 160), 22);
+    ctx.fillStyle = '#fed7aa';
+    ctx.font = 'bold 13px "Noto Sans SC"';
+    ctx.fillText('朝阳里 3栋', x + 24, top + 34);
+    const cols = Math.max(3, Math.floor((w - 24) / 36));
+    const rows = Math.max(3, Math.floor((h - 120) / 32));
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const lit = (c + r * 3) % 4 !== 0;
+        ctx.fillStyle = '#1c1917';
+        ctx.fillRect(x + 14 + c * 36, top + 48 + r * 32, 26, 22);
+        ctx.fillStyle = lit ? '#fde68a' : '#1e293b';
+        ctx.fillRect(x + 16 + c * 36, top + 50 + r * 32, 22, 18);
+        ctx.strokeStyle = '#78716c';
+        ctx.strokeRect(x + 16 + c * 36, top + 50 + r * 32, 22, 18);
+      }
+    }
+    ctx.fillStyle = '#3f3f46';
+    ctx.fillRect(x + w / 2 - 22, floorY - 78, 44, 78);
+    ctx.fillStyle = '#eab308';
+    ctx.beginPath();
+    ctx.arc(x + w / 2 + 12, floorY - 40, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#44403c';
+    ctx.fillRect(x + 10, floorY - 28, 36, 16);
+    ctx.fillStyle = '#fef3c7';
+    ctx.font = 'bold 11px "Noto Sans SC"';
+    ctx.fillText('单元门', x + w / 2 - 20, floorY - 84);
   },
   pharmacy(ctx, x, top, w, h, floorY, title, icon) {
     facade(ctx, x, top, w, h, '#14532d', '#16a34a', title || '大药房', icon);
@@ -129,12 +163,40 @@ const DRAWS = {
     ctx.fillRect(x + w / 2 - 18, floorY - 80, 36, 80);
   },
   hospital(ctx, x, top, w, h, floorY, title, icon) {
-    facade(ctx, x, top, w, h, '#1e3a8a', '#1d4ed8', title || '医院', icon);
+    ctx.fillStyle = '#e2e8f0';
+    ctx.fillRect(x, top + 36, w, h - 36);
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(x, top, w, 40);
+    ctx.fillStyle = '#dc2626';
+    ctx.fillRect(x + w / 2 - 18, top + 6, 12, 28);
+    ctx.fillRect(x + w / 2 - 30, top + 14, 36, 12);
+    ctx.fillStyle = '#0f172a';
+    ctx.font = 'bold 16px "Noto Sans SC"';
+    ctx.fillText('市第二人民医院', x + 12, top + 26);
+    ctx.fillStyle = '#facc15';
+    ctx.fillRect(x, top + 40, w, 22);
+    ctx.fillStyle = '#7f1d1d';
+    ctx.font = 'bold 13px "Noto Sans SC"';
+    ctx.fillText('发热门诊  FEVER CLINIC  请沿黄线', x + 10, top + 56);
+    const cols = Math.max(4, Math.floor((w - 20) / 28));
+    const rows = Math.max(3, Math.floor((h - 140) / 26));
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        ctx.fillStyle = '#7dd3fc';
+        ctx.fillRect(x + 12 + c * 28, top + 72 + r * 26, 22, 16);
+        ctx.strokeStyle = '#0369a1';
+        ctx.strokeRect(x + 12 + c * 28, top + 72 + r * 26, 22, 16);
+      }
+    }
+    ctx.fillStyle = '#e2e8f0';
+    ctx.fillRect(x + 8, floorY - 36, 70, 12);
+    ctx.fillStyle = '#dc2626';
+    ctx.fillRect(x + w / 2 - 28, floorY - 70, 56, 70);
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 11px "Noto Sans SC"';
+    ctx.fillText('门诊入口', x + w / 2 - 26, floorY - 76);
     ctx.fillStyle = '#facc15';
     ctx.fillRect(x, floorY - 8, w, 8);
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 26px "Noto Sans SC"';
-    ctx.fillText('H', x + w / 2 - 10, top + 100);
   },
   hotel(ctx, x, top, w, h, floorY, title, icon) {
     facade(ctx, x, top, w, h, '#44403c', '#b45309', title || '旅馆', icon);
@@ -176,5 +238,18 @@ const DRAWS = {
   },
   gate(ctx, x, top, w, h, floorY, title, icon) {
     facade(ctx, x, top, w, h, '#1f2937', '#f59e0b', title || '过区口', icon);
+  },
+  pcr(ctx, x, top, w, h, floorY, title, icon) {
+    ctx.fillStyle = '#e2e8f0';
+    ctx.fillRect(x + 10, top + 30, w - 20, h - 30);
+    ctx.fillStyle = '#0ea5e9';
+    ctx.fillRect(x, top, w, 28);
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 13px "Noto Sans SC"';
+    ctx.fillText('核酸采样亭', x + 12, top + 20);
+    ctx.fillStyle = '#7dd3fc';
+    ctx.fillRect(x + 18, top + 48, w - 36, 36);
+    ctx.fillStyle = '#0369a1';
+    ctx.fillRect(x + w / 2 - 16, floorY - 50, 32, 50);
   }
 };

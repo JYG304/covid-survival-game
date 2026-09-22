@@ -113,6 +113,10 @@ export const LANDMARK_BUILDING = {
   red_hotel: 'hotel',
   red_ktv: 'ktv',
   living_committee: 'committee',
+  pcr_sampling_booth: 'pcr',
+  civ_triage_out: 'hospital',
+  civ_police: 'gate',
+  disinfection_cannon_truck: 'gate',
   cbd_tower: 'office',
   living_to_commerce: 'gate',
   living_to_civic: 'gate',
@@ -163,7 +167,8 @@ export const SPRITE_ICON = {
   soy: '🥣',
   supermarket: '🛒',
   clothes: '👕',
-  gate: '➡️'
+  gate: '➡️',
+  pcr: '🧪'
 };
 
 const imgCache = new Map();

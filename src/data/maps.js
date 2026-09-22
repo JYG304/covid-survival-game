@@ -23,7 +23,7 @@ export const MAPS = {
     theme: 'living',
     district: 'living',
     landmarks: [
-      L('living_home', '你家单元门', '朝阳里3栋', 120, 140, 150, '进出租屋', 3, 0.45, 'enterHome'),
+      L('living_home', '朝阳里3栋 · 你家', '生活区', 80, 280, 260, '进出租屋', 3, 0.45, 'enterHome'),
       L('contactless_rack', '无接触货架', '单元门口', 420, 110, 90, '领菜/快递', 20, 1.8, 'checkRack'),
       L('pcr_sampling_booth', '核酸亭', '小区广场', 1280, 120, 120, '咽拭子维持绿码', 30, 2.2, 'takePCR'),
       L('stray_cat_shrine', '阿花', '花坛', 1580, 80, 50, 'rua猫', 20, 1.8, 'petCat'),
@@ -102,7 +102,7 @@ export const MAPS = {
     district: 'civic',
     landmarks: [
       L('civ_from_living', '班车点 → 生活区', '医疗区西', 70, 120, 120, '回小区', 10, 0.6, 'enterLiving'),
-      L('hospital_gate', '发热门诊大门', '医院', 420, 180, 150, '进医院走廊', 8, 0.7, 'enterHospital'),
+      L('hospital_gate', '市二院发热门诊', '医院外立面', 380, 320, 280, '进门诊大厅', 4, 0.45, 'enterHospital'),
       L('civ_triage_out', '户外预检棚', '医院门前', 820, 140, 110, '先量体温', 15, 1.3, 'hospTriage'),
       L('civ_board', '防疫公告栏', '广场', 1180, 100, 90, '看通告', 8, 0.9, 'metroNews'),
       L('civ_police', '临时卡口', '路口', 1580, 120, 110, '亮码过卡', 6, 1.0, 'metroScan'),
@@ -217,7 +217,7 @@ export const MAPS = {
   },
 
   hospital: {
-    id: 'hospital', name: '发热门诊走廊', tag: '🏥 室内', width: 3000, theme: 'hospital', district: 'civic',
+    id: 'hospital', name: '发热门诊大厅', tag: '🏥 预检、黄线、叫号', width: 3200, theme: 'hospital', district: 'civic',
     landmarks: [
       L('hosp_exit', '门诊大门', '医院', 70, 90, 140, '回到医疗区广场', 8, 0.5, 'enterCivic'),
       L('hosp_triage', '分诊台', '医院', 360, 130, 90, '填流调', 18, 1.4, 'hospTriage'),
@@ -227,7 +227,10 @@ export const MAPS = {
       L('hosp_pharmacy', '门诊药房', '医院', 2140, 130, 100, '取药', 15, 1.2, 'hospMeds'),
       L('hosp_to_metro', '地下通道', '医院', 2680, 100, 120, '坐地铁', 7, 0.6, 'enterMetro')
     ],
-    npcs: []
+    npcs: [
+      N({ id: 'nurse_ye', name: '叶护士', role: '预检', job: 'nurse', skin: '#f0c7a8', hair: '#1f2937', shirt: '#e0f2fe', pants: '#0369a1', x: 380, homeMin: 300, homeMax: 560, speed: 0.2, dir: 1, talk: ['口罩拉高。'] }),
+      N({ id: 'patient_old', name: '候诊大爷', role: '病人', job: 'patient', skin: '#d6b48a', hair: '#a8a29e', shirt: '#fef3c7', pants: '#57534e', x: 800, homeMin: 700, homeMax: 1100, speed: 0.1, dir: 1, talk: ['号又往后顺。'] })
+    ]
   },
 
   office: {

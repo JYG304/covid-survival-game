@@ -193,6 +193,31 @@ export function paintDistrict(ctx, w, theme) {
   const b = banners[theme] || banners.living;
   paintRoad(ctx, w, b[3], b[4]);
   districtBanner(ctx, b[0], b[1], b[2]);
+  if (theme === 'living') {
+    paintNeighborBlock(ctx, 520, 210);
+    paintNeighborBlock(ctx, 820, 190);
+    ctx.fillStyle = '#166534';
+    ctx.fillRect(1100, FLOOR_Y - 18, 140, 18);
+    ctx.fillStyle = '#22c55e';
+    ctx.fillRect(1120, FLOOR_Y - 40, 6, 22);
+    ctx.fillRect(1180, FLOOR_Y - 52, 6, 34);
+  }
+}
+
+function paintNeighborBlock(ctx, x, h) {
+  const top = FLOOR_Y - h;
+  ctx.fillStyle = '#a8a29e';
+  ctx.fillRect(x, top, 240, h);
+  ctx.fillStyle = '#78716c';
+  ctx.fillRect(x, top, 240, 12);
+  for (let r = 0; r < 4; r++) {
+    for (let c = 0; c < 5; c++) {
+      ctx.fillStyle = (c + r) % 3 ? '#fde68a' : '#1e293b';
+      ctx.fillRect(x + 16 + c * 42, top + 24 + r * 36, 28, 22);
+    }
+  }
+  ctx.fillStyle = '#44403c';
+  ctx.fillRect(x + 100, FLOOR_Y - 60, 40, 60);
 }
 
 function paintApartment(ctx) {
@@ -570,33 +595,65 @@ export function paintClub(ctx, w) {
 }
 
 export function paintHospital(ctx, w) {
-  gradV(ctx, 0, 40, w, FLOOR_Y + 100, '#e0f2fe', '#cbd5e1');
+  gradV(ctx, 0, 0, w, FLOOR_Y + 120, '#f8fafc', '#cbd5e1');
   ctx.fillStyle = '#0369a1';
-  ctx.fillRect(0, 40, w, 40);
+  ctx.fillRect(0, 36, w, 44);
   ctx.fillStyle = '#fff';
-  ctx.font = 'bold 17px "Noto Sans SC"';
-  ctx.fillText('发热门诊走廊  ·  沿黄线排队  ·  一米距离', 120, 66);
-  ctx.fillStyle = '#f1f5f9';
-  ctx.fillRect(0, 80, w, FLOOR_Y - 80);
+  ctx.font = 'bold 18px "Noto Sans SC"';
+  ctx.fillText('市二院 · 发热门诊大厅', 80, 64);
   ctx.fillStyle = '#facc15';
-  ctx.fillRect(0, FLOOR_Y - 10, w, 10);
-  for (let x = 40; x < w; x += 70) {
-    ctx.fillStyle = '#eab308';
-    ctx.fillRect(x, FLOOR_Y - 10, 36, 10);
-  }
-  ctx.fillStyle = '#94a3b8';
+  ctx.fillRect(0, 80, w, 18);
+  ctx.fillStyle = '#7f1d1d';
+  ctx.font = 'bold 13px "Noto Sans SC"';
+  ctx.fillText('请佩戴口罩  ·  一米线排队  ·  预检分诊 → 候诊 → 核酸/输液/药房', 80, 94);
+  ctx.fillStyle = '#e2e8f0';
+  ctx.fillRect(0, 98, w, FLOOR_Y - 98);
+  ctx.fillStyle = '#f1f5f9';
   ctx.fillRect(0, FLOOR_Y, w, 120);
-  for (let x = 220; x < w; x += 240) {
-    fillRR(ctx, x, FLOOR_Y - 48, 58, 48, 6, '#64748b');
-    ctx.fillStyle = '#cbd5e1';
-    ctx.fillRect(x + 8, FLOOR_Y - 40, 42, 8);
-    ctx.fillStyle = '#0369a1';
-    ctx.fillRect(x + 200, 110, 10, FLOOR_Y - 110);
+  ctx.fillStyle = '#facc15';
+  ctx.fillRect(0, FLOOR_Y - 8, w, 8);
+  for (let x = 30; x < w; x += 64) {
+    ctx.fillStyle = '#eab308';
+    ctx.fillRect(x, FLOOR_Y - 8, 28, 8);
     ctx.fillStyle = '#fff';
-    ctx.fillRect(x + 188, 130, 34, 50);
-    ctx.strokeStyle = '#0369a1';
-    ctx.strokeRect(x + 188, 130, 34, 50);
+    ctx.font = '9px "Noto Sans SC"';
+    ctx.fillText('1m', x + 4, FLOOR_Y - 12);
   }
+  ctx.fillStyle = '#1e3a8a';
+  ctx.fillRect(280, 120, 200, 70);
+  ctx.fillStyle = '#93c5fd';
+  ctx.fillRect(292, 132, 176, 44);
+  ctx.fillStyle = '#0f172a';
+  ctx.font = 'bold 14px "Noto Sans SC"';
+  ctx.fillText('叫号屏  A12 → 分诊', 300, 160);
+  ctx.fillStyle = '#e2e8f0';
+  fillRR(ctx, 300, 200, 160, 90, 6, '#e2e8f0');
+  ctx.fillStyle = '#0369a1';
+  ctx.fillRect(300, 200, 160, 20);
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 12px "Noto Sans SC"';
+  ctx.fillText('预检分诊（玻璃）', 318, 214);
+  for (let x = 700; x < 1100; x += 70) {
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillRect(x, FLOOR_Y - 44, 50, 36);
+    ctx.fillStyle = '#cbd5e1';
+    ctx.fillRect(x + 6, FLOOR_Y - 38, 38, 8);
+  }
+  ctx.fillStyle = '#64748b';
+  ctx.fillRect(1180, FLOOR_Y - 70, 8, 70);
+  ctx.fillStyle = '#7dd3fc';
+  ctx.fillRect(1172, FLOOR_Y - 86, 24, 16);
+  ctx.fillStyle = '#e2e8f0';
+  ctx.fillRect(1600, 140, 120, 80);
+  ctx.strokeStyle = '#0369a1';
+  ctx.strokeRect(1600, 140, 120, 80);
+  ctx.fillStyle = '#0f172a';
+  ctx.font = 'bold 12px "Noto Sans SC"';
+  ctx.fillText('咽拭子窗', 1618, 184);
+  ctx.fillStyle = '#16a34a';
+  ctx.fillRect(2060, 140, 140, 28);
+  ctx.fillStyle = '#fff';
+  ctx.fillText('门诊药房', 2088, 160);
 }
 
 export function paintOffice(ctx, w) {
@@ -668,9 +725,19 @@ export function paintMall(ctx, w) {
 }
 
 export function paintHome(ctx, w) {
-  paintRoad(ctx, w, '#57534e', '#292524');
-  districtBanner(ctx, '🛏️ 出租屋室内', '#7c2d12', '#fed7aa');
-  gradV(ctx, 0, 90, w, FLOOR_Y - 90, '#57534e', '#1c1917');
+  paintRoad(ctx, w, '#78716c', '#292524');
+  districtBanner(ctx, '出租屋 · 一室一厅', '#7c2d12', '#fed7aa');
+  gradV(ctx, 0, 80, w, FLOOR_Y - 80, '#a8a29e', '#44403c');
+  ctx.fillStyle = '#57534e';
+  ctx.fillRect(0, FLOOR_Y - 8, w, 8);
+  ctx.fillStyle = '#1c1917';
+  ctx.fillRect(1140, 90, 10, FLOOR_Y - 90);
+  ctx.fillRect(1680, 90, 10, FLOOR_Y - 90);
+  ctx.fillStyle = '#0ea5e9';
+  ctx.font = '11px "Noto Sans SC"';
+  ctx.fillText('卧室', 300, 110);
+  ctx.fillText('卫生间', 1188, 110);
+  ctx.fillText('厨房', 1720, 110);
   ctx.fillStyle = '#44403c';
   ctx.fillRect(250, FLOOR_Y - 14, 130, 8);
   ctx.fillStyle = '#1d4ed8';
