@@ -178,84 +178,21 @@ export function paintStreet(ctx, w) {
 }
 
 export function paintDistrict(ctx, w, theme) {
-  if (theme === 'living') {
-    paintRoad(ctx, w, '#3f3f46', '#18181b');
-    districtBanner(ctx, '生活区 · 朝阳里', '#7c2d12', '#fed7aa');
-    paintApartment(ctx);
-    paintRack(ctx);
-    paintGarden(ctx);
-    shopFace(ctx, 1820, 140, 200, FLOOR_Y - 140, '#365314', '#a3e635', '#3f6212', '#ecfccb', '居委会帐篷');
-    gate(ctx, 2260, '→ 商业区', '#f59e0b');
-    gate(ctx, 2640, '→ 医疗区', '#38bdf8');
-    shopFace(ctx, 3060, 128, 200, FLOOR_Y - 128, '#134e4a', '#2dd4bf', '#0f766e', '#fff', '生活区地铁');
-    fillRR(ctx, 3340, 210, 140, 28, 4, '#fbbf24');
-    ctx.fillStyle = '#111827';
-    ctx.font = 'bold 12px "Noto Sans SC"';
-    ctx.fillText('126路 生活区站', 3354, 230);
-  } else if (theme === 'commerce') {
-    paintRoad(ctx, w, '#44403c', '#1c1917');
-    districtBanner(ctx, '商业区 · 北大街', '#0c4a6e', '#e0f2fe');
-    gate(ctx, 40, '→ 生活区', '#fb923c');
-    shopFace(ctx, 400, 118, 210, FLOOR_Y - 118, '#14532d', '#4ade80', '#16a34a', '#fff', '老百姓大药房');
-    awning(ctx, 408, 154, 194, '#22c55e', '#fff');
-    shopFace(ctx, 800, 118, 210, FLOOR_Y - 118, '#0c4a6e', '#38bdf8', '#0284c7', '#fff', '全家 24H');
-    awning(ctx, 808, 154, 194, '#0284c7', '#f97316');
-    shopFace(ctx, 1180, 140, 190, FLOOR_Y - 140, '#7c2d12', '#fdba74', '#b45309', '#fff7ed', '胡记豆浆');
-    shopFace(ctx, 1580, 118, 230, FLOOR_Y - 118, '#365314', '#86efac', '#166534', '#fff', '生鲜超市');
-    shopFace(ctx, 2040, 128, 200, FLOOR_Y - 128, '#1e293b', '#e2e8f0', '#334155', '#fff', '优衣库');
-    gate(ctx, 2460, '→ 办公区', '#60a5fa');
-    gate(ctx, 2880, '→ 红灯区', '#f472b6');
-    shopFace(ctx, 3280, 128, 200, FLOOR_Y - 128, '#134e4a', '#2dd4bf', '#0f766e', '#fff', '商业区地铁');
-  } else if (theme === 'redlight') {
-    paintRoad(ctx, w, '#3b0764', '#0a0010');
-    districtBanner(ctx, '红灯区 · 夜巷', '#9f1239', '#fecdd3');
-    gate(ctx, 40, '→ 商业区', '#fb923c');
-    paintParlorAt(ctx, 400);
-    shopFace(ctx, 820, 128, 200, FLOOR_Y - 128, '#44403c', '#f59e0b', '#78350f', '#fff7ed', '钟点房');
-    paintClubFrontAt(ctx, 1240);
-    shopFace(ctx, 1680, 120, 200, FLOOR_Y - 120, '#4c1d95', '#e879f9', '#6b21a8', '#fff', 'KTV');
-    fillRR(ctx, 2100, FLOOR_Y - 70, 140, 70, 8, '#1c1917');
-    ctx.fillStyle = '#fde68a';
-    ctx.font = 'bold 12px "Noto Sans SC"';
-    ctx.fillText('吸烟区', 2136, FLOOR_Y - 40);
-    gate(ctx, 2520, '→ 滨江', '#22d3ee');
-    gate(ctx, 2960, '→ 生活区', '#fb923c');
-  } else if (theme === 'civic') {
-    paintRoad(ctx, w, '#1e3a8a', '#0f172a');
-    districtBanner(ctx, '政务医疗区', '#0369a1', '#fff');
-    gate(ctx, 40, '→ 生活区', '#fb923c');
-    shopFace(ctx, 400, 118, 220, FLOOR_Y - 118, '#1e3a8a', '#93c5fd', '#1d4ed8', '#fff', '发热门诊');
-    ctx.fillStyle = '#facc15';
-    ctx.fillRect(400, FLOOR_Y - 10, 220, 8);
-    shopFace(ctx, 780, 150, 180, FLOOR_Y - 150, '#e0f2fe', '#0369a1', '#0284c7', '#fff', '户外预检棚');
-    shopFace(ctx, 1140, 160, 150, FLOOR_Y - 160, '#334155', '#fde68a', '#1f2937', '#fff', '公告栏');
-    shopFace(ctx, 1540, 150, 160, FLOOR_Y - 150, '#7f1d1d', '#fecaca', '#991b1b', '#fff', '临时卡口');
-    paintCannonAt(ctx, 1960);
-    gate(ctx, 2440, '→ 办公区', '#60a5fa');
-    shopFace(ctx, 2880, 128, 200, FLOOR_Y - 128, '#134e4a', '#2dd4bf', '#0f766e', '#fff', '医院站地铁');
-  } else if (theme === 'cbd') {
-    paintRoad(ctx, w, '#1e293b', '#020617');
-    districtBanner(ctx, '商务办公区', '#1d4ed8', '#dbeafe');
-    gate(ctx, 40, '→ 商业区', '#fb923c');
-    shopFace(ctx, 400, 100, 230, FLOOR_Y - 100, '#0f172a', '#93c5fd', '#1e3a8a', '#fff', '写字楼大堂');
-    windows(ctx, 420, 150, 5, 4, 22, 18, 8, 8, 0.25);
-    shopFace(ctx, 780, 170, 160, FLOOR_Y - 170, '#0c4a6e', '#7dd3fc', '#0369a1', '#fff', '瑞幸柜');
-    fillRR(ctx, 1140, FLOOR_Y - 60, 130, 60, 8, '#1c1917');
-    ctx.fillStyle = '#fde68a';
-    ctx.font = '12px "Noto Sans SC"';
-    ctx.fillText('吸烟点', 1170, FLOOR_Y - 32);
-    gate(ctx, 1540, '→ 医疗区', '#38bdf8');
-    gate(ctx, 2040, '→ 滨江', '#22d3ee');
-    shopFace(ctx, 2540, 128, 200, FLOOR_Y - 128, '#134e4a', '#2dd4bf', '#0f766e', '#fff', '商务中心站');
-  } else if (theme === 'riverside') {
+  const banners = {
+    living: ['生活区 · 朝阳里', '#7c2d12', '#fed7aa', '#3f3f46', '#18181b'],
+    commerce: ['商业区 · 北大街', '#0c4a6e', '#e0f2fe', '#44403c', '#1c1917'],
+    redlight: ['红灯区 · 夜巷', '#9f1239', '#fecdd3', '#3b0764', '#0a0010'],
+    civic: ['政务医疗区', '#0369a1', '#fff', '#1e3a8a', '#0f172a'],
+    cbd: ['商务办公区', '#1d4ed8', '#dbeafe', '#1e293b', '#020617']
+  };
+  if (theme === 'riverside') {
     paintRiver(ctx, w);
     districtBanner(ctx, '滨江工业区', '#0e7490', '#cffafe');
-    gate(ctx, 40, '→ 红灯区', '#f472b6');
-    gate(ctx, 2120, '→ 办公区', '#60a5fa');
-    gate(ctx, 3340, '→ 生活区', '#fb923c');
-  } else {
-    paintRoad(ctx, w, '#3f3f46', '#18181b');
+    return;
   }
+  const b = banners[theme] || banners.living;
+  paintRoad(ctx, w, b[3], b[4]);
+  districtBanner(ctx, b[0], b[1], b[2]);
 }
 
 function paintApartment(ctx) {

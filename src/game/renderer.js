@@ -5,6 +5,9 @@ import { gameState } from '../data/gameState.js';
 import { livingNpcs } from '../systems/npcInteractSystem.js';
 import { getPlumbobColor, getThought, getTimeOfDayPalette } from '../systems/simsLifeSystem.js';
 import { outfitColor } from '../systems/outfitSystem.js';
+import { LANDMARK_SPRITE, LANDMARK_BUILDING, SPRITE_ICON } from '../art/atlas.js';
+import { drawFurniture } from '../art/furniture.js';
+import { drawBuilding } from '../art/buildings.js';
 import { getPlayerParlorPose } from '../systems/massageParlorSystem.js';
 import {
   paintSkyline,
@@ -109,6 +112,8 @@ function roundRect(ctx, x, y, w, h, r) {
 }
 
 function landmarkIcon(item) {
+  const key = LANDMARK_BUILDING[item.id] || LANDMARK_SPRITE[item.id];
+  if (key && SPRITE_ICON[key]) return SPRITE_ICON[key];
   const id = item.id;
   if (id.includes('bed') || id.includes('hotel_bed')) return '🛏️';
   if (id.includes('tv')) return '📺';
@@ -139,6 +144,20 @@ function drawLandmarkProp(ctx, item, itemY) {
   const x = item.x;
   const w = item.width;
   const h = item.height;
+  const bKey = LANDMARK_BUILDING[id];
+  if (bKey) {
+    drawBuilding(ctx, bKey, x, FLOOR_Y, w, h, item.name);
+    return;
+  }
+  const fKey = LANDMARK_SPRITE[id];
+  if (fKey) {
+    drawFurniture(ctx, fKey, x, FLOOR_Y, w, h);
+    return;
+  }
+  if (id.includes('cat')) {
+    drawCat(ctx, x + w / 2, FLOOR_Y, { shirt: '#fb923c', hair: '#9a3412', bob: 0 });
+    return;
+  }
   if (id.includes('bed')) {
     ctx.fillStyle = '#44403c';
     ctx.fillRect(x, FLOOR_Y - 18, w, 10);
