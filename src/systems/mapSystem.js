@@ -93,7 +93,10 @@ export const TRAVEL = {
   enterStore: () => travelTo('storeIn', 160, '门铃叮一声。关东煮在咕嘟。'),
   enterSoy: () => travelTo('soyIn', 160, '豆浆窗口热气扑脸。油条还在出锅。'),
   enterMarket: () => travelTo('mall', 180, '扶梯下去是生鲜。托盘还是湿的。', 0),
-  enterHome: () => travelTo('home', 200, '防盗门一关，消毒水味淡了，潮味上来了。'),
+  enterHome: () => {
+    travelTo('home', 200, '防盗门一关，消毒水味淡了，潮味上来了。');
+    import('./homeSystem.js').then((m) => m.onEnterHome());
+  },
   enterParlor: () => travelTo('parlorIn', 200, '艾草和红花油。林姐没抬头。'),
   enterHotel: () => travelTo('hotel', 180, '前台只要现金。床单有折痕。'),
   enterKtv: () => travelTo('ktv', 180, '麦套没换。包厢灯是紫的。'),

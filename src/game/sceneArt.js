@@ -686,11 +686,62 @@ export function paintHome(ctx, w) {
   ctx.fillStyle = 'rgba(255,255,255,0.28)';
   ctx.fillRect(438, f1 - 104, 40, 18);
   ctx.fillStyle = '#155e75';
-  ctx.fillRect(308, f0 - 195, 86, 195);
-  ctx.fillStyle = 'rgba(103,232,249,0.22)';
-  ctx.fillRect(318, f0 - 175, 28, 70);
+  ctx.fillRect(292, f0 - 195, 190, 195);
+  ctx.fillStyle = 'rgba(103,232,249,0.18)';
+  ctx.fillRect(300, f0 - 175, 40, 70);
+  ctx.fillStyle = '#0e7490';
+  ctx.fillRect(292, f0 - 195, 190, 8);
+  ctx.fillStyle = '#e0f2fe';
+  ctx.font = 'bold 11px "Noto Sans SC"';
+  ctx.fillText('卫生间', 300, f0 - 178);
   ctx.fillStyle = '#44403c';
   ctx.fillRect(118, f0 - 64, 200, 58);
+  const h = gameState.home;
+  if ((h?.trash || 0) > 40) {
+    ctx.fillStyle = '#365314';
+    ctx.fillRect(668, f0 - 70, 48, 18);
+    ctx.fillStyle = '#4d7c0f';
+    ctx.fillRect(676, f0 - 52, 32, 40);
+    if (h.trash > 75) {
+      ctx.fillStyle = '#a3e635';
+      ctx.fillRect(680, f0 - 78, 10, 8);
+    }
+  }
+  if ((h?.litter || 0) > 50) {
+    ctx.fillStyle = 'rgba(168,162,158,0.45)';
+    ctx.beginPath();
+    ctx.ellipse(210, f0 - 6, 28, 8, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  if ((h?.drying || 0) > 0) {
+    ctx.strokeStyle = '#a8a29e';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(560, f1 - 120);
+    ctx.lineTo(680, f1 - 120);
+    ctx.stroke();
+    ctx.fillStyle = '#1e3a8a';
+    ctx.fillRect(572, f1 - 118, 18, 32);
+    ctx.fillStyle = '#9f1239';
+    ctx.fillRect(598, f1 - 118, 16, 28);
+    ctx.fillStyle = 'rgba(125,211,252,0.5)';
+    ctx.fillRect(578, f1 - 84, 3, 12);
+    ctx.fillRect(604, f1 - 88, 3, 10);
+  }
+  const dirt = h?.dirt || 0;
+  const damp = h?.damp || 0;
+  if (dirt > 25) {
+    ctx.fillStyle = `rgba(120,53,15,${Math.min(0.28, dirt / 280)})`;
+    ctx.fillRect(16, f0 - 40, 760, 40);
+  }
+  if (damp > 40) {
+    ctx.fillStyle = `rgba(14,116,144,${Math.min(0.22, damp / 320)})`;
+    ctx.fillRect(16, f1 - 80, 760, 50);
+  }
+  if (gameState.home && !gameState.home.power) {
+    ctx.fillStyle = 'rgba(0,0,0,0.28)';
+    ctx.fillRect(0, f1 - 170, w, f0 - f1 + 310);
+  }
 }
 
 export function paintParlorRoom(ctx, w) {

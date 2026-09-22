@@ -131,7 +131,12 @@ function landmarkIcon(item) {
   if (id.includes('store') || id.includes('convenience') || id.includes('market')) return '🏪';
   if (id.includes('club') || id.includes('ktv') || id.includes('dj') || id.includes('dance') || id.includes('bar')) return '🎵';
   if (id.includes('parlor') || id.includes('massage')) return '💆';
-  if (id.includes('cat')) return '🐱';
+  if (id.includes('litter') || id.includes('catbowl') || id.includes('cat')) return '🐱';
+  if (id.includes('trash')) return '🗑️';
+  if (id.includes('hanger')) return '👕';
+  if (id.includes('thermo') || id.includes('antigen')) return '🌡️';
+  if (id.includes('toilet')) return '🚽';
+  if (id.includes('sink')) return '🚰';
   if (id.includes('rack') || id.includes('box')) return '📦';
   if (id.includes('pcr') || id.includes('triage') || id.includes('hosp') || id.includes('hospital')) return '🏥';
   if (id.includes('atm')) return '🏧';

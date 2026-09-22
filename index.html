@@ -683,6 +683,91 @@
     </div>
   </div>
 
-  <script type="module" src="./src/main.js?v=20260922k"></script>
+  <div id="modalSleep" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-sky-500/40 rounded-2xl max-w-sm w-full p-4">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="font-bold text-sky-300">睡觉</h3>
+        <button id="btnCloseSleep" class="text-zinc-400 text-xl">×</button>
+      </div>
+      <p id="sleepHint" class="text-[11px] text-zinc-400 mb-3">阁楼床。潮不潮取决于你扫没扫。</p>
+      <div class="flex flex-col gap-2">
+        <button id="btnSleepNap" class="w-full text-left px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 hover:border-sky-400 text-sm"><b class="text-sky-200">午睡 2 小时</b><span class="block text-[11px] text-zinc-500">不够，但能撑过下午</span></button>
+        <button id="btnSleep8" class="w-full text-left px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 hover:border-sky-400 text-sm"><b class="text-sky-200">睡 8 小时</b><span class="block text-[11px] text-zinc-500">正常班。可能做梦</span></button>
+        <button id="btnSleepDawn" class="w-full text-left px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 hover:border-sky-400 text-sm"><b class="text-sky-200">睡到天亮</b><span class="block text-[11px] text-zinc-500">被业主群或喇叭叫醒</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalFridge" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-emerald-500/40 rounded-2xl max-w-sm w-full p-4">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="font-bold text-emerald-300">小冰箱</h3>
+        <button id="btnCloseFridge" class="text-zinc-400 text-xl">×</button>
+      </div>
+      <p id="fridgeMeta" class="text-[11px] text-zinc-400 mb-2">压缩机还在响。</p>
+      <div id="fridgeList" class="space-y-2 max-h-[50vh] overflow-y-auto"></div>
+    </div>
+  </div>
+
+  <div id="modalDesk" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-violet-500/40 rounded-2xl max-w-sm w-full p-4">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="font-bold text-violet-300">书桌</h3>
+        <button id="btnCloseDesk" class="text-zinc-400 text-xl">×</button>
+      </div>
+      <p id="deskMeta" class="text-[11px] text-zinc-400 mb-3">旧猫还在闪。</p>
+      <div class="flex flex-col gap-2">
+        <button id="btnDeskChat" class="w-full text-left px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 hover:border-violet-400 text-sm"><b class="text-violet-200">刷业主群</b><span class="block text-[11px] text-zinc-500">补社交，看通告</span></button>
+        <button id="btnDeskCall" class="w-full text-left px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 hover:border-violet-400 text-sm"><b class="text-violet-200">视频通话</b><span class="block text-[11px] text-zinc-500">网卡，但有人</span></button>
+        <button id="btnDeskGig" class="w-full text-left px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 hover:border-violet-400 text-sm"><b class="text-violet-200">接私活</b><span class="block text-[11px] text-zinc-500">改表格换钱，腰会响</span></button>
+        <button id="btnDeskUp" class="w-full text-left px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 hover:border-amber-400 text-sm"><b class="text-amber-200">闲鱼升级房间</b><span class="block text-[11px] text-zinc-500">床垫、窗帘、猫碗、路由</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalHomeUp" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-amber-500/40 rounded-2xl max-w-sm w-full p-4">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="font-bold text-amber-300">房间升级</h3>
+        <button id="btnCloseHomeUp" class="text-zinc-400 text-xl">×</button>
+      </div>
+      <p class="text-[11px] text-zinc-400 mb-2">不造新房间。把这间 loft 收拾得能住。</p>
+      <div id="homeUpList" class="space-y-2 max-h-[50vh] overflow-y-auto"></div>
+    </div>
+  </div>
+
+  <div id="modalBath" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-cyan-500/40 rounded-2xl max-w-sm w-full p-4">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="font-bold text-cyan-300">卫生间</h3>
+        <button id="btnCloseBath" class="text-zinc-400 text-xl">×</button>
+      </div>
+      <p id="bathMeta" class="text-[11px] text-zinc-400 mb-3">花洒、洗手台、马桶挤在一间。门关不严。</p>
+      <div class="flex flex-col gap-2">
+        <button id="btnWashHands" class="w-full text-left px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 hover:border-cyan-400 text-sm"><b class="text-cyan-200">洗手</b><span class="block text-[11px] text-zinc-500">六步洗手法。防疫日常</span></button>
+        <button id="btnWashFace" class="w-full text-left px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 hover:border-cyan-400 text-sm"><b class="text-cyan-200">洗脸</b><span class="block text-[11px] text-zinc-500">冷水拍醒。勒痕还在</span></button>
+        <button id="btnBathShower" class="w-full text-left px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 hover:border-cyan-400 text-sm"><b class="text-cyan-200">洗澡</b><span class="block text-[11px] text-zinc-500">热水。停水就免谈</span></button>
+        <button id="btnWashClothes" class="w-full text-left px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 hover:border-cyan-400 text-sm"><b class="text-cyan-200">手洗衣物</b><span class="block text-[11px] text-zinc-500">挂在花洒上晾</span></button>
+        <button id="btnLookMirror" class="w-full text-left px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 hover:border-cyan-400 text-sm"><b class="text-cyan-200">照镜子</b><span class="block text-[11px] text-zinc-500">看自己还像不像自己</span></button>
+        <button id="btnPlunge" class="w-full text-left px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 hover:border-amber-400 text-sm"><b class="text-amber-200">通马桶</b><span class="block text-[11px] text-zinc-500">堵了才用。会脏</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalMedkit" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-rose-500/40 rounded-2xl max-w-sm w-full p-4">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="font-bold text-rose-300">额温枪 / 抗原</h3>
+        <button id="btnCloseMedkit" class="text-zinc-400 text-xl">×</button>
+      </div>
+      <p id="medkitMeta" class="text-[11px] text-zinc-400 mb-3">抽屉里还有说明书。过期日用笔改过。</p>
+      <div class="flex flex-col gap-2">
+        <button id="btnTakeTemp" class="w-full text-left px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 hover:border-rose-400 text-sm"><b class="text-rose-200">量额温</b><span class="block text-[11px] text-zinc-500">嘀一声。看红绿</span></button>
+        <button id="btnAntigen" class="w-full text-left px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 hover:border-rose-400 text-sm"><b class="text-rose-200">做抗原</b><span class="block text-[11px] text-zinc-500">捅鼻子。等 15 分钟</span></button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.js?v=20260922q"></script>
 </body>
 </html>

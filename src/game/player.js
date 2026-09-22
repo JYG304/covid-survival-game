@@ -138,7 +138,7 @@ export function tryInteract() {
  */
 export function startActivity(landmark) {
   if (!landmark) return;
-  if (landmark.action === 'openElevator') {
+  if (landmark.action === 'openElevator' || landmark.action === 'openFridge' || landmark.action === 'openDesk' || landmark.action === 'openSleep' || landmark.action === 'openKitchen' || landmark.action === 'openWardrobe' || landmark.action === 'openBath' || landmark.action === 'openMedkit') {
     completeActivity({ landmark });
     return;
   }
@@ -168,8 +168,8 @@ export function completeActivity(action) {
   const overlay = document.getElementById('actionProgressOverlay');
   if (overlay) overlay.classList.add('hidden');
 
-  // 推进时间
-  advanceTime(action.landmark.timeCostMinutes);
+  const skipTime = ['openElevator', 'openFridge', 'openDesk', 'openSleep', 'openKitchen', 'openWardrobe', 'openPhone', 'openBath', 'useToilet', 'openMedkit', 'useHanger'].includes(action.landmark.action);
+  if (!skipTime) advanceTime(action.landmark.timeCostMinutes || 0);
 
   // 执行动作
   const handler = actionHandlers[action.landmark.action];

@@ -218,6 +218,10 @@ function endGroceryRush(success) {
       gameState.money += prize.money;
       gameState.rawFood += prize.rawFood;
       gameState.instantFood += prize.instantFood;
+      import('./homeSystem.js').then((m) => {
+        for (let i = 0; i < (prize.rawFood || 0); i++) m.addFridgeItem('raw', '抢菜生鲜', 28);
+        for (let i = 0; i < (prize.instantFood || 0); i++) m.addFridgeItem('instant', '抢菜便当', 72);
+      });
 
       audio.playCash();
       showToast(prize.message, 'success');

@@ -15,24 +15,28 @@ import { sceneActions } from './sceneActionSystem.js';
  * 执行睡觉动作
  */
 export function sleep(player) {
-  gameState.energy = Math.min(100, gameState.energy + 45);
-  if (gameState.bodyTemp > 37.2) {
-    gameState.bodyTemp = Math.max(36.6, gameState.bodyTemp - 0.3);
+  if (gameState.mapId === 'home') {
+    import('./homeSystem.js').then((m) => m.openSleepMenu());
+    return;
   }
+  gameState.energy = Math.min(100, gameState.energy + 45);
+  if (gameState.bodyTemp > 37.2) gameState.bodyTemp = Math.max(36.6, gameState.bodyTemp - 0.3);
   applyLifeAction('sleep', player);
   audio.playTone(330, 0.4, 'sine', 0.1);
-  spawnFloatingText('+45 精力 · 缓解发热', player.x, player.y - 70, '#38bdf8');
-  showToast('钻进暖烘烘的被窝小睡了2个小时，体力有所恢复。', 'success');
+  spawnFloatingText('+45 精力', player.x, player.y - 70, '#38bdf8');
+  showToast('硬板床也能睡。窗帘拉不严。', 'success');
 }
 
 export function takeShower(player) {
-  applyLifeAction('shower', player);
-  if (gameState.bodyTemp > 37.4) {
-    gameState.bodyTemp = Math.max(36.6, gameState.bodyTemp - 0.15);
+  if (gameState.mapId === 'home') {
+    import('./homeSystem.js').then((m) => m.useShower(player));
+    return;
   }
+  applyLifeAction('shower', player);
+  if (gameState.bodyTemp > 37.4) gameState.bodyTemp = Math.max(36.6, gameState.bodyTemp - 0.15);
   audio.playTone(520, 0.35, 'sine', 0.08);
-  spawnFloatingText('神清气爽', player.x, player.y - 70, '#22d3ee');
-  showToast('热水冲掉了一天的消毒水和地铁味，镜子里的人稍微像自己了。', 'success');
+  spawnFloatingText('冲一下', player.x, player.y - 70, '#22d3ee');
+  showToast('旅馆的水压很小。还是热的。', 'success');
 }
 
 /**
@@ -150,10 +154,14 @@ export function buyFood(player) {
   gameState.money -= 35;
   gameState.instantFood += 1;
   gameState.rawFood += 1;
+  import('./homeSystem.js').then((m) => {
+    m.addFridgeItem('instant', '自热便当', 96);
+    m.addFridgeItem('raw', '鸡蛋', 36);
+  });
   audio.playCash();
   spawnFloatingText('+1 便当 +1 生鲜蛋', player.x, player.y - 70, '#f59e0b');
   applyLifeAction('buyFood', player);
-  showToast('采购了便当与鸡蛋塞进背包。', 'success');
+  showToast('采购了便当与鸡蛋，塞进冰箱。', 'success');
 }
 
 /**

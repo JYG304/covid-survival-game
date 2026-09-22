@@ -343,17 +343,25 @@ export const MAPS = {
     id: 'home', name: 'loft 出租屋', tag: '1F起居厨卫 · 2F阁楼', width: 1020, theme: 'home', district: 'living',
     floors: { count: 2, names: ['1F 起居厨卫', '2F 阁楼卧室'], stair0: 780, stair1: 960 },
     landmarks: [
-      L('home_exit', '防盗门', '1F', 30, 64, 150, '下楼到小区', 3, 0.4, 'enterLiving', { floor: 0 }),
+      L('home_exit', '防盗门', '1F', 30, 64, 150, '下楼到小区', 3, 0.4, 'leaveHome', { floor: 0 }),
       L('home_stove', '开放厨房', '1F', 120, 100, 90, '做饭', 5, 0.6, 'openKitchen', { floor: 0 }),
-      L('home_fridge', '小冰箱', '1F', 230, 56, 105, '看剩菜', 3, 0.4, 'mallAtm', { floor: 0 }),
-      L('home_shower', '卫生间', '1F', 310, 80, 125, '洗澡', 25, 1.5, 'takeShower', { floor: 0 }),
-      L('home_sofa', '布沙发', '1F', 430, 140, 65, '坐下歇一会', 10, 1.0, 'clubVip', { floor: 0 }),
-      L('home_tv', '电视柜', '1F', 590, 80, 70, '看新闻', 15, 1.2, 'watchNews', { floor: 0 }),
+      L('home_fridge', '小冰箱', '1F', 230, 56, 105, '看剩菜/过期', 1, 0.2, 'openFridge', { floor: 0 }),
+      L('home_toilet', '马桶', '1F', 300, 54, 70, '上厕所', 4, 0.4, 'useToilet', { floor: 0 }),
+      L('home_sink', '洗手台', '1F', 360, 56, 80, '洗手 / 洗脸 / 洗衣', 1, 0.2, 'openBath', { floor: 0 }),
+      L('home_shower', '花洒', '1F', 420, 56, 125, '洗澡', 25, 1.5, 'homeShower', { floor: 0 }),
+      L('home_sofa', '布沙发', '1F', 500, 120, 65, '坐下歇一会', 12, 1.0, 'sitSofa', { floor: 0 }),
+      L('home_tv', '电视柜', '1F', 600, 70, 70, '看新闻/综艺', 15, 1.2, 'watchHomeTv', { floor: 0 }),
+      L('home_broom', '拖把', '1F', 750, 36, 90, '打扫房间', 20, 1.4, 'cleanRoom', { floor: 0 }),
       L('home_stairs', '楼梯', '右侧', 780, 160, 250, '走上阁楼', 1, 0.2, 'openElevator', { floor: 0 }),
-      L('home_bed', '阁楼床', '2F', 50, 150, 65, '睡觉', 120, 2.0, 'sleep', { floor: 1 }),
+      L('home_bed', '阁楼床', '2F', 50, 150, 65, '睡觉', 1, 0.2, 'openSleep', { floor: 1 }),
       L('home_closet', '衣柜', '2F', 220, 70, 110, '换衣服', 5, 0.6, 'openWardrobe', { floor: 1 }),
-      L('home_desk', '书桌', '2F', 320, 100, 80, '业主群/私活', 5, 0.6, 'openPhone', { floor: 1 }),
-      L('home_window', '天窗', '2F', 460, 90, 70, '看楼下', 8, 0.9, 'riverPeek', { floor: 1 })
+      L('home_desk', '书桌', '2F', 320, 100, 80, '业主群/私活/视频', 1, 0.2, 'openDesk', { floor: 1 }),
+      L('home_window', '天窗', '2F', 460, 90, 70, '看楼下封控', 8, 0.9, 'lookSkylight', { floor: 1 }),
+      L('home_hanger', '衣架', '2F', 580, 90, 110, '晾衣服', 1, 0.2, 'useHanger', { floor: 1 }),
+      L('home_thermo', '额温枪', '2F', 690, 50, 70, '量体温 / 做抗原', 1, 0.2, 'openMedkit', { floor: 1 }),
+      L('home_catbowl', '猫碗', '1F', 80, 48, 40, '喂猫 / rua', 5, 0.5, 'feedCat', { floor: 0 }),
+      L('home_litter', '砂盆', '1F', 175, 70, 28, '铲猫砂', 8, 0.8, 'scoopLitter', { floor: 0 }),
+      L('home_trash', '垃圾袋', '1F', 690, 54, 62, '倒垃圾', 15, 1.0, 'takeTrash', { floor: 0 })
     ],
     npcs: [
       N({ id: 'home_cat', name: '阿花', role: '猫', job: 'cat', skin: '#fb923c', hair: '#9a3412', shirt: '#fdba74', pants: '#7c2d12', x: 480, homeMin: 160, homeMax: 720, speed: 0.28, dir: 1, talk: ['咕噜。'], floor: 0 })

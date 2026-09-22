@@ -3,12 +3,13 @@ import { showToast, spawnFloatingText } from '../ui/toast.js';
 import { applyStatEvent } from './statsSystem.js';
 import { flagQuest } from './questSystem.js';
 
-export const NEED_KEYS = ['hunger', 'energy', 'hygiene', 'social', 'fun', 'comfort'];
+export const NEED_KEYS = ['hunger', 'energy', 'hygiene', 'bladder', 'social', 'fun', 'comfort'];
 
 export const NEED_META = {
   hunger: { label: '饥饿', icon: '🍔', color: '#f59e0b' },
   energy: { label: '精力', icon: '⚡', color: '#38bdf8' },
   hygiene: { label: '卫生', icon: '🚿', color: '#22d3ee' },
+  bladder: { label: '排泄', icon: '🚽', color: '#94a3b8' },
   social: { label: '社交', icon: '💬', color: '#a78bfa' },
   fun: { label: '娱乐', icon: '🎮', color: '#fb7185' },
   comfort: { label: '舒适', icon: '🛋️', color: '#34d399' }
@@ -22,13 +23,19 @@ const WANT_POOL = [
   { id: 'cat', text: '想去rua阿花', check: () => true, reward: { fun: 10, social: 4 } },
   { id: 'work', text: '想准时打卡不扣薪', check: (s) => !s.hasWorkedToday && s.hour < 10, reward: { money: 40, sanity: 4 } },
   { id: 'news', text: '想看一眼早间新闻', check: (s) => s.hour < 12, reward: { fun: 4 } },
-  { id: 'sleep', text: '眼皮打架，想睡觉', check: (s) => s.energy < 45 || s.hour >= 22, reward: { energy: 8, comfort: 6 } }
+  { id: 'sleep', text: '眼皮打架，想睡觉', check: (s) => s.energy < 45 || s.hour >= 22, reward: { energy: 8, comfort: 6 } },
+  { id: 'clean', text: '地板粘脚，想拖一下', check: () => (gameState.home?.dirt || 0) > 40, reward: { comfort: 8, hygiene: 4 } },
+  { id: 'feedcat', text: '阿花的碗空了', check: () => (gameState.home?.catHunger || 0) > 50, reward: { fun: 8, social: 4 } },
+  { id: 'toilet', text: '内急，想上厕所', check: (s) => s.bladder < 45, reward: { comfort: 8 } },
+  { id: 'trash', text: '垃圾袋要满了', check: () => (gameState.home?.trash || 0) > 55, reward: { hygiene: 6, comfort: 4 } },
+  { id: 'litter', text: '砂盆该铲了', check: () => (gameState.home?.litter || 0) > 50, reward: { hygiene: 4 } }
 ];
 
 export function initSimsLife() {
   if (!gameState.sims) {
     gameState.sims = {
       hygiene: 72,
+      bladder: 78,
       social: 55,
       fun: 48,
       comfort: 60,
@@ -40,6 +47,7 @@ export function initSimsLife() {
       skills: { cooking: 1, fitness: 1, charisma: 1 }
     };
   }
+  if (gameState.sims.bladder == null) gameState.sims.bladder = 78;
   refreshWants(true);
   think('新的一天，先活下去。', 4000);
 }
@@ -64,7 +72,7 @@ export function addNeed(key, delta) {
 }
 
 export function getMoodScore() {
-  const weights = { hunger: 1.1, energy: 1, hygiene: 0.8, social: 0.9, fun: 1, comfort: 0.7, sanity: 1.2 };
+  const weights = { hunger: 1.1, energy: 1, hygiene: 0.8, bladder: 0.9, social: 0.9, fun: 1, comfort: 0.7, sanity: 1.2 };
   let sum = 0;
   let w = 0;
   for (const [k, wt] of Object.entries(weights)) {
@@ -112,6 +120,7 @@ export function getThought() {
 export function tickSimsHour() {
   if (!gameState.sims) return;
   addNeed('hygiene', -2.2);
+  addNeed('bladder', -3.6);
   addNeed('social', -1.6);
   addNeed('fun', -1.8);
   addNeed('comfort', gameState.hour >= 22 || gameState.hour < 6 ? -0.4 : -1.1);
@@ -135,6 +144,19 @@ export function tickSimsHour() {
   if (getNeed('hunger') < 20) {
     addMoodlet('starving', '胃在抗议', -12, 2, '😩');
     think('好饿……便利店还开吗。');
+  }
+  if (getNeed('bladder') < 22) {
+    addMoodlet('pee', '内急', -10, 2, '🚽');
+    addNeed('comfort', -2);
+    think('腿在抖。家里马桶就几步。');
+  }
+  if (getNeed('bladder') < 6) {
+    addNeed('hygiene', -8);
+    addNeed('comfort', -6);
+    if (gameState.home) gameState.home.dirt = Math.min(100, gameState.home.dirt + 12);
+    addMoodlet('accident', '没赶上', -16, 6, '💦');
+    think('……完了。');
+    setNeed('bladder', 18);
   }
   if (getNeed('energy') < 18) {
     addMoodlet('exhausted', '眼皮在打架', -8, 2, '😴');
@@ -222,6 +244,7 @@ export function applyLifeAction(type, player) {
       applyStatEvent('eat');
       flagQuest('ateHot');
       addNeed('hunger', 40);
+      addNeed('bladder', -12);
       addNeed('fun', 6);
       addNeed('comfort', 8);
       if (gameState.sims) gameState.sims.skills.cooking = Math.min(10, gameState.sims.skills.cooking + 0.15);
@@ -230,6 +253,7 @@ export function applyLifeAction(type, player) {
       break;
     case 'eatInstant':
       addNeed('hunger', 28);
+      addNeed('bladder', -10);
       addNeed('fun', -2);
       addNeed('comfort', 2);
       think('自热便当……也算活着。');
@@ -240,7 +264,18 @@ export function applyLifeAction(type, player) {
       addNeed('sanity', 10);
       addMoodlet('cat', '被阿花治愈了', 14, 10, '🐱');
       completeWant('cat', x, y);
+      completeWant('feedcat', x, y);
       think('咕噜咕噜。');
+      break;
+    case 'clean':
+      completeWant('clean', x, y);
+      think('垃圾袋满了。');
+      break;
+    case 'toilet':
+      addNeed('bladder', 70);
+      addNeed('comfort', 10);
+      completeWant('toilet', x, y);
+      think('冲水声在空楼里特别响。');
       break;
     case 'social':
       applyStatEvent('social');

@@ -85,6 +85,7 @@ import { initStats, tickStatsHour } from './statsSystem.js';
 import { initQuests, onQuestNewDay } from './questSystem.js';
 import { bindDialogueModal } from './npcInteractSystem.js';
 import { initOutfit, renderOutfitShop, openGear } from './outfitSystem.js';
+import { initHome, tickHomeHour, tickHomeDay, bindHomeModals, takeFridgeKind } from './homeSystem.js';
 
 /**
  * 初始化所有深度玩法系统
@@ -100,6 +101,7 @@ export function initDeepGameplaySystems() {
   spawnMapNpcs();
   initMassageParlor();
   initOutfit();
+  initHome();
 
   // 初始化游戏状态的扩展字段
   if (!gameState.deepGameplay) {
@@ -308,6 +310,7 @@ function bindDeepGameplayEvents() {
   document.getElementById('btnCookGingerTea')?.addEventListener('click', () => cookMeal('tea'));
   document.getElementById('btnEatInstantMeal')?.addEventListener('click', () => cookMeal('instant'));
   document.getElementById('btnCloseParlor')?.addEventListener('click', closeParlorMenu);
+  bindHomeModals();
   bindMapPickModal();
   bindDialogueModal();
   document.getElementById('btnCloseMall')?.addEventListener('click', () => document.getElementById('modalMall')?.classList.add('hidden'));
@@ -323,20 +326,23 @@ function bindDeepGameplayEvents() {
 
 function cookMeal(kind) {
   const { player } = window;
+  if (!gameState.home?.power && kind !== 'tea') {
+    showToast('没电。灶打不着。', 'error');
+    return;
+  }
   if (kind === 'noodles') {
-    if (gameState.rawFood < 1) { showToast('鲜食不够，煮不了面。', 'error'); return; }
-    gameState.rawFood -= 1;
+    if (!takeFridgeKind('raw')) { showToast('鲜食不够，煮不了面。', 'error'); return; }
     gameState.hunger = Math.min(100, gameState.hunger + 35);
     gameState.sanity = Math.min(100, gameState.sanity + 10);
     applyLifeAction('cook', player);
     showToast('热汤面下肚，出租屋里终于有了烟火气。', 'success');
   } else if (kind === 'tea') {
+    if (!gameState.home?.water) { showToast('没水熬不了姜汤。', 'error'); return; }
     gameState.bodyTemp = Math.max(36.6, gameState.bodyTemp - 0.4);
     applyLifeAction('cook', player);
     showToast('姜汤喝完，额头没那么烫了。', 'success');
   } else {
-    if (gameState.instantFood < 1) { showToast('便当吃完了。', 'error'); return; }
-    gameState.instantFood -= 1;
+    if (!takeFridgeKind('instant')) { showToast('便当吃完了。', 'error'); return; }
     gameState.hunger = Math.min(100, gameState.hunger + 55);
     applyLifeAction('eatInstant', player);
     showToast('自热米饭滋滋响，也算一顿正经饭。', 'success');
@@ -401,6 +407,7 @@ export function onNewDay() {
 
   // 邻居事件触发检查
   dailyNeighborCheck();
+  tickHomeDay();
 
   // 生成今日新闻（会在玩家看电视时显示）
   // 新闻会在 watchMorningNews 中生成和应用
@@ -421,6 +428,7 @@ export function onHourTick() {
   // 心理崩溃检查
   checkMentalBreakdown();
   tickStatsHour();
+  tickHomeHour();
 }
 
 /**

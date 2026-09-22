@@ -232,7 +232,13 @@ function updateSimsPanel() {
     qEl.innerHTML = qs.length ? qs.map((q) => `<li>${q.done ? '✅' : '☐'} ${q.title}</li>`).join('') : '<li>暂无</li>';
   }
   const st = document.getElementById('statsMini');
-  if (st) st.innerText = getStatsLines().slice(0, 6).join(' · ');
+  if (st) {
+    const h = gameState.home;
+    const home = (gameState.mapId === 'home' && h)
+      ? `脏乱 ${Math.round(h.dirt)} · 潮 ${Math.round(h.damp)} · ${h.water ? '有水' : '停水'} · ${h.power ? '有电' : '停电'} · 阿花饿 ${Math.round(h.catHunger)}`
+      : '';
+    st.innerText = [home, getStatsLines().slice(0, 4).join(' · ')].filter(Boolean).join('\n');
+  }
 }
 
 export function updateClockButtons() {

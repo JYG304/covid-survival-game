@@ -13,6 +13,8 @@ export const CATALOG = [
   { id: 'pants_dark', slot: 'pants', name: '深灰西裤', price: 0, color: '#111827' },
   { id: 'pants_jean', slot: 'pants', name: '洗白牛仔裤', price: 99, color: '#1e3a5f' },
   { id: 'pants_sport', slot: 'pants', name: '运动裤', price: 79, color: '#365314' },
+  { id: 'shirt_home', slot: 'shirt', name: '家居短袖', price: 0, color: '#78716c' },
+  { id: 'pants_home', slot: 'pants', name: '睡裤', price: 0, color: '#44403c' },
   { id: 'hair_black', slot: 'hair', name: '短黑发', price: 0, color: '#1e293b' },
   { id: 'hair_brown', slot: 'hair', name: '染棕', price: 68, color: '#78350f' },
   { id: 'hair_gold', slot: 'hair', name: '漂金（夜店）', price: 150, color: '#facc15' },
@@ -29,8 +31,12 @@ export function initOutfit() {
       shirt: 'shirt_blue',
       pants: 'pants_dark',
       hair: 'hair_black',
-      owned: ['shirt_blue', 'pants_dark', 'hair_black', 'mask_n95', 'mask_off', 'gender_m', 'gender_f']
+      owned: ['shirt_blue', 'pants_dark', 'hair_black', 'mask_n95', 'mask_off', 'gender_m', 'gender_f', 'shirt_home', 'pants_home']
     };
+  }
+  const extra = ['shirt_home', 'pants_home'];
+  for (const id of extra) {
+    if (!gameState.outfit.owned.includes(id)) gameState.outfit.owned.push(id);
   }
 }
 

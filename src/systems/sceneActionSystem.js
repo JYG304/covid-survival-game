@@ -288,6 +288,66 @@ export const sceneActions = {
   openWardrobe() {
     import('./outfitSystem.js').then((m) => m.openGear());
   },
+  leaveHome() {
+    import('./homeSystem.js').then((m) => {
+      m.onLeaveHome();
+      TRAVEL.enterLiving();
+    });
+  },
+  openKitchen() {
+    import('./homeSystem.js').then((m) => m.openKitchen());
+  },
+  openFridge() {
+    import('./homeSystem.js').then((m) => m.openFridge());
+  },
+  sitSofa(player) {
+    import('./homeSystem.js').then((m) => m.sitSofa(player));
+  },
+  watchHomeTv(player) {
+    import('./homeSystem.js').then((m) => m.watchHomeTv(player));
+  },
+  lookSkylight(player) {
+    import('./homeSystem.js').then((m) => m.lookSkylight(player));
+  },
+  openDesk() {
+    import('./homeSystem.js').then((m) => m.openDesk());
+  },
+  openSleep() {
+    import('./homeSystem.js').then((m) => m.openSleepMenu());
+  },
+  cleanRoom(player) {
+    import('./homeSystem.js').then((m) => m.cleanRoom(player));
+  },
+  homeShower(player) {
+    import('./homeSystem.js').then((m) => m.useShower(player));
+  },
+  useToilet(player) {
+    import('./homeSystem.js').then((m) => m.useToilet(player));
+  },
+  openBath() {
+    import('./homeSystem.js').then((m) => m.openBath());
+  },
+  plungeToilet(player) {
+    import('./homeSystem.js').then((m) => m.plungeToilet(player));
+  },
+  takeTrash(player) {
+    import('./homeSystem.js').then((m) => m.takeTrash(player));
+  },
+  scoopLitter(player) {
+    import('./homeSystem.js').then((m) => m.scoopLitter(player));
+  },
+  useHanger(player) {
+    import('./homeSystem.js').then((m) => m.useHanger(player));
+  },
+  openMedkit() {
+    import('./homeSystem.js').then((m) => m.openMedkit());
+  },
+  feedCat(player) {
+    import('./homeSystem.js').then((m) => m.feedCat(player));
+  },
+  petHomeCat(player) {
+    import('./homeSystem.js').then((m) => m.petHomeCat(player));
+  },
   mallEat(player) {
     if (gameState.money < 28) { showToast('盖浇饭 ¥28，不够。', 'error'); return; }
     gameState.money -= 28;

@@ -178,8 +178,18 @@ function completeGroupBuy(success) {
     gameState.money += gameState.activeGroupBuy.deposit; // 返还垫资
 
     // 发放奖励
-    if (pkg.rewards.rawFood) gameState.rawFood += pkg.rewards.rawFood;
-    if (pkg.rewards.instantFood) gameState.instantFood += pkg.rewards.instantFood;
+    if (pkg.rewards.rawFood) {
+      gameState.rawFood += pkg.rewards.rawFood;
+      import('./homeSystem.js').then((m) => {
+        for (let i = 0; i < pkg.rewards.rawFood; i++) m.addFridgeItem('raw', '团购青菜', 30);
+      });
+    }
+    if (pkg.rewards.instantFood) {
+      gameState.instantFood += pkg.rewards.instantFood;
+      import('./homeSystem.js').then((m) => {
+        for (let i = 0; i < pkg.rewards.instantFood; i++) m.addFridgeItem('instant', '团购便当', 80);
+      });
+    }
     if (pkg.rewards.antigenKits) gameState.antigenKits += pkg.rewards.antigenKits;
     if (pkg.rewards.pillsCount) gameState.pillsCount += pkg.rewards.pillsCount;
     if (pkg.rewards.sanity) gameState.sanity = Math.min(100, gameState.sanity + pkg.rewards.sanity);
@@ -355,6 +365,9 @@ export function checkContactlessRack() {
   if (Math.random() < benefits.carePackageChance) {
     const amount = benefits.prioritySupply ? 3 : 2;
     gameState.rawFood += amount;
+    import('./homeSystem.js').then((m) => {
+      for (let i = 0; i < amount; i++) m.addFridgeItem('raw', '爱心蔬菜', 24);
+    });
 
     audio.playCash();
     showToast(`📦 在无接触货架领到了 ${amount} 份爱心蔬菜包！${benefits.prioritySupply ? '（高声望优先配给）' : ''}`, 'success');
@@ -385,6 +398,10 @@ export function emergencyHelp(type) {
     case 'food':
       if (rep >= 30) {
         gameState.rawFood += 2;
+        import('./homeSystem.js').then((m) => {
+          m.addFridgeItem('raw', '邻居鸡蛋', 30);
+          m.addFridgeItem('raw', '邻居青菜', 24);
+        });
         gameState.reputation -= 10;
         showToast('🤝 邻居送来了 2 份应急食材，声望 -10', 'success');
         return true;
